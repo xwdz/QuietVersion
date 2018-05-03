@@ -18,16 +18,16 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         XCheck.getInstance(this)
-                .GET("http://acj3.pc6.com/pc6_soure/2018-4/com.tencent.mm_1280.apk")
+                .GET("http://www.baidu.com")
                 .setNetworkParserListener(new OnNetworkParserListener() {
                     @Override
                     public ApkResultSource parser(String response) {
                         ApkResultSource apkResultSource = new ApkResultSource();
-                        apkResultSource.apkName = "weixin.apk";
                         apkResultSource.level = 0;
+                        apkResultSource.appPackage = getPackageName();
                         apkResultSource.fileSize = 102121;
                         apkResultSource.note = "this is Test";
-                        apkResultSource.url = "http://acj3.pc6.com/pc6_soure/2018-4/com.tencent.mm_1280.apk";
+                        apkResultSource.url = "http://shouji.360tpcdn.com/180427/9050ba38f3138d9895f619389241c0c7/com.ss.android.article.video_250.apk";
                         return apkResultSource;
                     }
                 })

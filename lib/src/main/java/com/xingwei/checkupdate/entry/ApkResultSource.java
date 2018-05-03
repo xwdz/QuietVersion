@@ -36,6 +36,10 @@ public class ApkResultSource implements Parcelable {
 
     public String md5;
 
+    /**
+     * App包名
+     */
+    public String appPackage;
 
     /**
      * todo

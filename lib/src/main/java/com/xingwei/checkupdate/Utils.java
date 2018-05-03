@@ -10,9 +10,13 @@ public class Utils {
     /**
      * 获取MD5Apk名称
      */
-    public static String getApkFilename(String apkMd5, String apkUrl) throws Exception {
-        String sApkMd5 = (TextUtils.isEmpty(apkMd5) ? MD5.getString(apkUrl.getBytes("UTF-8")) : apkMd5);
-        return (sApkMd5 + ".apk");
+    public static String getApkFilename(String apkUrl) throws Exception {
+        String sApkMd5 = (TextUtils.isEmpty(apkUrl) ? MD5.getString(apkUrl.getBytes("UTF-8")) : apkUrl);
+        if (sApkMd5.endsWith(".apk")){
+            return sApkMd5;
+        }else{
+            return (sApkMd5 + ".apk");
+        }
     }
 
     /**

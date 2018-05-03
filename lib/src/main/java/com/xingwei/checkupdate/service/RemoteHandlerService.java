@@ -6,9 +6,10 @@ import android.content.Intent;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
-import com.xingwei.checkupdate.entry.ApkResultSource;
 import com.xingwei.checkupdate.LOG;
+import com.xingwei.checkupdate.Utils;
 import com.xingwei.checkupdate.callback.OnProgressListener;
+import com.xingwei.checkupdate.entry.ApkResultSource;
 
 import java.io.File;
 
@@ -24,6 +25,9 @@ public class RemoteHandlerService extends IntentService {
 
     private ApkInstall mApkInstall;
     private DownloadApkHelper mDownloadApkHelper;
+
+    private String mApkName;
+    private String mApkPath;
 
     public RemoteHandlerService() {
         super("RemoteHandlerService");
@@ -51,6 +55,7 @@ public class RemoteHandlerService extends IntentService {
 
         @Override
         public void onFinished(File file) {
+            LOG.i(TAG, "install done ...");
             mApkInstall.install(file.getAbsolutePath());
         }
     };
@@ -59,26 +64,69 @@ public class RemoteHandlerService extends IntentService {
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
         if (intent != null) {
+            LOG.i(TAG, "onHandleIntent ... ");
             ApkResultSource source = intent.getParcelableExtra(KEY);
             if (source != null) {
                 checkURLNotNull(source.url);
+                checkApkNameAndLocalIsNull(source.apkPath, source.apkName, source.url);
 
-                //配置下载信息
-                mDownloadApkHelper.setFileName(source.apkName);
-                mDownloadApkHelper.setOnProgressListener(mOnProgressListener);
+                //配置远程下载信息
                 mDownloadApkHelper.setUrl(source.url);
-                mDownloadApkHelper.setFilePath(source.apkPath);
-                LOG.i(TAG, source.toString());
+                mDownloadApkHelper.setFilePath(mApkPath);
+                mDownloadApkHelper.setOnProgressListener(mOnProgressListener);
+
+                //配置系统打开apk信息
+                LOG.i(TAG, "mApkName = " + mApkName);
+                LOG.i(TAG, "mApkPath = " + mApkPath);
 
                 //如果APk 本地存在则直接安装
-                if (mDownloadApkHelper.checkApkExits(source.apkPath)) {
-                    mApkInstall.install(source.apkPath);
+                if (mDownloadApkHelper.checkApkExits(mApkPath)) {
+                    LOG.i(TAG, "install local apk ...");
+                    mApkInstall.install(mApkPath);
+                    return;
                 }
 
-                mDownloadApkHelper.download();
+                try {
+                    mDownloadApkHelper.download();
+                    LOG.i(TAG, "start download apk ...");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
             }
 
         }
+    }
+
+    /**
+     * 给apkPath,apkName 配置默认属性
+     *
+     * @param apkPath 配置的apkPath
+     * @param apkName 配置的apkName
+     * @param url     配置的url
+     */
+    private void checkApkNameAndLocalIsNull(String apkPath, String apkName, String url) {
+        if (TextUtils.isEmpty(apkName)) {
+            try {
+                int index = url.lastIndexOf("/");
+                if (index != -1) {
+                    String name = url.substring(index + 1, url.length());
+                    mApkName = Utils.getApkFilename(name);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                mApkName = null;
+            }
+        } else {
+            mApkName = apkName;
+        }
+
+        if (TextUtils.isEmpty(apkPath)) {
+            mApkPath = Utils.getApkLocalUrl(this, mApkName);
+        } else {
+            mApkPath = apkPath;
+        }
+
     }
 
 
@@ -87,6 +135,7 @@ public class RemoteHandlerService extends IntentService {
             throw new NullPointerException("remote apk url cannot be null !");
         }
     }
+
 
     public static void start(Context context, ApkResultSource apkResultSource) {
         Intent intent = new Intent(context, RemoteHandlerService.class);

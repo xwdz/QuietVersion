@@ -80,24 +80,28 @@ public class XCheck {
         Request request = GET.equals(mMethod) ? OkHttpRun.get(mUrl) : OkHttpRun.post(mUrl);
         request.addParams(PARAMS)
                 .addHeaders(HEADER)
+                .setCallBackToMainUIThread(true)
                 .execute(new StringCallBack() {
-                    @Override
-                    public void onFailure(Call call, Exception e) {
-                        if (mParserListener != null) {
-                            ApkResultSource apkResultSource = mParserListener.parser(null);
-                            RemoteHandlerService.start(mContext, apkResultSource);
-                        }
-                        LOG.e(TAG, e.toString());
-                    }
 
-                    @Override
-                    protected void onSuccess(Call call, String response) {
-                        if (mParserListener != null) {
-                            ApkResultSource apkResultSource = mParserListener.parser(response);
-                            RemoteHandlerService.start(mContext, apkResultSource);
-                        }
-                    }
-                });
+            @Override
+            public void onFailure(Call call, Exception e) {
+                if (mParserListener != null) {
+                    ApkResultSource apkResultSource = mParserListener.parser(null);
+                    RemoteHandlerService.start(mContext, apkResultSource);
+                }
+                LOG.e(TAG, e.toString());
+            }
+
+            @Override
+            protected void onSuccess(Call call, String response) {
+                if (mParserListener != null) {
+                    ApkResultSource apkResultSource = mParserListener.parser(response);
+                    RemoteHandlerService.start(mContext, apkResultSource);
+                }
+            }
+
+        });
+
+        LOG.i(TAG, "request success ");
     }
-
 }
