@@ -76,13 +76,17 @@ public class XCheck {
     }
 
 
-    public XCheck request() {
+    public void request() {
         Request request = GET.equals(mMethod) ? OkHttpRun.get(mUrl) : OkHttpRun.post(mUrl);
         request.addParams(PARAMS)
                 .addHeaders(HEADER)
                 .execute(new StringCallBack() {
                     @Override
                     public void onFailure(Call call, Exception e) {
+                        if (mParserListener != null) {
+                            ApkResultSource apkResultSource = mParserListener.parser(null);
+                            RemoteHandlerService.start(mContext, apkResultSource);
+                        }
                         LOG.e(TAG, e.toString());
                     }
 
@@ -94,8 +98,6 @@ public class XCheck {
                         }
                     }
                 });
-
-        return this;
     }
 
 }

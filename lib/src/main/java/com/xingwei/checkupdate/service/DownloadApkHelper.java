@@ -31,7 +31,7 @@ public class DownloadApkHelper {
         this.mFilePath = filePath;
     }
 
-    public boolean checkApkExits(String url){
+    public boolean checkApkExits(String url) {
         return checkFileExists(url);
     }
 
@@ -42,7 +42,7 @@ public class DownloadApkHelper {
 
     public void download() {
         OkHttpRun.get(mApkUrl)
-                .execute(new FileCallBack(mFilePath, mFileName, 0) {
+                .execute(new FileCallBack(mFilePath, mFileName) {
                     @Override
                     protected void onProgressListener(float current, long total) {
                         if (mOnProgressListener != null) {
@@ -59,11 +59,6 @@ public class DownloadApkHelper {
 
                     @Override
                     protected void onStart() {
-
-                    }
-
-                    @Override
-                    protected void onPause() {
 
                     }
 

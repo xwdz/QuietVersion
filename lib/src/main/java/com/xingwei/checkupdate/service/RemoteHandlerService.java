@@ -24,7 +24,6 @@ public class RemoteHandlerService extends IntentService {
 
     private ApkInstall mApkInstall;
     private DownloadApkHelper mDownloadApkHelper;
-    private ApkResultSource mSource;
 
     public RemoteHandlerService() {
         super("RemoteHandlerService");
@@ -47,7 +46,7 @@ public class RemoteHandlerService extends IntentService {
 
         @Override
         public void onError(Exception e) {
-
+            LOG.e(TAG, "progress exception = " + e.toString());
         }
 
         @Override
@@ -60,21 +59,20 @@ public class RemoteHandlerService extends IntentService {
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
         if (intent != null) {
-            mSource = intent.getParcelableExtra(KEY);
-            if (mSource != null) {
-                checkURLNotNull(mSource.url);
+            ApkResultSource source = intent.getParcelableExtra(KEY);
+            if (source != null) {
+                checkURLNotNull(source.url);
 
                 //配置下载信息
-                mDownloadApkHelper.setFileName(mSource.apkName);
+                mDownloadApkHelper.setFileName(source.apkName);
                 mDownloadApkHelper.setOnProgressListener(mOnProgressListener);
-                mDownloadApkHelper.setUrl(mSource.url);
-                mDownloadApkHelper.setFilePath(mSource.apkPath);
-
-                LOG.i(TAG, mSource.toString());
+                mDownloadApkHelper.setUrl(source.url);
+                mDownloadApkHelper.setFilePath(source.apkPath);
+                LOG.i(TAG, source.toString());
 
                 //如果APk 本地存在则直接安装
-                if (mDownloadApkHelper.checkApkExits(mSource.apkPath)) {
-                    mApkInstall.install(mSource.apkPath);
+                if (mDownloadApkHelper.checkApkExits(source.apkPath)) {
+                    mApkInstall.install(source.apkPath);
                 }
 
                 mDownloadApkHelper.download();

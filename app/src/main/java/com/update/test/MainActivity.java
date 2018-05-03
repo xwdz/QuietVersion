@@ -3,10 +3,9 @@ package com.update.test;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import com.xingwei.checkupdate.LOG;
-import com.xingwei.checkupdate.entry.ApkResultSource;
 import com.xingwei.checkupdate.XCheck;
 import com.xingwei.checkupdate.callback.OnNetworkParserListener;
+import com.xingwei.checkupdate.entry.ApkResultSource;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -23,8 +22,12 @@ public class MainActivity extends AppCompatActivity {
                 .setNetworkParserListener(new OnNetworkParserListener() {
                     @Override
                     public ApkResultSource parser(String response) {
-                        LOG.i(TAG, "response = " + response);
                         ApkResultSource apkResultSource = new ApkResultSource();
+                        apkResultSource.apkName = "weixin.apk";
+                        apkResultSource.level = 0;
+                        apkResultSource.fileSize = 102121;
+                        apkResultSource.note = "this is Test";
+                        apkResultSource.url = "http://acj3.pc6.com/pc6_soure/2018-4/com.tencent.mm_1280.apk";
                         return apkResultSource;
                     }
                 })
