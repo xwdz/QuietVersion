@@ -1,7 +1,7 @@
-package com.xingwei.checkupdate.service;
+package com.xingwei.checkupdate.core;
 
 
-import com.xingwei.checkupdate.LOG;
+import com.xingwei.checkupdate.Utils;
 import com.xingwei.checkupdate.callback.OnProgressListener;
 import com.xwdz.okhttpgson.OkHttpRun;
 import com.xwdz.okhttpgson.callback.FileCallBack;
@@ -39,29 +39,26 @@ public class DownloadApkHelper {
         OkHttpRun.get(mApkUrl)
                 .setCallBackToMainUIThread(true)
                 .execute(new FileCallBack(createBrokenFile(mFilePath)) {
+
                     @Override
-                    protected void onProgressListener(float current, long total) {
+                    protected void onProgressListener(float percent, long currentLength, long total) {
                         if (mOnProgressListener != null) {
-                            mOnProgressListener.onTransfer(current, total);
+                            mOnProgressListener.onTransfer(percent, currentLength, total);
                         }
                     }
 
                     @Override
                     protected void onFinish(File file) {
-                        LOG.i(TAG, "finish");
                         if (mOnProgressListener != null) {
-                            try {
-                                completeBrokenFile(mFilePath);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
                             mOnProgressListener.onFinished(file);
                         }
                     }
 
                     @Override
                     protected void onStart() {
-
+                        if (mOnProgressListener != null) {
+                            mOnProgressListener.onStart();
+                        }
                     }
 
                     @Override
@@ -81,7 +78,7 @@ public class DownloadApkHelper {
     private boolean checkFileExists(String url) {
         // 如果文件存在，则直接安装
         if (new File(url).exists()) {
-            LOG.i(TAG, " apk(" + url + ") exist, install ...");
+            Utils.LOG.i(TAG, url + "exist, install ...");
             return true;
         } else {
             return false;
@@ -89,17 +86,10 @@ public class DownloadApkHelper {
     }
 
     /**
-     * 创建断点续传中间文件，格式为
-     * [localUrl].part
-     * 下载完毕后，将中间文件修改为最终文件，即localUrl
-     *
-     * @param localUrl 指定下载文件
-     * @return 断点续传中间文件，如果失败为NULL
-     * @throws Exception 异常定义
+     * 创建APK文件
      */
     private File createBrokenFile(String localUrl) throws Exception {
-        String brokenUrl = (localUrl + ".part");
-        File file = new File(brokenUrl);
+        File file = new File(localUrl);
 
         // 如果文件不存在，那么继续判断
         // 如果父目录不存在，首先创建父目录，然后再创建文件
@@ -117,31 +107,5 @@ public class DownloadApkHelper {
         }
 
         return file;
-    }
-
-    /**
-     * 成功完成文件下载后的处理过程
-     * 把.part的中间下载文件重命名为正式指定的下载文件名
-     *
-     * @param localUrl 下载文件的全路径名
-     *                 Exception 异常定义
-     */
-    private void completeBrokenFile(String localUrl) throws Exception {
-        String brokenUrl = (localUrl + ".part");
-        File file = new File(localUrl);
-        File brokenFile = new File(brokenUrl);
-
-        if (!brokenFile.exists()) {
-            throw new Exception("broken file not exist");
-        }
-
-        // 删除掉原来文件
-        if (file.exists()) {
-            file.delete();
-        }
-
-        if (!brokenFile.renameTo(file)) {
-            throw new Exception("broken file rename failed");
-        }
     }
 }

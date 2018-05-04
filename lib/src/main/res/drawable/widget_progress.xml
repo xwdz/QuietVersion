@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ /*
+  ~  * Copyright (c) 2017. Xi'an iRain IOT Technology service CO., Ltd (ShenZhen). All Rights Reserved.
+  ~  */
+  -->
+
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:id="@android:id/background">
+        <shape>
+            <corners android:radius="1dp"/>
+            <gradient
+                android:centerColor="@android:color/white"
+                android:endColor="@android:color/white"
+                android:startColor="@android:color/white"/>
+        </shape>
+    </item>
+
+    <item android:id="@android:id/progress">
+        <clip>
+            <shape>
+                <corners android:radius="1dp"/>
+                <gradient
+                    android:angle="45"
+                    android:endColor="#1D8FEE"
+                    android:startColor="#1D8FEE"/>
+            </shape>
+        </clip>
+    </item>
+
+</layer-list>

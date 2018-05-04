@@ -2,7 +2,7 @@ package com.update.test;
 
 import android.app.Application;
 
-import com.xingwei.checkupdate.LOG;
+import com.xingwei.checkupdate.Utils;
 import com.xwdz.okhttpgson.HttpManager;
 
 public class TestApp extends Application {
@@ -13,7 +13,7 @@ public class TestApp extends Application {
         HttpManager.getInstance().addTAGNameProvide(new HttpManager.LogListener() {
             @Override
             public String getHttpLogTAG() {
-                return LOG.TAG;
+                return Utils.LOG.TAG;
             }
         }).build();
     }

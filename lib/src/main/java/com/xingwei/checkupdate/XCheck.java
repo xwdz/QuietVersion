@@ -2,9 +2,11 @@ package com.xingwei.checkupdate;
 
 import android.content.Context;
 
+import com.xingwei.checkupdate.callback.OnCheckUpgradeRuleListener;
 import com.xingwei.checkupdate.callback.OnNetworkParserListener;
+import com.xingwei.checkupdate.core.NotifyControlled;
+import com.xingwei.checkupdate.core.VersionHandler;
 import com.xingwei.checkupdate.entry.ApkResultSource;
-import com.xingwei.checkupdate.service.RemoteHandlerService;
 import com.xwdz.okhttpgson.OkHttpRun;
 import com.xwdz.okhttpgson.callback.StringCallBack;
 import com.xwdz.okhttpgson.method.Request;
@@ -26,10 +28,13 @@ public class XCheck {
     private static final LinkedHashMap<String, String> PARAMS = new LinkedHashMap<>();
     private static final LinkedHashMap<String, String> HEADER = new LinkedHashMap<>();
 
+    private static final NotifyControlled CONTROLLED = new NotifyControlled();
+
     private String mMethod;
     private Context mContext;
     private String mUrl;
     private OnNetworkParserListener mParserListener;
+    private OnCheckUpgradeRuleListener mCheckUpgradeRuleListener;
 
 
     private XCheck(Context applicationContext) {
@@ -70,13 +75,21 @@ public class XCheck {
     }
 
 
-    public XCheck setNetworkParserListener(OnNetworkParserListener listener) {
+    public XCheck setOnNetworkParserListener(OnNetworkParserListener listener) {
         this.mParserListener = listener;
         return this;
     }
 
 
-    public void request() {
+    public XCheck setOnCheckUpgradeRuleListener(OnCheckUpgradeRuleListener listener){
+        this.mCheckUpgradeRuleListener = listener;
+        return this;
+    }
+
+
+
+    public void apply() {
+        Utils.LOG.i(TAG, "appUpgrade apply ... ");
         Request request = GET.equals(mMethod) ? OkHttpRun.get(mUrl) : OkHttpRun.post(mUrl);
         request.addParams(PARAMS)
                 .addHeaders(HEADER)
@@ -87,21 +100,19 @@ public class XCheck {
             public void onFailure(Call call, Exception e) {
                 if (mParserListener != null) {
                     ApkResultSource apkResultSource = mParserListener.parser(null);
-                    RemoteHandlerService.start(mContext, apkResultSource);
+                    VersionHandler.get(mContext, apkResultSource);
                 }
-                LOG.e(TAG, e.toString());
+                Utils.LOG.e(TAG, e.toString());
             }
 
             @Override
             protected void onSuccess(Call call, String response) {
                 if (mParserListener != null) {
                     ApkResultSource apkResultSource = mParserListener.parser(response);
-                    RemoteHandlerService.start(mContext, apkResultSource);
+                    VersionHandler.get(mContext, apkResultSource);
                 }
             }
 
         });
-
-        LOG.i(TAG, "request success ");
     }
 }

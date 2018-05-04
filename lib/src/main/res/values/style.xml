@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Progress.theme" parent="Base.Theme.AppCompat.Light.Dialog.MinWidth">
+        <item name="android:windowCloseOnTouchOutside">false</item>
+        <item name="android:windowBackground">@drawable/bg_transparent</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+</resources>

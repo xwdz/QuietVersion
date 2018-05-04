@@ -1,2 +1,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.xingwei.checkupdate" />
+    package="com.xingwei.checkupdate">
+
+    <application>
+        <activity
+            android:name=".ui.ProgressDialogActivity"
+            android:theme="@style/Progress.theme">
+        </activity>
+    </application>
+
+</manifest>

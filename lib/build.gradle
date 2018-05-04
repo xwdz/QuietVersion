@@ -29,6 +29,6 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:27.1.1'
     testImplementation 'junit:junit:4.12'
 
-    implementation 'com.xingwei:OkHttpUtil-Json:alpha-v0.3.0'
+    implementation 'com.xingwei:OkHttpUtil-Json:alpha-v1.0.0'
     implementation 'com.squareup.okhttp3:okhttp:3.5.0'
 }
