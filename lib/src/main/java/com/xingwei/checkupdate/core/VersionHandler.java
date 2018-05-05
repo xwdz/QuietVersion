@@ -140,7 +140,7 @@ public class VersionHandler {
 
         try {
             mExecutorService.execute(mDownloadApkHelper);
-            Utils.LOG.i(TAG, "execute doDownload apk task ...");
+            Utils.LOG.i(TAG, "start download apk ...");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -185,7 +185,6 @@ public class VersionHandler {
         Intent intent = new Intent(ACTION);
         intent.putExtra(KEY_START_DOWN, FLAG_START_DOWN);
         context.sendBroadcast(intent);
-        Utils.LOG.i(TAG, "notify ... ");
     }
 
     public void recycle() {

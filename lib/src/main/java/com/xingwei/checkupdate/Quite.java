@@ -39,7 +39,6 @@ public class Quite {
     private String mApkName;
     private String mApkPath;
     private boolean mForceDownload;
-    private boolean mSilentInstall;
 
     private Quite(Context applicationContext) {
         this.mContext = applicationContext;
@@ -100,8 +99,8 @@ public class Quite {
         return this;
     }
 
-    public Quite setSilentInstall(boolean install) {
-        this.mSilentInstall = install;
+    public Quite setForceDownload(boolean isDownload) {
+        this.mForceDownload = isDownload;
         return this;
     }
 

@@ -77,7 +77,7 @@ public class DownloadApkHelper implements Runnable {
             public Response intercept(Chain chain) throws IOException {
                 final Response interceptor = chain.proceed(chain.request());
                 return interceptor.newBuilder()
-                        .body(new DownloadApkHelper.ProgressResponseBody(interceptor.body(), mOnProgressListener))
+                        .body(new ProgressBody(interceptor.body(), mOnProgressListener))
                         .build();
             }
         });
@@ -123,13 +123,13 @@ public class DownloadApkHelper implements Runnable {
         return false;
     }
 
-    public static class ProgressResponseBody extends ResponseBody {
+    public static class ProgressBody extends ResponseBody {
 
         private final ResponseBody mResponseBody;
         private OnProgressListener mOnProgressListener;
         private BufferedSource mBufferedSource;
 
-        ProgressResponseBody(ResponseBody responseBody, OnProgressListener progressListener) {
+        ProgressBody(ResponseBody responseBody, OnProgressListener progressListener) {
             this.mResponseBody = responseBody;
             this.mOnProgressListener = progressListener;
         }
