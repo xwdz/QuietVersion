@@ -89,15 +89,15 @@ public class VersionHandler {
             mUIAdapter.showUpgradeDialog(mApkSource.note);
         }
 
-//                int flag = mNotifyControlled.checkUpgradeRule(source.level);
-//                //正常下载
-//                if (flag == NotifyControlled.NORMAL) {
+//        int flag = mNotifyControlled.checkUpgradeRule(source.level);
+//        //正常下载
+//        if (flag == NotifyControlled.NORMAL) {
 //
-//                }
-//                //强制下载
-//                if (flag == NotifyControlled.FORCE) {
-//                    doDownload();
-//                }
+//        }
+//        //强制下载
+//        if (flag == NotifyControlled.FORCE) {
+//            doDownload();
+//        }
     }
 
     /**
