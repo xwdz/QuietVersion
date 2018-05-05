@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.xingwei.checkupdate.Utils;
@@ -14,6 +13,8 @@ import com.xingwei.checkupdate.ui.ProgressDialogActivity;
 import com.xingwei.checkupdate.ui.UIAdapter;
 
 import java.io.File;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author huangxingwei (xwdz9989@gmail.com)
@@ -27,16 +28,18 @@ public class VersionHandler {
     private DownloadApkHelper mDownloadApkHelper;
     private NotifyControlled mNotifyControlled;
     private UIAdapter mUIAdapter;
+    private ExecutorService mExecutorService;
 
     private String mApkName;
     private String mApkPath;
-
-    private StartDownloadReceiver mDownloadReceiver;
-
-    private Context mContext;
     private ApkResultSource mApkResultSource;
 
+    private StartDownloadReceiver mDownloadReceiver;
+    private Context mContext;
+
+
     private VersionHandler(Context context, ApkResultSource apkResultSource) {
+        mExecutorService = Executors.newFixedThreadPool(3);
         mContext = context.getApplicationContext();
         mApkResultSource = apkResultSource;
         create();
@@ -51,7 +54,7 @@ public class VersionHandler {
 
         mDownloadReceiver = new StartDownloadReceiver();
         mContext.registerReceiver(mDownloadReceiver, new IntentFilter(ACTION));
-        Utils.LOG.i(TAG, "service created ...");
+        Utils.LOG.i(TAG, "service created finished ...");
     }
 
     private final OnProgressListener mOnProgressListener = new OnProgressListener() {
@@ -62,19 +65,9 @@ public class VersionHandler {
         }
 
         @Override
-        public void onError(Exception e) {
-            Utils.LOG.e(TAG, "progress exception = " + e.toString());
-        }
-
-        @Override
         public void onFinished(File file) {
             Utils.LOG.i(TAG, "install done ...");
             mApkInstall.install(file.getAbsolutePath());
-        }
-
-        @Override
-        public void onStart() {
-
         }
     };
 
@@ -113,7 +106,6 @@ public class VersionHandler {
                 mDownloadApkHelper.setOnProgressListener(mOnProgressListener);
                 Utils.LOG.i(TAG, "doDownload apk info : path = " + mApkPath + " \nurl = " + source.url + " \napkName = " + mApkName);
 
-                ProgressDialogActivity.update(mContext, 1, 1, (int) 1);
                 int flag = mNotifyControlled.checkUpgradeRule(source.level);
                 //正常下载
                 if (flag == NotifyControlled.NORMAL) {
@@ -135,16 +127,16 @@ public class VersionHandler {
      */
     private void doDownload() {
         //如果APk 本地存在则直接安装
-        if (mDownloadApkHelper.checkApkExits(mApkPath)) {
-            Utils.LOG.i(TAG, "install local apk ...");
-            mApkInstall.install(mApkPath);
-            return;
-        }
+//        if (mDownloadApkHelper.checkApkExits(mApkPath)) {
+//            Utils.LOG.i(TAG, "install local apk ...");
+//            mApkInstall.install(mApkPath);
+//            return;
+//        }
 
 
         try {
-            mDownloadApkHelper.download();
-            Utils.LOG.i(TAG, "startActivity doDownload apk ...");
+            mExecutorService.execute(mDownloadApkHelper);
+            Utils.LOG.i(TAG, "execute doDownload apk task ...");
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -197,7 +189,7 @@ public class VersionHandler {
         Utils.LOG.i(TAG, "notify ... ");
     }
 
-    public void destroy() {
+    public void recycle() {
         if (mDownloadReceiver != null) {
             mContext.unregisterReceiver(mDownloadReceiver);
         }

@@ -15,21 +15,9 @@ public interface OnProgressListener {
     void onTransfer(float percent, long currentLength, long total);
 
     /**
-     * 返回结果回调
-     *
-     * @param e 错误对象
-     */
-    void onError(Exception e);
-
-    /**
      * 传输完成
      *
      * @param file 文件
      */
     void onFinished(File file);
-
-    /**
-     * 传输开始
-     */
-    void onStart();
 }

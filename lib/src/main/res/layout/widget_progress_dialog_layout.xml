@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@android:color/transparent"
-    android:orientation="vertical">
+             xmlns:app="http://schemas.android.com/apk/res-auto"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:background="@android:color/transparent"
+             android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -20,29 +21,30 @@
             android:layout_height="wrap_content"
             android:maxLines="1"
             android:singleLine="true"
-            android:text="下载中"
+            android:text="下载中..."
             android:textColor="#3A5064"
             android:textSize="16dp"
-            android:textStyle="bold" />
+            android:textStyle="bold"/>
 
 
         <ProgressBar
             android:id="@+id/progressBar"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="5dp"
+            android:layout_marginTop="3dp"
             android:max="100"
-            android:progressDrawable="@drawable/widget_progress" />
+            android:progressDrawable="@drawable/widget_progress"
+            tools:progress="10"/>
 
         <TextView
             android:id="@+id/percent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="right"
-            android:text="100M"
+            android:text="0M"
             android:textColor="#3A5064"
-            android:textSize="12dp" />
-
+            android:textSize="12dp"/>
 
     </LinearLayout>
 </FrameLayout>

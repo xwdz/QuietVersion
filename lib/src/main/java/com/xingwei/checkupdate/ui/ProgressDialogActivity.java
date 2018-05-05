@@ -36,12 +36,11 @@ public class ProgressDialogActivity extends AppCompatActivity {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Utils.LOG.i(TAG, "receiver progress update ... ");
-            long total = intent.getLongExtra(KEY_NOTE, 0);
+            long total = intent.getLongExtra(KEY_TOTAL, 0);
             long currentLength = intent.getLongExtra(KEY_CURRENT_LENGTH, 0);
             int percent = intent.getIntExtra(KEY_PERCENT, 0);
 
-            if (total > 0 && currentLength > 0 && percent > 0) {
+            if (total > 0 && currentLength > 0 && percent >= 0) {
                 if (percent == MAX) {
                     finish();
                     mDefaultDialogFragment = null;
@@ -49,7 +48,7 @@ public class ProgressDialogActivity extends AppCompatActivity {
                 }
 
                 mDefaultDialogFragment.update(percent,
-                        format(currentLength) + "/" + total);
+                        format(currentLength) + "/" + format(total));
             }
         }
     }

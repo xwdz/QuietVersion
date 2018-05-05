@@ -16,6 +16,7 @@ public class MainActivity extends AppCompatActivity {
     String d = "http://openbox.mobilem.360.cn/url/r/k/std_1525405075";
 
     String weixin = "http://dlc2.pconline.com.cn/filedown_359554_6972055/kvssBJkn/weixin665android1280.apk";
+    String kugou = "http://download.kugou.com/download/kugou_android";
 
 
     @Override
@@ -33,12 +34,19 @@ public class MainActivity extends AppCompatActivity {
                         apkResultSource.appPackage = getPackageName();
                         apkResultSource.fileSize = 102121;
                         apkResultSource.note = "this is Test";
-                        apkResultSource.url = weixin;
+                        apkResultSource.url = kugou;
                         return apkResultSource;
                     }
                 })
                 .apply();
 
 
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        XCheck.getInstance(this).recycle();
     }
 }

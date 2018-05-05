@@ -4,7 +4,6 @@ import android.content.Context;
 
 import com.xingwei.checkupdate.callback.OnCheckUpgradeRuleListener;
 import com.xingwei.checkupdate.callback.OnNetworkParserListener;
-import com.xingwei.checkupdate.core.NotifyControlled;
 import com.xingwei.checkupdate.core.VersionHandler;
 import com.xingwei.checkupdate.entry.ApkResultSource;
 import com.xwdz.okhttpgson.OkHttpRun;
@@ -28,13 +27,14 @@ public class XCheck {
     private static final LinkedHashMap<String, String> PARAMS = new LinkedHashMap<>();
     private static final LinkedHashMap<String, String> HEADER = new LinkedHashMap<>();
 
-    private static final NotifyControlled CONTROLLED = new NotifyControlled();
 
     private String mMethod;
     private Context mContext;
     private String mUrl;
     private OnNetworkParserListener mParserListener;
     private OnCheckUpgradeRuleListener mCheckUpgradeRuleListener;
+
+    private VersionHandler mVersionHandler;
 
 
     private XCheck(Context applicationContext) {
@@ -81,11 +81,10 @@ public class XCheck {
     }
 
 
-    public XCheck setOnCheckUpgradeRuleListener(OnCheckUpgradeRuleListener listener){
+    public XCheck setOnCheckUpgradeRuleListener(OnCheckUpgradeRuleListener listener) {
         this.mCheckUpgradeRuleListener = listener;
         return this;
     }
-
 
 
     public void apply() {
@@ -96,23 +95,31 @@ public class XCheck {
                 .setCallBackToMainUIThread(true)
                 .execute(new StringCallBack() {
 
-            @Override
-            public void onFailure(Call call, Exception e) {
-                if (mParserListener != null) {
-                    ApkResultSource apkResultSource = mParserListener.parser(null);
-                    VersionHandler.get(mContext, apkResultSource);
-                }
-                Utils.LOG.e(TAG, e.toString());
-            }
+                    @Override
+                    public void onFailure(Call call, Exception e) {
+                        if (mParserListener != null) {
+                            ApkResultSource apkResultSource = mParserListener.parser(null);
+                            mVersionHandler = VersionHandler.get(mContext, apkResultSource);
+                        }
+                        Utils.LOG.e(TAG, e.toString());
+                    }
 
-            @Override
-            protected void onSuccess(Call call, String response) {
-                if (mParserListener != null) {
-                    ApkResultSource apkResultSource = mParserListener.parser(response);
-                    VersionHandler.get(mContext, apkResultSource);
-                }
-            }
+                    @Override
+                    protected void onSuccess(Call call, String response) {
+                        if (mParserListener != null) {
+                            ApkResultSource apkResultSource = mParserListener.parser(response);
+                            mVersionHandler = VersionHandler.get(mContext, apkResultSource);
 
-        });
+                        }
+                    }
+
+                });
+    }
+
+
+    public void recycle() {
+        if (mVersionHandler != null) {
+            mVersionHandler.recycle();
+        }
     }
 }

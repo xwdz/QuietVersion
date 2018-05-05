@@ -3,20 +3,41 @@ package com.xingwei.checkupdate.core;
 
 import com.xingwei.checkupdate.Utils;
 import com.xingwei.checkupdate.callback.OnProgressListener;
+import com.xwdz.okhttpgson.HttpManager;
 import com.xwdz.okhttpgson.OkHttpRun;
-import com.xwdz.okhttpgson.callback.FileCallBack;
 
 import java.io.File;
+import java.io.IOException;
 
-import okhttp3.Call;
+import okhttp3.Interceptor;
+import okhttp3.MediaType;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+import okio.Buffer;
+import okio.BufferedSink;
+import okio.BufferedSource;
+import okio.ForwardingSource;
+import okio.Okio;
+import okio.Source;
 
-public class DownloadApkHelper {
+/**
+ * apk下载器
+ */
+public class DownloadApkHelper implements Runnable {
 
     private static final String TAG = DownloadApkHelper.class.getSimpleName();
 
+    /**
+     * 下载URL
+     */
     private String mApkUrl;
+    /**
+     * 存放apk路径
+     */
     private String mFilePath;
+
     private OnProgressListener mOnProgressListener;
+
 
     public void setUrl(String url) {
         this.mApkUrl = url;
@@ -26,63 +47,42 @@ public class DownloadApkHelper {
         this.mFilePath = filePath;
     }
 
-    public boolean checkApkExits(String url) {
-        return checkFileExists(url);
-    }
-
     public void setOnProgressListener(OnProgressListener onProgressListener) {
         mOnProgressListener = onProgressListener;
     }
 
+    private void download() {
+        initHttpClint();
 
-    public void download() throws Exception {
-        OkHttpRun.get(mApkUrl)
-                .setCallBackToMainUIThread(true)
-                .execute(new FileCallBack(createBrokenFile(mFilePath)) {
+        try {
+            File file = createBrokenFile(mFilePath);
+            Response response = OkHttpRun.get(mApkUrl)
+                    .execute();
 
-                    @Override
-                    protected void onProgressListener(float percent, long currentLength, long total) {
-                        if (mOnProgressListener != null) {
-                            mOnProgressListener.onTransfer(percent, currentLength, total);
-                        }
-                    }
+            final BufferedSink sink = Okio.buffer(Okio.sink(file));
+            sink.writeAll(response.body().source());
+            sink.close();
 
-                    @Override
-                    protected void onFinish(File file) {
-                        if (mOnProgressListener != null) {
-                            mOnProgressListener.onFinished(file);
-                        }
-                    }
-
-                    @Override
-                    protected void onStart() {
-                        if (mOnProgressListener != null) {
-                            mOnProgressListener.onStart();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call call, Exception e) {
-                        if (mOnProgressListener != null) {
-                            mOnProgressListener.onError(e);
-                        }
-                    }
-                });
+            if (mOnProgressListener != null) {
+                mOnProgressListener.onFinished(file);
+            }
+        } catch (Exception e) {
+            Utils.LOG.e(TAG, "download file = " + e);
+        }
     }
 
-    /**
-     * 判断本地有无文件
-     *
-     * @param url 文件路径
-     */
-    private boolean checkFileExists(String url) {
-        // 如果文件存在，则直接安装
-        if (new File(url).exists()) {
-            Utils.LOG.i(TAG, url + "exist, install ...");
-            return true;
-        } else {
-            return false;
-        }
+    private void initHttpClint() {
+        HttpManager.getInstance().addNetworkInterceptor(new Interceptor() {
+            @Override
+            public Response intercept(Chain chain) throws IOException {
+                final Response interceptor = chain.proceed(chain.request());
+                return interceptor.newBuilder()
+                        .body(new DownloadApkHelper.ProgressResponseBody(interceptor.body(), mOnProgressListener))
+                        .build();
+            }
+        });
+
+        HttpManager.getInstance().build();
     }
 
     /**
@@ -107,5 +107,65 @@ public class DownloadApkHelper {
         }
 
         return file;
+    }
+
+    public static class ProgressResponseBody extends ResponseBody {
+
+        private final ResponseBody mResponseBody;
+        private OnProgressListener mOnProgressListener;
+        private BufferedSource mBufferedSource;
+
+        ProgressResponseBody(ResponseBody responseBody, OnProgressListener progressListener) {
+            this.mResponseBody = responseBody;
+            this.mOnProgressListener = progressListener;
+        }
+
+        @Override
+        public MediaType contentType() {
+            return mResponseBody.contentType();
+        }
+
+        @Override
+        public long contentLength() {
+            return mResponseBody.contentLength();
+        }
+
+        @Override
+        public BufferedSource source() {
+            if (mBufferedSource == null) {
+                mBufferedSource = Okio.buffer(source(mResponseBody.source()));
+            }
+            return mBufferedSource;
+        }
+
+        private Source source(Source source) {
+            return new ForwardingSource(source) {
+
+                private long mTotalLength = mResponseBody.contentLength();
+                private long mCurrentRead = 0L;
+                private int mPercent;
+
+                private boolean isControlCallback(int percent) {
+                    return ((percent - mPercent) >= 1);
+                }
+
+                @Override
+                public long read(Buffer sink, long byteCount) throws IOException {
+                    final long read = super.read(sink, byteCount);
+                    mCurrentRead += read != -1 ? read : 0;
+                    float length = mCurrentRead * 1.0f / mTotalLength;
+                    int percent = (int) (length * 100);
+                    if (isControlCallback(percent)) {
+                        mOnProgressListener.onTransfer(percent, mCurrentRead, mTotalLength);
+                    }
+                    return read;
+                }
+            };
+        }
+    }
+
+    @Override
+    public void run() {
+        download();
     }
 }
