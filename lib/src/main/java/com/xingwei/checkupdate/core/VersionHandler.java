@@ -38,6 +38,10 @@ public class VersionHandler {
     private StartDownloadReceiver mDownloadReceiver;
     private Context mContext;
     private Quite.QuiteEntry mQuiteEntry;
+    /**
+     * 本地是否存在缓存Apk
+     */
+    private boolean mApkLocalIsExist;
 
 
     public static VersionHandler get(Context context, ApkSource apkSource, Quite.QuiteEntry entry) {
@@ -47,13 +51,23 @@ public class VersionHandler {
     private VersionHandler(Context context, ApkSource apkSource, Quite.QuiteEntry entry) {
         mExecutorService = Executors.newFixedThreadPool(3);
         mContext = context.getApplicationContext();
+        checkNouNull(apkSource);
         mApkSource = apkSource;
         mQuiteEntry = entry;
-        create();
+        createModule();
+
+        mDownloadApkHelper.setUrl(mApkSource.url);
+        mDownloadApkHelper.setOnProgressListener(mOnProgressListener);
+        checkApkNameAndLocalIsNullAndInit(mQuiteEntry.getApkPath(), mQuiteEntry.getApkName(), mApkSource.url);
+        //apkName，ApkPath 配置之后再set入真正的ApkPath
+        mDownloadApkHelper.setFilePath(mApkPath);
+        Utils.LOG.i(TAG, "handlerApk apk info : path = " + mApkPath + " \nurl = " + mApkSource.url + " \napkName = " + mApkName);
+        mApkLocalIsExist = mDownloadApkHelper.checkApkExits(mApkPath);
+        Utils.LOG.i(TAG, "本地是否存在Apk =  " + mApkLocalIsExist);
         handlerApk();
     }
 
-    private void create() {
+    private void createModule() {
         mApkInstall = new ApkInstall(mContext);
         mUIAdapter = new UIAdapter(mContext);
         mDownloadApkHelper = new DownloadApkHelper();
@@ -64,74 +78,33 @@ public class VersionHandler {
         Utils.LOG.i(TAG, "service created finished ...");
     }
 
-    private final OnProgressListener mOnProgressListener = new OnProgressListener() {
-
-        @Override
-        public void onTransfer(float percent, long currentLength, long total) {
-            ProgressDialogActivity.update(mContext, total, currentLength, (int) percent);
-        }
-
-        @Override
-        public void onFinished(File file) {
-            Utils.LOG.i(TAG, "install done ...");
-            mApkInstall.install(file.getAbsolutePath());
-        }
-    };
-
-
-    private static final String ACTION = "com.xingwei.checkupdate.core.VersionHandler";
-    private static final String KEY_START_DOWN = "start_download";
-    private static final int FLAG_START_DOWN = 1;
-
-    private class StartDownloadReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            int flag = intent.getIntExtra(KEY_START_DOWN, 0);
-            if (flag == FLAG_START_DOWN) {
-                doDownload();
-            }
-        }
-    }
-
-
     private void handlerApk() {
-        if (mApkSource != null) {
-            Utils.LOG.i(TAG, "handlerApk ... ");
-            final ApkSource source = mApkSource;
-            if (source != null) {
-                checkURLNotNull(source.url);
-                checkApkNameAndLocalIsNull(mQuiteEntry.getApkPath(), mQuiteEntry.getApkName(), source.url);
-
-                //配置远程下载信息
-                mDownloadApkHelper.setUrl(source.url);
-                mDownloadApkHelper.setFilePath(mApkPath);
-                mDownloadApkHelper.setOnProgressListener(mOnProgressListener);
-                Utils.LOG.i(TAG, "doDownload apk info : path = " + mApkPath + " \nurl = " + source.url + " \napkName = " + mApkName);
-
-                int flag = mNotifyControlled.checkUpgradeRule(source.level);
-                //正常下载
-                if (flag == NotifyControlled.NORMAL) {
-                    mUIAdapter.showUpgradeDialog(source.note);
-                }
-
-                //强制下载
-                if (flag == NotifyControlled.FORCE) {
-                    doDownload();
-                }
-
-            }
-
+        Utils.LOG.i(TAG, "handlerApk ... ");
+        if (mApkLocalIsExist) {
+            Utils.LOG.i(TAG, "apkLocalExist do install local apk ...");
+            mApkInstall.install(mApkPath);
+        } else {
+            mUIAdapter.showUpgradeDialog(mApkSource.note);
         }
+
+//                int flag = mNotifyControlled.checkUpgradeRule(source.level);
+//                //正常下载
+//                if (flag == NotifyControlled.NORMAL) {
+//
+//                }
+//                //强制下载
+//                if (flag == NotifyControlled.FORCE) {
+//                    doDownload();
+//                }
     }
 
     /**
      * 执行下载Apk操作
      */
     private void doDownload() {
-        /* 强制每次都从网络上下载最新apk */
+        /* 是否强制每次都从网络上下载最新apk */
         if (!mQuiteEntry.isForceDownload()) {
-            if (mDownloadApkHelper.checkApkExits(mApkPath)) {
+            if (mApkLocalIsExist) {
                 Utils.LOG.i(TAG, "install local apk ...");
                 mApkInstall.install(mApkPath);
                 return;
@@ -153,7 +126,7 @@ public class VersionHandler {
      * @param apkName 配置的apkName
      * @param url     配置的url
      */
-    private void checkApkNameAndLocalIsNull(String apkPath, String apkName, String url) {
+    private void checkApkNameAndLocalIsNullAndInit(String apkPath, String apkName, String url) {
         if (TextUtils.isEmpty(apkName)) {
             try {
                 int index = url.lastIndexOf("/");
@@ -187,9 +160,45 @@ public class VersionHandler {
         context.sendBroadcast(intent);
     }
 
+
+    private final OnProgressListener mOnProgressListener = new OnProgressListener() {
+
+        @Override
+        public void onTransfer(float percent, long currentLength, long total) {
+            ProgressDialogActivity.update(mContext, total, currentLength, (int) percent);
+        }
+
+        @Override
+        public void onFinished(File file) {
+            Utils.LOG.i(TAG, "install done ...");
+            mApkInstall.install(file.getAbsolutePath());
+        }
+    };
+
+
+    private static final String ACTION = "com.xingwei.checkupdate.core.VersionHandler";
+    private static final String KEY_START_DOWN = "start_download";
+    private static final int FLAG_START_DOWN = 1;
+
+    private class StartDownloadReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int flag = intent.getIntExtra(KEY_START_DOWN, 0);
+            if (flag == FLAG_START_DOWN) {
+                doDownload();
+            }
+        }
+    }
+
     public void recycle() {
         if (mDownloadReceiver != null) {
             mContext.unregisterReceiver(mDownloadReceiver);
+        }
+    }
+
+    private void checkNouNull(ApkSource apkSource) {
+        if (apkSource == null) {
+            throw new NullPointerException("apkSource cannot be null");
         }
     }
 }

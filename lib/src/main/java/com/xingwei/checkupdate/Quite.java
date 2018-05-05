@@ -161,24 +161,12 @@ public class Quite {
             return mForceDownload;
         }
 
-        public void setForceDownload(boolean forceDownload) {
-            mForceDownload = forceDownload;
-        }
-
         public String getApkName() {
             return mApkName;
         }
 
-        public void setApkName(String apkName) {
-            mApkName = apkName;
-        }
-
         public String getApkPath() {
             return mApkPath;
-        }
-
-        public void setApkPath(String apkPath) {
-            mApkPath = apkPath;
         }
 
 

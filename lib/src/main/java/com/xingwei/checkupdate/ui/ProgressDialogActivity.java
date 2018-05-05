@@ -25,11 +25,11 @@ public class ProgressDialogActivity extends AppCompatActivity {
     private static final String TAG = ProgressDialogActivity.class.getSimpleName();
 
     private static final String ACTION = "com.xingwei.checkupdate.ui.ProgressDialogActivity";
-    public static final String KEY_NOTE = "note";
-    public static final String KEY_TOTAL = "total";
-    public static final String KEY_CURRENT_LENGTH = "currentlength";
-    public static final String KEY_PERCENT = "percent";
-    public static final int MAX = 100;
+    private static final String KEY_NOTE = "note";
+    private static final String KEY_TOTAL = "total";
+    private static final String KEY_CURRENT_LENGTH = "currentlength";
+    private static final String KEY_PERCENT = "percent";
+    private static final int MAX = 100;
 
 
     public class ProgressReceiver extends BroadcastReceiver {
