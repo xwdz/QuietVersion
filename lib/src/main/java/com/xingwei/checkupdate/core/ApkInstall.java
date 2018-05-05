@@ -50,7 +50,6 @@ public class ApkInstall {
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             }
             mContext.startActivity(intent);
-            Utils.LOG.i(TAG, "open apk success ");
         } catch (Exception e) {
             e.printStackTrace();
             Utils.LOG.e(TAG, "install error = " + e.toString());

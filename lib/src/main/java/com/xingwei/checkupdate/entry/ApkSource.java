@@ -3,7 +3,7 @@ package com.xingwei.checkupdate.entry;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class ApkResultSource implements Parcelable {
+public class ApkSource implements Parcelable {
 
     /**
      * 更新策略
@@ -30,40 +30,17 @@ public class ApkResultSource implements Parcelable {
 
     public String url;
 
-    /**
-     * apk md5
-     */
 
-    public String md5;
-
-    /**
-     * App包名
-     */
-    public String appPackage;
-
-    /**
-     * todo
-     * apk 名称(非必选,默认路径)
-     */
-    public String apkName;
-
-    /**
-     * todo
-     * apk 路径(非必选,默认路径)
-     */
-    public String apkPath;
-
-    public ApkResultSource(){
+    public ApkSource() {
 
     }
 
 
     @Override
     public String toString() {
-        return "ApkResultSource{" +
-                "url='" + url + '\'' +
-                ", apkName='" + apkName + '\'' +
-                ", apkPath='" + apkPath + '\'' +
+        return "ApkSource{" +
+                "level=" + level +
+                ", url='" + url + '\'' +
                 '}';
     }
 
@@ -78,26 +55,24 @@ public class ApkResultSource implements Parcelable {
         dest.writeString(this.note);
         dest.writeLong(this.fileSize);
         dest.writeString(this.url);
-        dest.writeString(this.md5);
     }
 
-    protected ApkResultSource(Parcel in) {
+    protected ApkSource(Parcel in) {
         this.level = in.readInt();
         this.note = in.readString();
         this.fileSize = in.readLong();
         this.url = in.readString();
-        this.md5 = in.readString();
     }
 
-    public static final Parcelable.Creator<ApkResultSource> CREATOR = new Parcelable.Creator<ApkResultSource>() {
+    public static final Parcelable.Creator<ApkSource> CREATOR = new Parcelable.Creator<ApkSource>() {
         @Override
-        public ApkResultSource createFromParcel(Parcel source) {
-            return new ApkResultSource(source);
+        public ApkSource createFromParcel(Parcel source) {
+            return new ApkSource(source);
         }
 
         @Override
-        public ApkResultSource[] newArray(int size) {
-            return new ApkResultSource[size];
+        public ApkSource[] newArray(int size) {
+            return new ApkSource[size];
         }
     };
 }

@@ -39,15 +39,15 @@ public class DownloadApkHelper implements Runnable {
     private OnProgressListener mOnProgressListener;
 
 
-    public void setUrl(String url) {
+    void setUrl(String url) {
         this.mApkUrl = url;
     }
 
-    public void setFilePath(String filePath) {
+    void setFilePath(String filePath) {
         this.mFilePath = filePath;
     }
 
-    public void setOnProgressListener(OnProgressListener onProgressListener) {
+    void setOnProgressListener(OnProgressListener onProgressListener) {
         mOnProgressListener = onProgressListener;
     }
 
@@ -109,6 +109,20 @@ public class DownloadApkHelper implements Runnable {
         return file;
     }
 
+    /**
+     * 判断本地是否有缓存apk
+     */
+    boolean checkApkExits(String apkPath) {
+        try {
+            File file = new File(apkPath);
+            return file.exists();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Utils.LOG.e(TAG, "check local apk failure = " + e);
+        }
+        return false;
+    }
+
     public static class ProgressResponseBody extends ResponseBody {
 
         private final ResponseBody mResponseBody;
@@ -156,6 +170,7 @@ public class DownloadApkHelper implements Runnable {
                     float length = mCurrentRead * 1.0f / mTotalLength;
                     int percent = (int) (length * 100);
                     if (isControlCallback(percent)) {
+                        mPercent = percent;
                         mOnProgressListener.onTransfer(percent, mCurrentRead, mTotalLength);
                     }
                     return read;

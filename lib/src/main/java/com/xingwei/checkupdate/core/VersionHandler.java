@@ -6,9 +6,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.text.TextUtils;
 
+import com.xingwei.checkupdate.Quite;
 import com.xingwei.checkupdate.Utils;
 import com.xingwei.checkupdate.callback.OnProgressListener;
-import com.xingwei.checkupdate.entry.ApkResultSource;
+import com.xingwei.checkupdate.entry.ApkSource;
 import com.xingwei.checkupdate.ui.ProgressDialogActivity;
 import com.xingwei.checkupdate.ui.UIAdapter;
 
@@ -32,16 +33,22 @@ public class VersionHandler {
 
     private String mApkName;
     private String mApkPath;
-    private ApkResultSource mApkResultSource;
+    private ApkSource mApkSource;
 
     private StartDownloadReceiver mDownloadReceiver;
     private Context mContext;
+    private Quite.QuiteEntry mQuiteEntry;
 
 
-    private VersionHandler(Context context, ApkResultSource apkResultSource) {
+    public static VersionHandler get(Context context, ApkSource apkSource, Quite.QuiteEntry entry) {
+        return new VersionHandler(context, apkSource, entry);
+    }
+
+    private VersionHandler(Context context, ApkSource apkSource, Quite.QuiteEntry entry) {
         mExecutorService = Executors.newFixedThreadPool(3);
         mContext = context.getApplicationContext();
-        mApkResultSource = apkResultSource;
+        mApkSource = apkSource;
+        mQuiteEntry = entry;
         create();
         handlerApk();
     }
@@ -74,16 +81,12 @@ public class VersionHandler {
 
     private static final String ACTION = "com.xingwei.checkupdate.core.VersionHandler";
     private static final String KEY_START_DOWN = "start_download";
-
-    public static final int FLAG_START_DOWN = 1;
+    private static final int FLAG_START_DOWN = 1;
 
     private class StartDownloadReceiver extends BroadcastReceiver {
 
-        private final String TAG = StartDownloadReceiver.class.getSimpleName();
-
         @Override
         public void onReceive(Context context, Intent intent) {
-            Utils.LOG.i(TAG, "receiver download request ...");
             int flag = intent.getIntExtra(KEY_START_DOWN, 0);
             if (flag == FLAG_START_DOWN) {
                 doDownload();
@@ -93,12 +96,12 @@ public class VersionHandler {
 
 
     private void handlerApk() {
-        if (mApkResultSource != null) {
+        if (mApkSource != null) {
             Utils.LOG.i(TAG, "handlerApk ... ");
-            final ApkResultSource source = mApkResultSource;
+            final ApkSource source = mApkSource;
             if (source != null) {
                 checkURLNotNull(source.url);
-                checkApkNameAndLocalIsNull(source.apkPath, source.apkName, source.url);
+                checkApkNameAndLocalIsNull(mQuiteEntry.getApkPath(), mQuiteEntry.getApkName(), source.url);
 
                 //配置远程下载信息
                 mDownloadApkHelper.setUrl(source.url);
@@ -126,13 +129,14 @@ public class VersionHandler {
      * 执行下载Apk操作
      */
     private void doDownload() {
-        //如果APk 本地存在则直接安装
-//        if (mDownloadApkHelper.checkApkExits(mApkPath)) {
-//            Utils.LOG.i(TAG, "install local apk ...");
-//            mApkInstall.install(mApkPath);
-//            return;
-//        }
-
+        /* 强制每次都从网络上下载最新apk */
+        if (!mQuiteEntry.isForceDownload()) {
+            if (mDownloadApkHelper.checkApkExits(mApkPath)) {
+                Utils.LOG.i(TAG, "install local apk ...");
+                mApkInstall.install(mApkPath);
+                return;
+            }
+        }
 
         try {
             mExecutorService.execute(mDownloadApkHelper);
@@ -177,14 +181,9 @@ public class VersionHandler {
         }
     }
 
-
-    public static VersionHandler get(Context context, ApkResultSource apkResultSource) {
-        return new VersionHandler(context, apkResultSource);
-    }
-
-    public static void notifyDownload(Context context, int flag) {
+    public static void notifyDownload(Context context) {
         Intent intent = new Intent(ACTION);
-        intent.putExtra(KEY_START_DOWN, flag);
+        intent.putExtra(KEY_START_DOWN, FLAG_START_DOWN);
         context.sendBroadcast(intent);
         Utils.LOG.i(TAG, "notify ... ");
     }

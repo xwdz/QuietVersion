@@ -1,6 +1,6 @@
 package com.xingwei.checkupdate.callback;
 
-import com.xingwei.checkupdate.entry.ApkResultSource;
+import com.xingwei.checkupdate.entry.ApkSource;
 
 /**
  * 自定义解析器
@@ -9,5 +9,5 @@ import com.xingwei.checkupdate.entry.ApkResultSource;
  */
 public interface OnNetworkParserListener {
 
-    ApkResultSource parser(String response);
+    ApkSource parser(String response);
 }

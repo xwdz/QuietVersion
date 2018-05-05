@@ -41,7 +41,7 @@ public class DefaultDialogFragment extends DialogFragment {
     }
 
     public void show(FragmentManager manager) {
-        show(manager, getTag());
+        manager.beginTransaction().add(this, getTag()).commitAllowingStateLoss();
     }
 
     public void update(int percent, String text) {

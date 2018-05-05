@@ -77,7 +77,7 @@ public class ProgressDialogActivity extends AppCompatActivity {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                VersionHandler.notifyDownload(ProgressDialogActivity.this.getApplicationContext(), VersionHandler.FLAG_START_DOWN);
+                VersionHandler.notifyDownload(ProgressDialogActivity.this.getApplicationContext());
                 mDefaultDialogFragment.show(getFragmentManager());
             }
         });

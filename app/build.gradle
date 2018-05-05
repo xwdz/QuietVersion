@@ -28,5 +28,6 @@ dependencies {
     implementation project(':lib')
 
     implementation 'com.xingwei:OkHttpUtil-Json:alpha-v1.0.1'
+//    implementation 'com.xingwei:OkHttpUtils:1.0.0'
     implementation 'com.squareup.okhttp3:okhttp:3.5.0'
 }

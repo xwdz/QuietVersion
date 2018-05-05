@@ -3,9 +3,9 @@ package com.update.test;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import com.xingwei.checkupdate.XCheck;
+import com.xingwei.checkupdate.Quite;
 import com.xingwei.checkupdate.callback.OnNetworkParserListener;
-import com.xingwei.checkupdate.entry.ApkResultSource;
+import com.xingwei.checkupdate.entry.ApkSource;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -24,18 +24,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        XCheck.getInstance(this)
+        Quite.getInstance(this)
                 .GET("http://www.baidu.com")
                 .setOnNetworkParserListener(new OnNetworkParserListener() {
                     @Override
-                    public ApkResultSource parser(String response) {
-                        ApkResultSource apkResultSource = new ApkResultSource();
-                        apkResultSource.level = 0;
-                        apkResultSource.appPackage = getPackageName();
-                        apkResultSource.fileSize = 102121;
-                        apkResultSource.note = "this is Test";
-                        apkResultSource.url = kugou;
-                        return apkResultSource;
+                    public ApkSource parser(String response) {
+                        ApkSource apkSource = new ApkSource();
+                        apkSource.level = 0;
+                        apkSource.fileSize = 102121;
+                        apkSource.note = "this is Test";
+                        apkSource.url = kugou;
+                        return apkSource;
                     }
                 })
                 .apply();
@@ -47,6 +46,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        XCheck.getInstance(this).recycle();
+        Quite.getInstance(this).recycle();
     }
 }
