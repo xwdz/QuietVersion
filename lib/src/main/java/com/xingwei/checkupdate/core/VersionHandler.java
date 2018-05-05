@@ -59,11 +59,13 @@ public class VersionHandler {
         mDownloadApkHelper.setUrl(mApkSource.url);
         mDownloadApkHelper.setOnProgressListener(mOnProgressListener);
         checkApkNameAndLocalIsNullAndInit(mQuiteEntry.getApkPath(), mQuiteEntry.getApkName(), mApkSource.url);
+
         //apkName，ApkPath 配置之后再set入真正的ApkPath
         mDownloadApkHelper.setFilePath(mApkPath);
+
         Utils.LOG.i(TAG, "handlerApk apk info : path = " + mApkPath + " \nurl = " + mApkSource.url + " \napkName = " + mApkName);
+
         mApkLocalIsExist = mDownloadApkHelper.checkApkExits(mApkPath);
-        Utils.LOG.i(TAG, "本地是否存在Apk =  " + mApkLocalIsExist);
         handlerApk();
     }
 
@@ -80,7 +82,7 @@ public class VersionHandler {
 
     private void handlerApk() {
         Utils.LOG.i(TAG, "handlerApk ... ");
-        if (mApkLocalIsExist) {
+        if (mApkLocalIsExist && !mQuiteEntry.isForceDownload()) {
             Utils.LOG.i(TAG, "apkLocalExist do install local apk ...");
             mApkInstall.install(mApkPath);
         } else {

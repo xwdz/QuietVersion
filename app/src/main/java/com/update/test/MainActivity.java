@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
                         return apkSource;
                     }
                 })
+                .setForceDownload(true)
                 .apply();
 
 
