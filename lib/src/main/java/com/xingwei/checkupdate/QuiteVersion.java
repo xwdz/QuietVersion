@@ -16,11 +16,11 @@ import java.util.LinkedHashMap;
 
 import okhttp3.Call;
 
-public class Quite {
+public class QuiteVersion {
 
-    private static final String TAG = Quite.class.getSimpleName();
+    private static final String TAG = QuiteVersion.class.getSimpleName();
 
-    private static Quite sCheck;
+    private static QuiteVersion sCheck;
 
     private static final String GET = "GET";
     private static final String POST = "POST";
@@ -40,66 +40,66 @@ public class Quite {
     private String mApkPath;
     private boolean mForceDownload;
 
-    private Quite(Context applicationContext) {
+    private QuiteVersion(Context applicationContext) {
         this.mContext = applicationContext;
     }
 
-    public static Quite getInstance(Context context) {
+    public static QuiteVersion getInstance(Context context) {
         if (sCheck == null) {
-            synchronized (Quite.class) {
+            synchronized (QuiteVersion.class) {
                 if (sCheck == null) {
-                    sCheck = new Quite(context.getApplicationContext());
+                    sCheck = new QuiteVersion(context.getApplicationContext());
                 }
             }
         }
         return sCheck;
     }
 
-    public Quite GET(String url) {
+    public QuiteVersion GET(String url) {
         this.mMethod = GET;
         this.mUrl = url;
         return this;
     }
 
-    public Quite POST(String url) {
+    public QuiteVersion POST(String url) {
         this.mMethod = POST;
         this.mUrl = url;
         return this;
     }
 
-    public Quite addParams(String key, String value) {
+    public QuiteVersion addParams(String key, String value) {
         PARAMS.put(key, value);
         return this;
     }
 
-    public Quite addHeader(String key, String value) {
+    public QuiteVersion addHeader(String key, String value) {
         HEADER.put(key, value);
         return this;
     }
 
-    public Quite setOnNetworkParserListener(OnNetworkParserListener listener) {
+    public QuiteVersion setOnNetworkParserListener(OnNetworkParserListener listener) {
         this.mParserListener = listener;
         return this;
     }
 
 
-    public Quite setOnCheckUpgradeRuleListener(OnCheckUpgradeRuleListener listener) {
+    public QuiteVersion setOnCheckUpgradeRuleListener(OnCheckUpgradeRuleListener listener) {
         this.mCheckUpgradeRuleListener = listener;
         return this;
     }
 
 
-    public Quite setApkPath(String path) {
+    public QuiteVersion setApkPath(String path) {
         this.mApkPath = path;
         return this;
     }
 
-    public Quite setApkName(String name) {
+    public QuiteVersion setApkName(String name) {
         this.mApkName = name;
         return this;
     }
 
-    public Quite setForceDownload(boolean isDownload) {
+    public QuiteVersion setForceDownload(boolean isDownload) {
         this.mForceDownload = isDownload;
         return this;
     }

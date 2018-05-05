@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.text.TextUtils;
 
-import com.xingwei.checkupdate.Quite;
+import com.xingwei.checkupdate.QuiteVersion;
 import com.xingwei.checkupdate.Utils;
 import com.xingwei.checkupdate.callback.OnProgressListener;
 import com.xingwei.checkupdate.entry.ApkSource;
@@ -37,18 +37,18 @@ public class VersionHandler {
 
     private StartDownloadReceiver mDownloadReceiver;
     private Context mContext;
-    private Quite.QuiteEntry mQuiteEntry;
+    private QuiteVersion.QuiteEntry mQuiteEntry;
     /**
      * 本地是否存在缓存Apk
      */
     private boolean mApkLocalIsExist;
 
 
-    public static VersionHandler get(Context context, ApkSource apkSource, Quite.QuiteEntry entry) {
+    public static VersionHandler get(Context context, ApkSource apkSource, QuiteVersion.QuiteEntry entry) {
         return new VersionHandler(context, apkSource, entry);
     }
 
-    private VersionHandler(Context context, ApkSource apkSource, Quite.QuiteEntry entry) {
+    private VersionHandler(Context context, ApkSource apkSource, QuiteVersion.QuiteEntry entry) {
         mExecutorService = Executors.newFixedThreadPool(3);
         mContext = context.getApplicationContext();
         checkNouNull(apkSource);

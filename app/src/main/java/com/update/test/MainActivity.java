@@ -3,7 +3,7 @@ package com.update.test;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import com.xingwei.checkupdate.Quite;
+import com.xingwei.checkupdate.QuiteVersion;
 import com.xingwei.checkupdate.callback.OnNetworkParserListener;
 import com.xingwei.checkupdate.entry.ApkSource;
 
@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Quite.getInstance(this)
+        QuiteVersion.getInstance(this)
                 .GET("http://www.baidu.com")
                 .setOnNetworkParserListener(new OnNetworkParserListener() {
                     @Override
@@ -47,6 +47,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Quite.getInstance(this).recycle();
+        QuiteVersion.getInstance(this).recycle();
     }
 }
