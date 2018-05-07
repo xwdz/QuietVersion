@@ -1,4 +1,4 @@
-package com.xingwei.checkupdate.core;
+package com.xingwei.checkupdate.callback;
 
 import com.xingwei.checkupdate.entry.ApkSource;
 import com.xwdz.okhttpgson.callback.AbstractCallBack;

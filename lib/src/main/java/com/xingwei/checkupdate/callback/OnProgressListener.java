@@ -12,7 +12,7 @@ public interface OnProgressListener {
      * @param percent 进度百分比
      * @param total    总大小
      */
-    void onTransfer(float percent, long currentLength, long total);
+    void onTransfer(int percent, long currentLength, long total);
 
     /**
      * 传输完成

@@ -4,20 +4,14 @@ import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.xingwei.checkupdate.callback.OnCheckUpgradeRuleListener;
 import com.xingwei.checkupdate.callback.OnNetworkParserListener;
-import com.xingwei.checkupdate.core.UpgradeCallBack;
+import com.xingwei.checkupdate.callback.UpgradeCallBack;
 import com.xingwei.checkupdate.core.VersionHandler;
 import com.xingwei.checkupdate.entry.ApkSource;
 import com.xwdz.okhttpgson.OkHttpRun;
-import com.xwdz.okhttpgson.callback.ICallBack;
-import com.xwdz.okhttpgson.callback.JsonCallBack;
-import com.xwdz.okhttpgson.callback.StringCallBack;
 import com.xwdz.okhttpgson.method.Request;
 
 import java.util.LinkedHashMap;
-
-import okhttp3.Call;
 
 public class Quite {
 

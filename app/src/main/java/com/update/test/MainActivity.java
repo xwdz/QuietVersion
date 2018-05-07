@@ -4,14 +4,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import com.xingwei.checkupdate.Quite;
-import com.xingwei.checkupdate.Utils;
-import com.xingwei.checkupdate.callback.OnNetworkParserListener;
-import com.xingwei.checkupdate.core.UpgradeCallBack;
+import com.xingwei.checkupdate.callback.UpgradeCallBack;
 import com.xingwei.checkupdate.entry.ApkSource;
-import com.xwdz.okhttpgson.OkHttpRun;
-import com.xwdz.okhttpgson.callback.JsonCallBack;
-import com.xwdz.okhttpgson.callback.StringCallBack;
-import com.xwdz.okhttpgson.method.Request;
 
 import okhttp3.Call;
 

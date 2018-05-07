@@ -167,8 +167,8 @@ public class VersionHandler {
     private final OnProgressListener mOnProgressListener = new OnProgressListener() {
 
         @Override
-        public void onTransfer(float percent, long currentLength, long total) {
-            ProgressDialogActivity.update(mContext, total, currentLength, (int) percent);
+        public void onTransfer(int percent, long currentLength, long total) {
+            ProgressDialogActivity.update(mContext, total, currentLength, percent);
         }
 
         @Override
