@@ -4,8 +4,16 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import com.xingwei.checkupdate.Quite;
+import com.xingwei.checkupdate.Utils;
 import com.xingwei.checkupdate.callback.OnNetworkParserListener;
+import com.xingwei.checkupdate.core.UpgradeCallBack;
 import com.xingwei.checkupdate.entry.ApkSource;
+import com.xwdz.okhttpgson.OkHttpRun;
+import com.xwdz.okhttpgson.callback.JsonCallBack;
+import com.xwdz.okhttpgson.callback.StringCallBack;
+import com.xwdz.okhttpgson.method.Request;
+
+import okhttp3.Call;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -24,11 +32,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         Quite.getInstance(this)
                 .GET("http://www.baidu.com")
-                .setOnNetworkParserListener(new OnNetworkParserListener() {
+                .addParams("key", "value")
+                .setForceDownload(true)
+                .setUpgradeCallBack(new UpgradeCallBack<String>() {
                     @Override
-                    public ApkSource parser(String response) {
+                    protected ApkSource onNetworkParser(Call call, String response) {
                         ApkSource apkSource = new ApkSource();
                         apkSource.level = 0;
                         apkSource.fileSize = 102121;
@@ -36,11 +47,13 @@ public class MainActivity extends AppCompatActivity {
                         apkSource.url = kugou;
                         return apkSource;
                     }
+
+                    @Override
+                    public void onFailure(Call call, Exception e) {
+
+                    }
                 })
-                .setForceDownload(true)
                 .apply();
-
-
     }
 
 

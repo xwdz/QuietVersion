@@ -22,6 +22,7 @@ android {
     }
 }
 
+
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:appcompat-v7:27.1.1'
@@ -33,4 +34,5 @@ dependencies {
 
     implementation 'com.xingwei:OkHttpUtil-Json:alpha-v1.0.1'
     implementation 'com.squareup.okhttp3:okhttp:3.5.0'
+
 }

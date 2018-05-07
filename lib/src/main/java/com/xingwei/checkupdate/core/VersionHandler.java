@@ -63,7 +63,8 @@ public class VersionHandler {
         //apkName，ApkPath 配置之后再set入真正的ApkPath
         mDownloadApkHelper.setFilePath(mApkPath);
 
-        Utils.LOG.i(TAG, "handlerApk apk info : path = " + mApkPath + " \nurl = " + mApkSource.url + " \napkName = " + mApkName);
+        Utils.LOG.i(TAG, "handlerApk apk info : path = " + mApkPath
+                + " \nurl = " + mApkSource.url + " \napkName = " + mApkName);
 
         mApkLocalIsExist = mDownloadApkHelper.checkApkExits(mApkPath);
         handlerApk();

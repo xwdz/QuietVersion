@@ -6,9 +6,12 @@ import android.os.Parcelable;
 
 import com.xingwei.checkupdate.callback.OnCheckUpgradeRuleListener;
 import com.xingwei.checkupdate.callback.OnNetworkParserListener;
+import com.xingwei.checkupdate.core.UpgradeCallBack;
 import com.xingwei.checkupdate.core.VersionHandler;
 import com.xingwei.checkupdate.entry.ApkSource;
 import com.xwdz.okhttpgson.OkHttpRun;
+import com.xwdz.okhttpgson.callback.ICallBack;
+import com.xwdz.okhttpgson.callback.JsonCallBack;
 import com.xwdz.okhttpgson.callback.StringCallBack;
 import com.xwdz.okhttpgson.method.Request;
 
@@ -25,20 +28,18 @@ public class Quite {
     private static final String GET = "GET";
     private static final String POST = "POST";
 
-
     private static final LinkedHashMap<String, String> PARAMS = new LinkedHashMap<>();
     private static final LinkedHashMap<String, String> HEADER = new LinkedHashMap<>();
-
 
     private String mMethod;
     private Context mContext;
     private String mUrl;
     private OnNetworkParserListener mParserListener;
-    private OnCheckUpgradeRuleListener mCheckUpgradeRuleListener;
     private VersionHandler mVersionHandler;
     private String mApkName;
     private String mApkPath;
     private boolean mForceDownload;
+    private UpgradeCallBack mUpgradeCallBack;
 
     private Quite(Context applicationContext) {
         this.mContext = applicationContext;
@@ -82,13 +83,6 @@ public class Quite {
         return this;
     }
 
-
-    public Quite setOnCheckUpgradeRuleListener(OnCheckUpgradeRuleListener listener) {
-        this.mCheckUpgradeRuleListener = listener;
-        return this;
-    }
-
-
     public Quite setApkPath(String path) {
         this.mApkPath = path;
         return this;
@@ -104,37 +98,37 @@ public class Quite {
         return this;
     }
 
+    public Quite setUpgradeCallBack(UpgradeCallBack upgradeCallBack) {
+        this.mUpgradeCallBack = upgradeCallBack;
+        return this;
+    }
+
 
     public void apply() {
-        Utils.LOG.i(TAG, "appUpgrade apply ... ");
-        final QuiteEntry entry = new QuiteEntry
-                (
-                        mApkName,
-                        mApkPath,
-                        mForceDownload
-                );
+        try {
+            Utils.LOG.i(TAG, "appUpgrade apply ... ");
+            final QuiteEntry entry = new QuiteEntry
+                    (
+                            mApkName,
+                            mApkPath,
+                            mForceDownload
+                    );
 
-        Request request = GET.equals(mMethod) ? OkHttpRun.get(mUrl) : OkHttpRun.post(mUrl);
-        request.addParams(PARAMS)
-                .addHeaders(HEADER)
-                .setCallBackToMainUIThread(true)
-                .execute(new StringCallBack() {
+            if (mUpgradeCallBack != null) {
+                final Request request = GET.equals(mMethod) ? OkHttpRun.get(mUrl) : OkHttpRun.post(mUrl);
+                request.addParams(PARAMS)
+                        .addHeaders(HEADER)
+                        .execute(mUpgradeCallBack);
 
-                    @Override
-                    public void onFailure(Call call, Exception e) {
-                        Utils.LOG.e(TAG, e.toString());
-                    }
-
-                    @Override
-                    protected void onSuccess(Call call, String response) {
-                        if (mParserListener != null) {
-                            ApkSource apkSource = mParserListener.parser(response);
-                            mVersionHandler = VersionHandler.get(mContext, apkSource, entry);
-
-                        }
-                    }
-
-                });
+                if (mParserListener != null) {
+                    ApkSource apkSource = mParserListener.parser(mUpgradeCallBack.getResult());
+                    mVersionHandler = VersionHandler.get(mContext, apkSource, entry);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Utils.LOG.i(TAG, "app apply error = " + e);
+        }
     }
 
 
