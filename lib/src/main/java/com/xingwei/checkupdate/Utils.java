@@ -167,7 +167,7 @@ public class Utils {
 
     public static class LOG {
 
-        public static final String TAG = "UpdateCORE";
+        public static final String TAG = "Quite";
 
         public static void i(String tag, String msg) {
             Log.i(TAG, "[" + tag + "] " + msg);

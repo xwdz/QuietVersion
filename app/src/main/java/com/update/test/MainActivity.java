@@ -4,10 +4,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import com.xingwei.checkupdate.Quite;
-import com.xingwei.checkupdate.callback.UpgradeCallBack;
+import com.xingwei.checkupdate.callback.OnNetworkParserListener;
 import com.xingwei.checkupdate.entry.ApkSource;
-
-import okhttp3.Call;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -31,20 +29,15 @@ public class MainActivity extends AppCompatActivity {
                 .GET("http://www.baidu.com")
                 .addParams("key", "value")
                 .setForceDownload(true)
-                .setUpgradeCallBack(new UpgradeCallBack<String>() {
+                .setOnNetworkParserListener(new OnNetworkParserListener<String>() {
                     @Override
-                    protected ApkSource onNetworkParser(Call call, String response) {
+                    public ApkSource parser(String response) {
                         ApkSource apkSource = new ApkSource();
-                        apkSource.level = 0;
-                        apkSource.fileSize = 102121;
-                        apkSource.note = "this is Test";
+                        apkSource.fileSize = 123123;
+                        apkSource.level = 1;
+                        apkSource.note = "本次跟新内容为abc";
                         apkSource.url = kugou;
                         return apkSource;
-                    }
-
-                    @Override
-                    public void onFailure(Call call, Exception e) {
-
                     }
                 })
                 .apply();

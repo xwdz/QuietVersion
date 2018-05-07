@@ -9,11 +9,14 @@ import com.xingwei.checkupdate.callback.UpgradeCallBack;
 import com.xingwei.checkupdate.core.VersionHandler;
 import com.xingwei.checkupdate.entry.ApkSource;
 import com.xwdz.okhttpgson.OkHttpRun;
+import com.xwdz.okhttpgson.callback.JsonCallBack;
 import com.xwdz.okhttpgson.method.Request;
 
 import java.util.LinkedHashMap;
 
-public class Quite {
+import okhttp3.Call;
+
+public class Quite<T> {
 
     private static final String TAG = Quite.class.getSimpleName();
 
@@ -28,12 +31,11 @@ public class Quite {
     private String mMethod;
     private Context mContext;
     private String mUrl;
-    private OnNetworkParserListener mParserListener;
     private VersionHandler mVersionHandler;
     private String mApkName;
     private String mApkPath;
     private boolean mForceDownload;
-    private UpgradeCallBack mUpgradeCallBack;
+    private OnNetworkParserListener mOnNetworkParserListener;
 
     private Quite(Context applicationContext) {
         this.mContext = applicationContext;
@@ -56,6 +58,11 @@ public class Quite {
         return this;
     }
 
+    public Quite setOnNetworkParserListener(OnNetworkParserListener onNetworkParserListener) {
+        this.mOnNetworkParserListener = onNetworkParserListener;
+        return this;
+    }
+
     public Quite POST(String url) {
         this.mMethod = POST;
         this.mUrl = url;
@@ -69,11 +76,6 @@ public class Quite {
 
     public Quite addHeader(String key, String value) {
         HEADER.put(key, value);
-        return this;
-    }
-
-    public Quite setOnNetworkParserListener(OnNetworkParserListener listener) {
-        this.mParserListener = listener;
         return this;
     }
 
@@ -92,11 +94,6 @@ public class Quite {
         return this;
     }
 
-    public Quite setUpgradeCallBack(UpgradeCallBack upgradeCallBack) {
-        this.mUpgradeCallBack = upgradeCallBack;
-        return this;
-    }
-
 
     public void apply() {
         try {
@@ -108,16 +105,22 @@ public class Quite {
                             mForceDownload
                     );
 
-            if (mUpgradeCallBack != null) {
+            if (mOnNetworkParserListener != null) {
                 final Request request = GET.equals(mMethod) ? OkHttpRun.get(mUrl) : OkHttpRun.post(mUrl);
                 request.addParams(PARAMS)
                         .addHeaders(HEADER)
-                        .execute(mUpgradeCallBack);
+                        .execute(new UpgradeCallBack() {
+                            @Override
+                            public void onFailure(Call call, Exception e) {
+                                Utils.LOG.e(TAG, "请求url = " + mUrl + " 失败! error = " + e);
+                            }
 
-                if (mParserListener != null) {
-                    ApkSource apkSource = mParserListener.parser(mUpgradeCallBack.getResult());
-                    mVersionHandler = VersionHandler.get(mContext, apkSource, entry);
-                }
+                            @Override
+                            protected void onSuccess(Call call, String response) {
+                                ApkSource apkSource = mOnNetworkParserListener.parser(response);
+                                mVersionHandler = VersionHandler.get(mContext, apkSource, entry);
+                            }
+                        });
             }
         } catch (Exception e) {
             e.printStackTrace();

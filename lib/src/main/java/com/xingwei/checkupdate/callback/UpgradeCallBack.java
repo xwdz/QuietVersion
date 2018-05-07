@@ -1,31 +1,21 @@
 package com.xingwei.checkupdate.callback;
 
-import com.xingwei.checkupdate.entry.ApkSource;
+
 import com.xwdz.okhttpgson.callback.AbstractCallBack;
-import com.xwdz.okhttpgson.model.Parser;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 
 import okhttp3.Call;
 import okhttp3.Response;
 
-public abstract class UpgradeCallBack<T> extends AbstractCallBack<ApkSource> {
-
-    private volatile ApkSource mApkSource;
+public abstract class UpgradeCallBack extends AbstractCallBack<Object> {
 
     @Override
-    protected ApkSource parser(final Call call, Response response, boolean isMainUIThread) throws IOException {
-        final String json = response.body().string();
-        Type type = Parser.getInstance().getSuperclassTypeParameter(getClass());
-        final Object object = Parser.getInstance().parser(json, type);
-        mApkSource = onNetworkParser(call, (T) object);
-        return mApkSource;
+    protected Object parser(final Call call, Response response, boolean isMainUIThread) throws IOException {
+        final String text = response.body().string();
+        onSuccess(call, text);
+        return null;
     }
 
-    public ApkSource getResult() {
-        return mApkSource;
-    }
-
-    protected abstract ApkSource onNetworkParser(Call call, T response);
+    protected abstract void onSuccess(Call call, String response);
 }

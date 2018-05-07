@@ -32,7 +32,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation project(':lib')
 
-    implementation 'com.xingwei:OkHttpUtil-Json:alpha-v1.0.1'
+    implementation 'com.xwdz:okHttpUtils:1.0.1'
     implementation 'com.squareup.okhttp3:okhttp:3.5.0'
 
 }
