@@ -1,4 +1,4 @@
-package com.update.test;
+package com.update.testabc;
 
 public class Result<T> {
     public final int code;

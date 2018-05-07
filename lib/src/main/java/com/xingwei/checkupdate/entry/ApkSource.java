@@ -10,37 +10,67 @@ public class ApkSource implements Parcelable {
      * 0:正常升级(用户点击确认升级再升级)
      * 1:强制更新
      */
-    public int level;
+    private final int level;
 
     /**
      * 更新文本
      */
 
-    public String note;
+    private final String note;
 
     /**
      * apk文件大小
      */
 
-    public long fileSize;
+    private final long fileSize;
 
     /**
      * apk 下载地址
      */
 
-    public String url;
+    private final String url;
+
+    /**
+     * 远程versionCode
+     */
+
+    private final int remoteVersionCode;
 
 
-    public ApkSource() {
-
+    public ApkSource( String url,String note,long fileSize,int level,int remoteVersionCode) {
+        this.level = level;
+        this.note = note;
+        this.fileSize = fileSize;
+        this.url = url;
+        this.remoteVersionCode = remoteVersionCode;
     }
 
+    public int getLevel() {
+        return level;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public long getFileSize() {
+        return fileSize;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public int getRemoteVersionCode() {
+        return remoteVersionCode;
+    }
 
     @Override
     public String toString() {
         return "ApkSource{" +
                 "level=" + level +
                 ", url='" + url + '\'' +
+                ", remoteVersionCode=" + remoteVersionCode +
                 '}';
     }
 
@@ -55,6 +85,7 @@ public class ApkSource implements Parcelable {
         dest.writeString(this.note);
         dest.writeLong(this.fileSize);
         dest.writeString(this.url);
+        dest.writeInt(this.remoteVersionCode);
     }
 
     protected ApkSource(Parcel in) {
@@ -62,6 +93,7 @@ public class ApkSource implements Parcelable {
         this.note = in.readString();
         this.fileSize = in.readLong();
         this.url = in.readString();
+        this.remoteVersionCode = in.readInt();
     }
 
     public static final Parcelable.Creator<ApkSource> CREATOR = new Parcelable.Creator<ApkSource>() {

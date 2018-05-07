@@ -1,4 +1,4 @@
-package com.update.test;
+package com.test.theme;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.update.test", appContext.getPackageName());
+        assertEquals("com.test.theme.test", appContext.getPackageName());
     }
 }

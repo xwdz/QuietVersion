@@ -1,4 +1,4 @@
-package com.update.test;
+package com.update.testabc;
 
 import org.junit.Test;
 

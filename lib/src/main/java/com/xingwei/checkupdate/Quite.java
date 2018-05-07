@@ -1,15 +1,18 @@
 package com.xingwei.checkupdate;
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.v4.app.FragmentActivity;
 
 import com.xingwei.checkupdate.callback.OnNetworkParserListener;
-import com.xingwei.checkupdate.callback.UpgradeCallBack;
+import com.xingwei.checkupdate.callback.OnUINotify;
 import com.xingwei.checkupdate.core.VersionHandler;
 import com.xingwei.checkupdate.entry.ApkSource;
 import com.xwdz.okhttpgson.OkHttpRun;
-import com.xwdz.okhttpgson.callback.JsonCallBack;
 import com.xwdz.okhttpgson.callback.StringCallBack;
 import com.xwdz.okhttpgson.method.Request;
 
@@ -30,23 +33,24 @@ public class Quite<T> {
     private static final LinkedHashMap<String, String> HEADER = new LinkedHashMap<>();
 
     private String mMethod;
-    private Context mContext;
+    private FragmentActivity mFragmentActivity;
     private String mUrl;
     private VersionHandler mVersionHandler;
     private String mApkName;
     private String mApkPath;
     private boolean mForceDownload;
     private OnNetworkParserListener mOnNetworkParserListener;
+    private OnUINotify mNotifyUIHandler;
 
-    private Quite(Context applicationContext) {
-        this.mContext = applicationContext;
+    private Quite(FragmentActivity fragmentActivity) {
+        this.mFragmentActivity = fragmentActivity;
     }
 
-    public static Quite getInstance(Context context) {
+    public static Quite getInstance(FragmentActivity context) {
         if (sCheck == null) {
             synchronized (Quite.class) {
                 if (sCheck == null) {
-                    sCheck = new Quite(context.getApplicationContext());
+                    sCheck = new Quite(context);
                 }
             }
         }
@@ -95,6 +99,11 @@ public class Quite<T> {
         return this;
     }
 
+    public Quite setNotifyHandler(OnUINotify notifyHandler) {
+        this.mNotifyUIHandler = notifyHandler;
+        return this;
+    }
+
 
     public void apply() {
         try {
@@ -103,7 +112,8 @@ public class Quite<T> {
                     (
                             mApkName,
                             mApkPath,
-                            mForceDownload
+                            mForceDownload,
+                            mNotifyUIHandler
                     );
 
             if (mOnNetworkParserListener != null) {
@@ -119,13 +129,13 @@ public class Quite<T> {
                             @Override
                             protected void onSuccess(Call call, String response) {
                                 ApkSource apkSource = mOnNetworkParserListener.parser(response);
-                                mVersionHandler = VersionHandler.get(mContext, apkSource, entry);
+                                mVersionHandler = VersionHandler.get(mFragmentActivity, apkSource, entry);
                             }
                         });
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Utils.LOG.i(TAG, "app apply error = " + e);
+            Utils.LOG.e(TAG, "app apply error = " + e);
         }
     }
 
@@ -142,11 +152,13 @@ public class Quite<T> {
         private String mApkName;
         private String mApkPath;
         private boolean mForceDownload;
+        private OnUINotify mOnUINotify;
 
-        private QuiteEntry(String apkName, String apkPath, boolean forceDownload) {
-            mApkName = apkName;
-            mApkPath = apkPath;
-            mForceDownload = forceDownload;
+        private QuiteEntry(String apkName, String apkPath, boolean forceDownload, OnUINotify onUINotify) {
+            this.mApkName = apkName;
+            this.mApkPath = apkPath;
+            this.mForceDownload = forceDownload;
+            this.mOnUINotify = onUINotify;
         }
 
         public boolean isForceDownload() {
@@ -161,6 +173,9 @@ public class Quite<T> {
             return mApkPath;
         }
 
+        public OnUINotify getOnUINotify() {
+            return mOnUINotify;
+        }
 
         @Override
         public int describeContents() {

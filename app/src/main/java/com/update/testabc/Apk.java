@@ -1,4 +1,6 @@
-package com.update.test;
+package com.update.testabc;
+
+
 
 public class Apk {
 
@@ -19,5 +21,6 @@ public class Apk {
         this.fileSize = fileSize;
         this.url = url;
         this.md5 = md5;
+
     }
 }

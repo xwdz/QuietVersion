@@ -1,10 +1,9 @@
-package com.update.test;
+package com.update.testabc;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import com.xingwei.checkupdate.Quite;
-import com.xingwei.checkupdate.Utils;
 import com.xingwei.checkupdate.callback.OnNetworkParserListener;
 import com.xingwei.checkupdate.entry.ApkSource;
 
@@ -25,7 +24,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         Quite.getInstance(this)
                 .GET("http://gank.io/api/data/Android/10/1")
                 .addParams("key", "value")
@@ -33,13 +31,14 @@ public class MainActivity extends AppCompatActivity {
                 .setOnNetworkParserListener(new OnNetworkParserListener() {
                     @Override
                     public ApkSource parser(String response) {
-                        Utils.LOG.i(TAG, "response = " + response);
-                        ApkSource apkSource = new ApkSource();
-                        apkSource.fileSize = 123123;
-                        apkSource.level = 1;
-                        apkSource.note = "本次更新内容如下:\n1.瘦身200k\n2.朋友圈功能\n3.abc";
-                        apkSource.url = kugou;
-                        return apkSource;
+                        return new ApkSource(
+                                kugou,
+                                "本次更新内容如下:\n1.瘦身200k\n2.朋友圈功能\n3.abc",
+                                123123123,
+                                1,
+                                2
+
+                        );
                     }
                 })
                 .apply();
