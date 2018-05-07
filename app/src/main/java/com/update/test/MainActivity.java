@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 import com.xingwei.checkupdate.Quite;
+import com.xingwei.checkupdate.Utils;
 import com.xingwei.checkupdate.callback.OnNetworkParserListener;
 import com.xingwei.checkupdate.entry.ApkSource;
 
@@ -26,16 +27,17 @@ public class MainActivity extends AppCompatActivity {
 
 
         Quite.getInstance(this)
-                .GET("http://www.baidu.com")
+                .GET("http://gank.io/api/data/Android/10/1")
                 .addParams("key", "value")
                 .setForceDownload(true)
-                .setOnNetworkParserListener(new OnNetworkParserListener<String>() {
+                .setOnNetworkParserListener(new OnNetworkParserListener() {
                     @Override
                     public ApkSource parser(String response) {
+                        Utils.LOG.i(TAG, "response = " + response);
                         ApkSource apkSource = new ApkSource();
                         apkSource.fileSize = 123123;
                         apkSource.level = 1;
-                        apkSource.note = "本次跟新内容为abc";
+                        apkSource.note = "本次更新内容如下:\n1.瘦身200k\n2.朋友圈功能\n3.abc";
                         apkSource.url = kugou;
                         return apkSource;
                     }

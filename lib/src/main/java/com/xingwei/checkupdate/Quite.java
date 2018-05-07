@@ -10,6 +10,7 @@ import com.xingwei.checkupdate.core.VersionHandler;
 import com.xingwei.checkupdate.entry.ApkSource;
 import com.xwdz.okhttpgson.OkHttpRun;
 import com.xwdz.okhttpgson.callback.JsonCallBack;
+import com.xwdz.okhttpgson.callback.StringCallBack;
 import com.xwdz.okhttpgson.method.Request;
 
 import java.util.LinkedHashMap;
@@ -109,7 +110,7 @@ public class Quite<T> {
                 final Request request = GET.equals(mMethod) ? OkHttpRun.get(mUrl) : OkHttpRun.post(mUrl);
                 request.addParams(PARAMS)
                         .addHeaders(HEADER)
-                        .execute(new UpgradeCallBack() {
+                        .execute(new StringCallBack() {
                             @Override
                             public void onFailure(Call call, Exception e) {
                                 Utils.LOG.e(TAG, "请求url = " + mUrl + " 失败! error = " + e);

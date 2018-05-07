@@ -7,7 +7,7 @@ import com.xingwei.checkupdate.entry.ApkSource;
  * @author huangxingwei(xwdz9989@gmail.com)
  * @since v0.0.1
  */
-public interface OnNetworkParserListener<T> {
+public interface OnNetworkParserListener {
 
-    ApkSource parser(T response);
+    ApkSource parser(String response);
 }
