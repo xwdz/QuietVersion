@@ -47,7 +47,7 @@ public class ApkInstall {
 
             //判断是否是AndroidN以及更高的版本
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 Uri contentUri = FileProvider.getUriForFile(mFragmentActivity.getBaseContext(), mFragmentActivity.getBaseContext().getPackageName() + ".fileProvider", file);
                 intent.setDataAndType(contentUri, "application/vnd.android.package-archive");
             } else {
@@ -55,6 +55,7 @@ public class ApkInstall {
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             }
             mFragmentActivity.startActivity(intent);
+
         } catch (Exception e) {
             e.printStackTrace();
             Utils.LOG.e(TAG, "install error = " + e.toString());

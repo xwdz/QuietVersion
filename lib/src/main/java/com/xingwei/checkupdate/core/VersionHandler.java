@@ -30,7 +30,7 @@ public class VersionHandler {
     private static final String TAG = VersionHandler.class.getSimpleName();
 
     private ApkInstall mApkInstall;
-    private DownloadApkHelper mDownloadApkHelper;
+    private DownloadApkTask mDownloadApkTask;
     private UIAdapter mUIAdapter;
     private ExecutorService mExecutorService;
 
@@ -62,23 +62,23 @@ public class VersionHandler {
 
         createModule();
 
-        mDownloadApkHelper.setUrl(mApkSource.getUrl());
-        mDownloadApkHelper.setOnProgressListener(mOnProgressListener);
+        mDownloadApkTask.setUrl(mApkSource.getUrl());
+        mDownloadApkTask.setOnProgressListener(mOnProgressListener);
         checkApkNameAndLocalIsNullAndInit(mQuiteEntry.getApkPath(), mQuiteEntry.getApkName(), mApkSource.getUrl());
 
         //apkName，ApkPath 配置之后再set入真正的ApkPath
-        mDownloadApkHelper.setFilePath(mApkPath);
+        mDownloadApkTask.setFilePath(mApkPath);
 
-        Utils.LOG.i(TAG, "handlerApk info:" + "url = " + mApkSource.getUrl() + " \napkName = " + mApkName);
+        Utils.LOG.i(TAG, "handlerApk info:" + "url = " + mApkSource.getUrl());
 
-        mApkLocalIsExist = mDownloadApkHelper.checkApkExits(mApkPath);
+        mApkLocalIsExist = mDownloadApkTask.checkApkExits(mApkPath);
         handlerApk();
     }
 
     private void createModule() {
         mApkInstall = new ApkInstall(mFragmentActivity);
         mUIAdapter = new UIAdapter(mFragmentActivity);
-        mDownloadApkHelper = new DownloadApkHelper();
+        mDownloadApkTask = new DownloadApkTask();
 
         mDownloadReceiver = new StartDownloadReceiver();
         mFragmentActivity.getApplication().registerReceiver(mDownloadReceiver, new IntentFilter(ACTION));
@@ -96,7 +96,6 @@ public class VersionHandler {
                 if (onUINotify != null) {
                     final String note = mApkSource.getNote();
                     onUINotify.show(note);
-
 
                     try {
                         FragmentManager fragmentManager = mFragmentActivity.getSupportFragmentManager();
@@ -132,7 +131,7 @@ public class VersionHandler {
             }
 
             try {
-                mExecutorService.execute(mDownloadApkHelper);
+                mExecutorService.execute(mDownloadApkTask);
                 Utils.LOG.i(TAG, "开始下载服务器apk ...");
             } catch (Exception e) {
                 e.printStackTrace();

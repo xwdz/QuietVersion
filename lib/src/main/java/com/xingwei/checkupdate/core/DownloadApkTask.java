@@ -3,8 +3,8 @@ package com.xingwei.checkupdate.core;
 
 import com.xingwei.checkupdate.Utils;
 import com.xingwei.checkupdate.callback.OnProgressListener;
-import com.xwdz.okhttpgson.HttpManager;
 import com.xwdz.okhttpgson.OkHttpRun;
+import com.xwdz.okhttpgson.OkRun;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,9 +23,9 @@ import okio.Source;
 /**
  * apk下载器
  */
-public class DownloadApkHelper implements Runnable {
+public class DownloadApkTask implements Runnable {
 
-    private static final String TAG = DownloadApkHelper.class.getSimpleName();
+    private static final String TAG = DownloadApkTask.class.getSimpleName();
 
     /**
      * 下载URL
@@ -52,9 +52,19 @@ public class DownloadApkHelper implements Runnable {
     }
 
     private void download() {
-        initHttpClint();
-
         try {
+            OkRun.getInstance()
+                    .newBuilder()
+                    .addNetworkInterceptor(new Interceptor() {
+                        @Override
+                        public Response intercept(Chain chain) throws IOException {
+                            final Response interceptor = chain.proceed(chain.request());
+                            return interceptor.newBuilder()
+                                    .body(new ProgressBody(interceptor.body(), mOnProgressListener))
+                                    .build();
+                        }
+                    }).build();
+
             File file = createBrokenFile(mFilePath);
             Response response = OkHttpRun.get(mApkUrl)
                     .execute();
@@ -69,20 +79,6 @@ public class DownloadApkHelper implements Runnable {
         } catch (Exception e) {
             Utils.LOG.e(TAG, "download file = " + e);
         }
-    }
-
-    private void initHttpClint() {
-        HttpManager.getInstance().addNetworkInterceptor(new Interceptor() {
-            @Override
-            public Response intercept(Chain chain) throws IOException {
-                final Response interceptor = chain.proceed(chain.request());
-                return interceptor.newBuilder()
-                        .body(new ProgressBody(interceptor.body(), mOnProgressListener))
-                        .build();
-            }
-        });
-
-        HttpManager.getInstance().build();
     }
 
     /**

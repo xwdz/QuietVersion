@@ -1,9 +1,5 @@
 package com.xingwei.checkupdate;
 
-import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
@@ -13,18 +9,22 @@ import com.xingwei.checkupdate.callback.OnUINotify;
 import com.xingwei.checkupdate.core.VersionHandler;
 import com.xingwei.checkupdate.entry.ApkSource;
 import com.xwdz.okhttpgson.OkHttpRun;
+import com.xwdz.okhttpgson.OkRun;
 import com.xwdz.okhttpgson.callback.StringCallBack;
 import com.xwdz.okhttpgson.method.Request;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import okhttp3.Call;
+import okhttp3.Interceptor;
 
-public class Quite<T> {
+public class Quite {
 
     private static final String TAG = Quite.class.getSimpleName();
 
-    private static Quite sCheck;
+    private static Quite sQuite;
 
     private static final String GET = "GET";
     private static final String POST = "POST";
@@ -41,20 +41,23 @@ public class Quite<T> {
     private boolean mForceDownload;
     private OnNetworkParserListener mOnNetworkParserListener;
     private OnUINotify mNotifyUIHandler;
+    private final List<Interceptor> mInterceptors = new ArrayList<>();
+    private final List<Interceptor> mNetworkInterceptors = new ArrayList<>();
+    private boolean mInstallLaterDeleteApk;
 
     private Quite(FragmentActivity fragmentActivity) {
         this.mFragmentActivity = fragmentActivity;
     }
 
     public static Quite getInstance(FragmentActivity context) {
-        if (sCheck == null) {
+        if (sQuite == null) {
             synchronized (Quite.class) {
-                if (sCheck == null) {
-                    sCheck = new Quite(context);
+                if (sQuite == null) {
+                    sQuite = new Quite(context);
                 }
             }
         }
-        return sCheck;
+        return sQuite;
     }
 
     public Quite GET(String url) {
@@ -81,6 +84,16 @@ public class Quite<T> {
 
     public Quite addHeader(String key, String value) {
         HEADER.put(key, value);
+        return this;
+    }
+
+    public Quite addInterceptor(Interceptor interceptor) {
+        mInterceptors.add(interceptor);
+        return this;
+    }
+
+    public Quite addNetworkInterceptor(Interceptor interceptor) {
+        mNetworkInterceptors.add(interceptor);
         return this;
     }
 
@@ -113,8 +126,11 @@ public class Quite<T> {
                             mApkName,
                             mApkPath,
                             mForceDownload,
+                            mInstallLaterDeleteApk,
                             mNotifyUIHandler
                     );
+
+            initClient();
 
             if (mOnNetworkParserListener != null) {
                 final Request request = GET.equals(mMethod) ? OkHttpRun.get(mUrl) : OkHttpRun.post(mUrl);
@@ -139,11 +155,29 @@ public class Quite<T> {
         }
     }
 
+    private void initClient() {
+        final OkRun manager = OkRun.getInstance().newBuilder();
+        for (Interceptor interceptor : mInterceptors) {
+            manager.addInterceptor(interceptor);
+        }
+
+        for (Interceptor networkInterceptor : mNetworkInterceptors) {
+            manager.addNetworkInterceptor(networkInterceptor);
+        }
+        manager.attachTag(Utils.LOG.TAG);
+        manager.build();
+    }
+
 
     public void recycle() {
         if (mVersionHandler != null) {
             mVersionHandler.recycle();
         }
+    }
+
+    public Quite setInstallLaterDeleteApk(boolean installLaterDeleteApk) {
+        this.mInstallLaterDeleteApk = installLaterDeleteApk;
+        return this;
     }
 
 
@@ -152,13 +186,15 @@ public class Quite<T> {
         private String mApkName;
         private String mApkPath;
         private boolean mForceDownload;
+        private boolean mDeleteApk;
         private OnUINotify mOnUINotify;
 
-        private QuiteEntry(String apkName, String apkPath, boolean forceDownload, OnUINotify onUINotify) {
+        private QuiteEntry(String apkName, String apkPath, boolean forceDownload, boolean deleteApk, OnUINotify onUINotify) {
             this.mApkName = apkName;
             this.mApkPath = apkPath;
             this.mForceDownload = forceDownload;
             this.mOnUINotify = onUINotify;
+            this.mDeleteApk = deleteApk;
         }
 
         public boolean isForceDownload() {
@@ -177,6 +213,10 @@ public class Quite<T> {
             return mOnUINotify;
         }
 
+        public boolean isDeleteApk() {
+            return mDeleteApk;
+        }
+
         @Override
         public int describeContents() {
             return 0;
@@ -187,12 +227,14 @@ public class Quite<T> {
             dest.writeString(this.mApkName);
             dest.writeString(this.mApkPath);
             dest.writeByte(this.mForceDownload ? (byte) 1 : (byte) 0);
+            dest.writeByte(this.mDeleteApk ? (byte) 1 : (byte) 0);
         }
 
         protected QuiteEntry(Parcel in) {
             this.mApkName = in.readString();
             this.mApkPath = in.readString();
             this.mForceDownload = in.readByte() != 0;
+            this.mDeleteApk = in.readByte() != 0;
         }
 
         public static final Parcelable.Creator<QuiteEntry> CREATOR = new Parcelable.Creator<QuiteEntry>() {
