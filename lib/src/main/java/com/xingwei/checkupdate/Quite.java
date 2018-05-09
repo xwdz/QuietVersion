@@ -43,7 +43,6 @@ public class Quite {
     private OnUINotify mNotifyUIHandler;
     private final List<Interceptor> mInterceptors = new ArrayList<>();
     private final List<Interceptor> mNetworkInterceptors = new ArrayList<>();
-    private boolean mInstallLaterDeleteApk;
 
     private Quite(FragmentActivity fragmentActivity) {
         this.mFragmentActivity = fragmentActivity;
@@ -126,7 +125,7 @@ public class Quite {
                             mApkName,
                             mApkPath,
                             mForceDownload,
-                            mInstallLaterDeleteApk,
+                            false,
                             mNotifyUIHandler
                     );
 
@@ -177,11 +176,6 @@ public class Quite {
         if (mVersionHandler != null) {
             mVersionHandler.recycle();
         }
-    }
-
-    public Quite setInstallLaterDeleteApk(boolean installLaterDeleteApk) {
-        this.mInstallLaterDeleteApk = installLaterDeleteApk;
-        return this;
     }
 
 
