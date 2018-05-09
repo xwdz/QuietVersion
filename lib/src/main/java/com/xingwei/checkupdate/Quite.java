@@ -145,7 +145,11 @@ public class Quite {
                             @Override
                             protected void onSuccess(Call call, String response) {
                                 ApkSource apkSource = mOnNetworkParserListener.parser(response);
-                                mVersionHandler = VersionHandler.get(mFragmentActivity, apkSource, entry);
+                                if (apkSource != null) {
+                                    mVersionHandler = VersionHandler.get(mFragmentActivity, apkSource, entry);
+                                } else {
+                                    throw new NullPointerException("ApkSource cannot be null!!!");
+                                }
                             }
                         });
             }

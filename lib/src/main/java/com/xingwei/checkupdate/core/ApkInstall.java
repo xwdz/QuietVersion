@@ -45,11 +45,11 @@ public class ApkInstall {
             File file = new File(apkPath);
             Intent intent = new Intent(Intent.ACTION_VIEW);
 
-            //判断是否是AndroidN以及更高的版本
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 Uri contentUri = FileProvider.getUriForFile(mFragmentActivity.getBaseContext(), mFragmentActivity.getBaseContext().getPackageName() + ".fileProvider", file);
                 intent.setDataAndType(contentUri, "application/vnd.android.package-archive");
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             } else {
                 intent.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive");
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

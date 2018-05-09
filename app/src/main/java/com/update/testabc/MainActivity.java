@@ -8,6 +8,7 @@ import android.widget.Toast;
 import com.jac.android.common.http.HTTPBuilder;
 import com.jac.android.common.id.CUID;
 import com.jac.android.common.utils.Device;
+import com.jac.android.common.utils.LOG;
 import com.jac.android.common.utils.SystemUtils;
 import com.jac.android.common.utils.TextUtils;
 import com.jac.android.common.utils.ZipUtils;
@@ -22,13 +23,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import okhttp3.Interceptor;
 import okhttp3.Request;
@@ -49,6 +53,11 @@ public class MainActivity extends AppCompatActivity {
     public final static String SIGN_PRIVKEY = "788c14bbbe0eaf5d1120bcd5a013bdd8";
 
 
+    private Map<String, String> mQueryParameters = new LinkedHashMap<String, String>();
+
+    private static AtomicLong gCounter = new AtomicLong(1);
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,11 +69,25 @@ public class MainActivity extends AppCompatActivity {
         final Interceptor interceptor = new Interceptor() {
             @Override
             public Response intercept(Chain chain) throws IOException {
-                Utils.LOG.e(TAG, "intercept");
+                Utils.LOG.e(TAG, "intercept  code = " + SystemUtils.getMyVersionCode(MainActivity.this));
                 JSONObject jo = null;
+
+
+                mQueryParameters.put(HTTPBuilder.P_CHANNEL, "600app");
+                mQueryParameters.put(HTTPBuilder.P_CUID, CUID.str(MainActivity.this));
+                mQueryParameters.put("app_pkg", SystemUtils.getMyPackageName(MainActivity.this));
+                mQueryParameters.put("app_ver", ("" + SystemUtils.getMyVersionCode(MainActivity.this)));
+                mQueryParameters.put("app_vern", SystemUtils.getMyVersionName(MainActivity.this));
+                mQueryParameters.put("os_release", SystemUtils.getOSRelease());
+                mQueryParameters.put("os_sdk", SystemUtils.getOSSDKInt());
+                mQueryParameters.put("rom_release", SystemUtils.getROMRelease());
+                mQueryParameters.put("dev_model", Device.getModel());
+                mQueryParameters.put("dev_brand", Device.getBrand());
+                mQueryParameters.put("dev_mfr", Device.getManufacturer());
+
                 try {
                     jo = new JSONObject();
-                    jo.put(HTTPBuilder.P_CHANNEL, "app");
+                    jo.put(HTTPBuilder.P_CHANNEL, "600app");
                     jo.put(HTTPBuilder.P_CUID, CUID.str(MainActivity.this));
                     jo.put("app_pkg", SystemUtils.getMyPackageName(MainActivity.this));
                     jo.put("app_ver", ("" + SystemUtils.getMyVersionCode(MainActivity.this)));
@@ -75,10 +98,19 @@ public class MainActivity extends AppCompatActivity {
                     jo.put("dev_model", Device.getModel());
                     jo.put("dev_brand", Device.getBrand());
                     jo.put("dev_mfr", Device.getManufacturer());
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
 
+                LinkedHashMap<String, String> queries = new LinkedHashMap<>(mQueryParameters);
+                String signature = "";
+                try {
+                    signature = getSignature(queries, null, SIGN_PRIVKEY);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                Utils.LOG.i(TAG, "signature = " + signature);
                 Request request = chain.request();
                 final Request.Builder requestBuilder = request.newBuilder();
                 String result = get(jo.toString());
@@ -87,6 +119,18 @@ public class MainActivity extends AppCompatActivity {
                         .addQueryParameter("p", get(jo.toString()))
                         .addQueryParameter("lang", "zhcn")
                         .addQueryParameter("gz", "1")
+                        .addQueryParameter(HTTPBuilder.P_CHANNEL, "600app")
+                        .addQueryParameter("appid", "1")
+                        .addQueryParameter("m1", Device.getm1(MainActivity.this))
+                        .addQueryParameter("cuid", CUID.str(MainActivity.this))
+                        .addQueryParameter("ctype", SystemUtils.getOSType())
+                        .addQueryParameter("cname", SystemUtils.getClientName(MainActivity.this))
+                        .addQueryParameter("model", Device.getModel())
+                        .addQueryParameter("m1", Device.getm1(MainActivity.this))
+                        .addQueryParameter("netype", SystemUtils.getNetworkInfo(MainActivity.this))
+                        .addQueryParameter("sign", signature)
+                        .addQueryParameter("t", String.valueOf(System.currentTimeMillis()))
+                        .addQueryParameter("syn", String.valueOf(gCounter.getAndIncrement()))
                         .build()
                 );
                 return chain.proceed(requestBuilder.build());
@@ -102,15 +146,37 @@ public class MainActivity extends AppCompatActivity {
                 .setOnNetworkParserListener(new OnNetworkParserListener() {
                     @Override
                     public ApkSource parser(String response) {
-                        com.update.testabc.Response resule = Parser.getInstance().parser(response, com.update.testabc.Response.class);
-                        Utils.LOG.i(TAG, "response = " + resule.toString());
-                        return new ApkSource(
-                                "http://tools.9fens.com/sdk/upload/app-debug_201805081607.apk",
-                                "本次更新内容如下:\n1.瘦身200k\n2.朋友圈功能\n3.abc",
-                                123123123,
-                                1,
-                                99999
-                        );
+                        com.update.testabc.Response result = Parser.getInstance().parser(response, com.update.testabc.Response.class);
+
+
+                        // 对update字段Base64解码后解压
+                        byte[] buffer = new byte[1024];
+
+                        if (!TextUtils.empty(result.update)) {
+                            try {
+                                buffer = Base64.decode(result.update.getBytes("UTF-8"), Base64.NO_WRAP);
+                            } catch (UnsupportedEncodingException e) {
+                                e.printStackTrace();
+                            }
+                            String jsonBuffer = null;
+                            try {
+                                jsonBuffer = new String(buffer, "UTF-8");
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                            Apk apk = Parser.getInstance().parser(jsonBuffer, Apk.class);
+                            Utils.LOG.i(TAG, "apk = " + apk.toString());
+                            return new ApkSource(
+                                    apk.url,
+                                    apk.des,
+                                    apk.size,
+                                    apk.level,
+                                    Integer.parseInt(apk.ver)
+                            );
+                        }
+
+                        return null;
                     }
                 })
                 .apply();
@@ -161,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
 
     public String get(String jo) {
         try {
-            byte[] buffer = ZipUtils.gz(jo.toString().getBytes("UTF-8"));
+            byte[] buffer = ZipUtils.gz(jo.getBytes("UTF-8"));
             return new String(Base64.encode(buffer, Base64.NO_WRAP));
         } catch (Exception e) {
             e.printStackTrace();
