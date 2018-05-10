@@ -4,7 +4,7 @@
 
 
 ### 实现效果
-![image.png](https://upload-images.jianshu.io/upload_images/2651056-e7ecf46bee2ae818.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![WeChatSight112.gif](https://upload-images.jianshu.io/upload_images/2651056-8c50665d70685c18.gif?imageMogr2/auto-orient/strip)
 
 ### 添加依赖
 
