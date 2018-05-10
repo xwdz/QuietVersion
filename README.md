@@ -98,7 +98,7 @@ VersionHandler.startDownloadApk(getContext());
 ```
 
 
-- 在自定义容器中接受下载进度条
+- 在自定义容器中注册接受下载进度条组件
 
 ```
 private final VersionHandler.ProgressReceiver mProgressReceiver = new VersionHandler.ProgressReceiver() {
@@ -109,7 +109,7 @@ private final VersionHandler.ProgressReceiver mProgressReceiver = new VersionHan
     };
 
 
-//再合适的时候注册
+//在合适的时候注册
 VersionHandler.registerProgressbarReceiver(getContext(), mProgressReceiver);
 
 //容器销毁的时候注销
