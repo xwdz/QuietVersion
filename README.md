@@ -77,8 +77,8 @@ setOnNetworkParserListener(new OnNetworkParserListener() {
 
 
 ####  QuiteVersion 执行更新App策略
-     - **ApkSource.remoteVersionCode > 当前版本code**
-     - **todo**
+     - ApkSource.remoteVersionCode > 当前版本code
+     - todo
 
 
 #### setApkName 以及setApkPath 说明
