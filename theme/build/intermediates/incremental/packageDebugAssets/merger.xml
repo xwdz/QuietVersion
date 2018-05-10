@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger version="3"><dataSet config="main"><source path="/Users/huangxingwei/AndroidStudioProjects/QuiteVersion/theme/src/main/assets"/><source path="/Users/huangxingwei/AndroidStudioProjects/QuiteVersion/theme/build/generated/assets/shaders/debug"/></dataSet><dataSet config="debug"><source path="/Users/huangxingwei/AndroidStudioProjects/QuiteVersion/theme/src/debug/assets"/></dataSet></merger>
