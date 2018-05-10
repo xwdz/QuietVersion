@@ -109,6 +109,8 @@ public abstract void updateProgress(int percent, long currentLength, long total)
 **在不指定`.setNotifyHandler()方法以及`setShowUIActivity`方法时默认实现效果参照文章开头`**
 **在自定义容器中实现此接口,在接口方法`show`中调用真正的`show`方法**,[详见simple-code](https://github.com/xwdz/QuiteVersion/blob/master/app/src/main/java/com/update/testabc/DialogTest.java)
 
+**注意:自定义容器只能使用一种方式。**
+
 
 #### 自定义容器中，点击开始下载时,需要调用如下代码
 
