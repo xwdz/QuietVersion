@@ -9,9 +9,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.xingwei.checkupdate.Utils;
 import com.xingwei.checkupdate.callback.OnUINotify;
+import com.xingwei.checkupdate.core.VersionHandler;
 
 public class DialogTest extends DialogFragment implements OnUINotify {
+
+
+    private final VersionHandler.ProgressReceiver mProgressReceiver = new VersionHandler.ProgressReceiver() {
+        @Override
+        public void onUpdateProgress(long total, long currentLength, int percent) {
+            Utils.LOG.i("tag", "current = " + currentLength);
+        }
+    };
 
 
     public static DialogTest newInstance() {
@@ -27,6 +37,12 @@ public class DialogTest extends DialogFragment implements OnUINotify {
         return inflater.inflate(R.layout.test_dialog, container, false);
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        VersionHandler.startDownloadApk(getContext());
+        VersionHandler.registerProgressbarReceiver(getContext(), mProgressReceiver);
+    }
 
     @Override
     public void show(String note) {
@@ -38,4 +54,9 @@ public class DialogTest extends DialogFragment implements OnUINotify {
         fragmentManager.beginTransaction().add(this, getTag()).commitAllowingStateLoss();
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        VersionHandler.unregisterProgressbarReceiver(getContext(), mProgressReceiver);
+    }
 }

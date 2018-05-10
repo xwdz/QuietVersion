@@ -28,7 +28,7 @@ public abstract class AbstractActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        VersionHandler.onRegisterProgressbarUpdateReceiver(this, mProgressReceiver);
+        VersionHandler.registerProgressbarReceiver(this, mProgressReceiver);
         setContentView(getContentLayoutId());
         setUpData();
     }
@@ -36,7 +36,7 @@ public abstract class AbstractActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        VersionHandler.onUnregisterProgressbarUpdateReceiver(this, mProgressReceiver);
+        VersionHandler.unregisterProgressbarReceiver(this, mProgressReceiver);
     }
 
 

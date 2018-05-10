@@ -46,25 +46,24 @@ public class MainActivity extends AppCompatActivity {
     String kugou = "http://download.kugou.com/download/kugou_android";
 
 
-    public final static String SIGN_PRIVKEY = "788c14bbbe0eaf5d1120bcd5a013bdd8";
-    private Map<String, String> mQueryParameters = new LinkedHashMap<String, String>();
-    private static AtomicLong gCounter = new AtomicLong(1);
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        DialogTest dialogTest = DialogTest.newInstance();
         Quite.getInstance(this)
+                //or POST
                 .GET("http://www.baidu.com")
+                //强制每次更新下载最新Apk
                 .setForceDownload(true)
+                .setNotifyHandler(dialogTest)
                 .setOnNetworkParserListener(new OnNetworkParserListener() {
                     @Override
                     public ApkSource parser(String response) {
                         return new ApkSource(
                                 kugou,
-                                "123",
+                                "更新内容如下\n1.你好\n2.我不好",
                                 123123123,
                                 123,
                                 9999

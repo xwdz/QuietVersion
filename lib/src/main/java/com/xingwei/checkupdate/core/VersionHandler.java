@@ -235,13 +235,13 @@ public class VersionHandler {
     }
 
 
-    public static void onRegisterProgressbarUpdateReceiver(Context context, ProgressReceiver progressReceiver) {
+    public static void registerProgressbarReceiver(Context context, ProgressReceiver progressReceiver) {
         if (progressReceiver != null) {
             context.getApplicationContext().registerReceiver(progressReceiver, new IntentFilter(VersionHandler.UPDATE_PROGRESSBAR_ACTION));
         }
     }
 
-    public static void onUnregisterProgressbarUpdateReceiver(Context context, ProgressReceiver progressReceiver) {
+    public static void unregisterProgressbarReceiver(Context context, ProgressReceiver progressReceiver) {
         if (progressReceiver != null) {
             context.getApplicationContext().unregisterReceiver(progressReceiver);
         }
@@ -249,7 +249,7 @@ public class VersionHandler {
 
     private static void updateProgress(Context context, long total, long currentLength, int percent) {
         Intent intent = new Intent(UPDATE_PROGRESSBAR_ACTION);
-        intent.putExtra(KEY_TOTAL, total);
+        intent.putExtra(KEY_TOTAL,   total);
         intent.putExtra(KEY_CURRENT_LENGTH, currentLength);
         intent.putExtra(KEY_PERCENT, percent);
         context.sendBroadcast(intent);
