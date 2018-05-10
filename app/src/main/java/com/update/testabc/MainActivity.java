@@ -29,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
                 .GET("http://www.baidu.com")
                 //强制每次更新下载最新Apk
                 .setForceDownload(true)
-                .setShowUIActivity(DialogTest.class)
                 .setOnNetworkParserListener(new OnNetworkParserListener() {
                     @Override
                     public ApkSource parser(String response) {
