@@ -116,3 +116,4 @@ VersionHandler.registerProgressbarReceiver(getContext(), mProgressReceiver);
 VersionHandler.unregisterProgressbarReceiver(getContext(), mProgressReceiver);
 ```
 
+[github地址，会一直维护，欢迎提需求，顺手点个star吧。](https://github.com/xwdz/QuiteVersion)
