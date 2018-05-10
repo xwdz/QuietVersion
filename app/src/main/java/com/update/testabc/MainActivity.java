@@ -3,12 +3,10 @@ package com.update.testabc;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
-import android.widget.Toast;
 
 import com.jac.android.common.http.HTTPBuilder;
 import com.jac.android.common.id.CUID;
 import com.jac.android.common.utils.Device;
-import com.jac.android.common.utils.LOG;
 import com.jac.android.common.utils.SystemUtils;
 import com.jac.android.common.utils.TextUtils;
 import com.jac.android.common.utils.ZipUtils;
@@ -16,7 +14,6 @@ import com.xingwei.checkupdate.Quite;
 import com.xingwei.checkupdate.Utils;
 import com.xingwei.checkupdate.callback.OnNetworkParserListener;
 import com.xingwei.checkupdate.entry.ApkSource;
-import com.xwdz.okhttpgson.callback.JsonCallBack;
 import com.xwdz.okhttpgson.model.Parser;
 
 import org.json.JSONException;
@@ -29,7 +26,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -142,7 +138,6 @@ public class MainActivity extends AppCompatActivity {
                 .GET("http://appcfg.5hbb.com:8066/rest/v1/checkupdate")
                 .setForceDownload(true)
                 .addInterceptor(interceptor)
-                .setInstallLaterDeleteApk(true)
                 .setOnNetworkParserListener(new OnNetworkParserListener() {
                     @Override
                     public ApkSource parser(String response) {
