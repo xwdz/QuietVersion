@@ -1,7 +1,5 @@
 package com.xingwei.checkupdate;
 
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.v4.app.FragmentActivity;
 
 import com.xingwei.checkupdate.callback.OnNetworkParserListener;
@@ -147,7 +145,7 @@ public class Quite {
                                 if (apkSource != null) {
                                     mVersionHandler = VersionHandler.get(mFragmentActivity, apkSource, entry);
                                 } else {
-                                    throw new NullPointerException("ApkSource cannot be null!!!");
+                                    Utils.LOG.i(TAG, "当前暂未发现新版本...");
                                 }
                             }
                         });
@@ -179,7 +177,7 @@ public class Quite {
     }
 
 
-    public static class QuiteEntry implements Parcelable {
+    public static class QuiteEntry {
 
         private String mApkName;
         private String mApkPath;
@@ -214,37 +212,5 @@ public class Quite {
         public boolean isDeleteApk() {
             return mDeleteApk;
         }
-
-        @Override
-        public int describeContents() {
-            return 0;
-        }
-
-        @Override
-        public void writeToParcel(Parcel dest, int flags) {
-            dest.writeString(this.mApkName);
-            dest.writeString(this.mApkPath);
-            dest.writeByte(this.mForceDownload ? (byte) 1 : (byte) 0);
-            dest.writeByte(this.mDeleteApk ? (byte) 1 : (byte) 0);
-        }
-
-        protected QuiteEntry(Parcel in) {
-            this.mApkName = in.readString();
-            this.mApkPath = in.readString();
-            this.mForceDownload = in.readByte() != 0;
-            this.mDeleteApk = in.readByte() != 0;
-        }
-
-        public static final Parcelable.Creator<QuiteEntry> CREATOR = new Parcelable.Creator<QuiteEntry>() {
-            @Override
-            public QuiteEntry createFromParcel(Parcel source) {
-                return new QuiteEntry(source);
-            }
-
-            @Override
-            public QuiteEntry[] newArray(int size) {
-                return new QuiteEntry[size];
-            }
-        };
     }
 }
