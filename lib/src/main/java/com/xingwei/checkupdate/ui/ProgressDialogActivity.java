@@ -17,6 +17,8 @@ import com.xingwei.checkupdate.core.VersionHandler;
  */
 public class ProgressDialogActivity extends AbstractActivity {
 
+
+    private static final String KEY_NOTE = "note";
     private DefaultDialogFragment mDefaultDialogFragment = DefaultDialogFragment.newInstance();
 
     @Override

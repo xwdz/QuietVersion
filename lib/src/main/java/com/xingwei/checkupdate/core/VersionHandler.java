@@ -81,7 +81,7 @@ public class VersionHandler {
         mDownloadApkTask = new DownloadApkTask();
 
         mDownloadReceiver = new StartDownloadReceiver();
-        mFragmentActivity.getApplication().registerReceiver(mDownloadReceiver, new IntentFilter(ACTION));
+        mFragmentActivity.getApplication().registerReceiver(mDownloadReceiver, new IntentFilter(START_DOWNLOAD_ACTION));
         Utils.LOG.i(TAG, "组件初始化完毕 ...");
     }
 
@@ -177,7 +177,7 @@ public class VersionHandler {
     }
 
     public static void startDownloadApk(Context context) {
-        Intent intent = new Intent(ACTION);
+        Intent intent = new Intent(START_DOWNLOAD_ACTION);
         intent.putExtra(KEY_START_DOWN, FLAG_START_DOWN);
         context.sendBroadcast(intent);
     }
@@ -187,7 +187,7 @@ public class VersionHandler {
 
         @Override
         public void onTransfer(int percent, long currentLength, long total) {
-            AbstractActivity.updateProgress(mFragmentActivity, total, currentLength, percent);
+            updateProgress(mFragmentActivity, total, currentLength, percent);
         }
 
         @Override
@@ -198,7 +198,7 @@ public class VersionHandler {
     };
 
 
-    private static final String ACTION = "com.xwdz.checkupdate.core.VersionHandler";
+    private static final String START_DOWNLOAD_ACTION = "com.xwdz.checkupdate.core.VersionHandler";
     private static final String KEY_START_DOWN = "start_download";
     private static final int FLAG_START_DOWN = 1;
 
@@ -211,6 +211,50 @@ public class VersionHandler {
             }
         }
     }
+
+
+    public static final String UPDATE_PROGRESSBAR_ACTION = "com.xingwei.checkupdate.ui.ProgressDialogActivity";
+
+    private static final String KEY_TOTAL = "total";
+    private static final String KEY_CURRENT_LENGTH = "currentlength";
+    private static final String KEY_PERCENT = "percent";
+
+    public abstract static class ProgressReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            long total = intent.getLongExtra(KEY_TOTAL, 0);
+            long currentLength = intent.getLongExtra(KEY_CURRENT_LENGTH, 0);
+            int percent = intent.getIntExtra(KEY_PERCENT, 0);
+
+            onUpdateProgress(total, currentLength, percent);
+
+        }
+
+        public abstract void onUpdateProgress(long total, long currentLength, int percent);
+    }
+
+
+    public static void onRegisterProgressbarUpdateReceiver(Context context, ProgressReceiver progressReceiver) {
+        if (progressReceiver != null) {
+            context.getApplicationContext().registerReceiver(progressReceiver, new IntentFilter(VersionHandler.UPDATE_PROGRESSBAR_ACTION));
+        }
+    }
+
+    public static void onUnregisterProgressbarUpdateReceiver(Context context, ProgressReceiver progressReceiver) {
+        if (progressReceiver != null) {
+            context.getApplicationContext().unregisterReceiver(progressReceiver);
+        }
+    }
+
+    private static void updateProgress(Context context, long total, long currentLength, int percent) {
+        Intent intent = new Intent(UPDATE_PROGRESSBAR_ACTION);
+        intent.putExtra(KEY_TOTAL, total);
+        intent.putExtra(KEY_CURRENT_LENGTH, currentLength);
+        intent.putExtra(KEY_PERCENT, percent);
+        context.sendBroadcast(intent);
+    }
+
 
     public void recycle() {
         if (mDownloadReceiver != null) {

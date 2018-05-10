@@ -21,18 +21,11 @@ public class CheckUpgradeVersion {
 
     /**
      * 对比code是否需要更新
+     *
      * @param remoteVersionCode 服务器返回版本code
      */
     public boolean check(int remoteVersionCode) {
         return remoteVersionCode > BuildConfig.VERSION_CODE;
     }
 
-
-    public static final int NORMAL = 0;
-    public static final int FORCE = 1;
-
-    public int checkUpgradeRule(int level) {
-        //todo 测试代码
-        return NORMAL;
-    }
 }

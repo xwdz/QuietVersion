@@ -77,7 +77,7 @@ public class DownloadApkTask implements Runnable {
                 mOnProgressListener.onFinished(file);
             }
         } catch (Exception e) {
-            Utils.LOG.e(TAG, "download file = " + e);
+            Utils.LOG.e(TAG, "download file error= " + e);
         }
     }
 
