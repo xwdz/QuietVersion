@@ -85,7 +85,7 @@ public class Quite {
         return this;
     }
 
-    public Quite setShowStartActivity(Class<?> cls) {
+    public Quite setShowUIActivity(Class<?> cls) {
         this.mClz = cls;
         return this;
     }
