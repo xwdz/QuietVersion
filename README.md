@@ -2,6 +2,10 @@
 
 用于Android App检测自动更新
 
+
+### 实现效果
+![image.png](https://upload-images.jianshu.io/upload_images/2651056-e7ecf46bee2ae818.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+
 ### 添加依赖
 
 ```
@@ -71,7 +75,7 @@ setOnNetworkParserListener(new OnNetworkParserListener() {
 ```
 
 
-- **QuiteVersion 对比策略**
+- **QuiteVersion 跟新策略**
      - **ApkSource.remoteVersionCode > 当前版本code**
      - **todo**
 
@@ -83,6 +87,7 @@ setOnNetworkParserListener(new OnNetworkParserListener() {
 
 
 - **setNotifyHandler(OnUINotify notifyHandler)**
+**不指定`.setNotifyHandler()方法既默认实现效果参照文章开头`**
 **在自定义容器中实现此接口,在接口方法`show`中调用真正的`show`方法**,[详见simple-code](https://github.com/xwdz/QuiteVersion/blob/master/app/src/main/java/com/update/testabc/DialogTest.java)
 
 
