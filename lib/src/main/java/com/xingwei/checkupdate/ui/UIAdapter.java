@@ -1,6 +1,7 @@
 package com.xingwei.checkupdate.ui;
 
 import android.content.Context;
+import android.content.Intent;
 
 public class UIAdapter {
 
@@ -12,7 +13,13 @@ public class UIAdapter {
     }
 
 
-    public void showUpgradeDialog(String note) {
-        ProgressDialogActivity.startActivity(mContext, note);
+    public void showUpgradeDialog(String note, Class<?> activityClass) {
+        if (activityClass == null) {
+            ProgressDialogActivity.startActivity(mContext, note);
+        } else {
+            Intent intent = new Intent(mContext, activityClass);
+            intent.putExtra("note", note);
+            mContext.startActivity(intent);
+        }
     }
 }

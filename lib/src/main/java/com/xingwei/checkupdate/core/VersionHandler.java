@@ -13,7 +13,6 @@ import com.xingwei.checkupdate.Utils;
 import com.xingwei.checkupdate.callback.OnProgressListener;
 import com.xingwei.checkupdate.callback.OnUINotify;
 import com.xingwei.checkupdate.entry.ApkSource;
-import com.xingwei.checkupdate.ui.AbstractActivity;
 import com.xingwei.checkupdate.ui.UIAdapter;
 
 import java.io.File;
@@ -107,7 +106,7 @@ public class VersionHandler {
                         Utils.LOG.e(TAG, "get fragmentManager error = " + e);
                     }
                 } else {
-                    mUIAdapter.showUpgradeDialog(mApkSource.getNote());
+                    mUIAdapter.showUpgradeDialog(mApkSource.getNote(), mQuiteEntry.getActivityClass());
                 }
 
             }
@@ -249,7 +248,7 @@ public class VersionHandler {
 
     private static void updateProgress(Context context, long total, long currentLength, int percent) {
         Intent intent = new Intent(UPDATE_PROGRESSBAR_ACTION);
-        intent.putExtra(KEY_TOTAL,   total);
+        intent.putExtra(KEY_TOTAL, total);
         intent.putExtra(KEY_CURRENT_LENGTH, currentLength);
         intent.putExtra(KEY_PERCENT, percent);
         context.sendBroadcast(intent);

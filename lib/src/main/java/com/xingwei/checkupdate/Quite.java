@@ -41,6 +41,7 @@ public class Quite {
     private OnUINotify mNotifyUIHandler;
     private final List<Interceptor> mInterceptors = new ArrayList<>();
     private final List<Interceptor> mNetworkInterceptors = new ArrayList<>();
+    private Class<?> mClz;
 
     private Quite(FragmentActivity fragmentActivity) {
         this.mFragmentActivity = fragmentActivity;
@@ -84,6 +85,11 @@ public class Quite {
         return this;
     }
 
+    public Quite setShowStartActivity(Class<?> cls) {
+        this.mClz = cls;
+        return this;
+    }
+
     public Quite addInterceptor(Interceptor interceptor) {
         mInterceptors.add(interceptor);
         return this;
@@ -124,6 +130,7 @@ public class Quite {
                             mApkPath,
                             mForceDownload,
                             false,
+                            mClz,
                             mNotifyUIHandler
                     );
 
@@ -184,13 +191,15 @@ public class Quite {
         private boolean mForceDownload;
         private boolean mDeleteApk;
         private OnUINotify mOnUINotify;
+        private Class<?> mClass;
 
-        private QuiteEntry(String apkName, String apkPath, boolean forceDownload, boolean deleteApk, OnUINotify onUINotify) {
+        private QuiteEntry(String apkName, String apkPath, boolean forceDownload, boolean deleteApk, Class<?> clz, OnUINotify onUINotify) {
             this.mApkName = apkName;
             this.mApkPath = apkPath;
             this.mForceDownload = forceDownload;
             this.mOnUINotify = onUINotify;
             this.mDeleteApk = deleteApk;
+            this.mClass = clz;
         }
 
         public boolean isForceDownload() {
@@ -212,5 +221,10 @@ public class Quite {
         public boolean isDeleteApk() {
             return mDeleteApk;
         }
+
+        public Class<?> getActivityClass() {
+            return mClass;
+        }
+
     }
 }
