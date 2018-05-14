@@ -1,9 +1,12 @@
 package com.xingwei.checkupdate.core;
 
+import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.IBinder;
+import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
@@ -24,7 +27,7 @@ import java.util.concurrent.Executors;
  * @author huangxingwei (xwdz9989@gmail.com)
  * @since 2018/5/3
  */
-public class VersionHandler {
+public class VersionHandler{
 
     private static final String TAG = VersionHandler.class.getSimpleName();
 
@@ -80,7 +83,6 @@ public class VersionHandler {
         mDownloadApkTask = new DownloadApkTask();
 
         mDownloadReceiver = new StartDownloadReceiver();
-        mFragmentActivity.getApplication().registerReceiver(mDownloadReceiver, new IntentFilter(START_DOWNLOAD_ACTION));
         Utils.LOG.i(TAG, "组件初始化完毕 ...");
     }
 
@@ -201,7 +203,7 @@ public class VersionHandler {
     private static final String KEY_START_DOWN = "start_download";
     private static final int FLAG_START_DOWN = 1;
 
-    private class StartDownloadReceiver extends BroadcastReceiver {
+    public  class StartDownloadReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             int flag = intent.getIntExtra(KEY_START_DOWN, 0);
