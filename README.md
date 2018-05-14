@@ -137,6 +137,33 @@ VersionHandler.registerProgressbarReceiver(getContext(), mProgressReceiver);
 VersionHandler.unregisterProgressbarReceiver(getContext(), mProgressReceiver);
 ```
 
+
+#### 适配7.0
+
+在AndroidManifest.xml添加如下代码
+
+```
+<provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="您的包名.fileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+```
+
+在res文件夹下新建xml文件夹新建文件file_paths.xml添加如下代码
+
+```
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <external-path path="Android/data/您的包名/" name="files_root" />
+    <external-path path="." name="external_storage_root" />
+</paths>
+```
+
 [@酸菜xwdz](http://huangxingwei.cn)
 [Github](https://github.com/xwdz/QuiteVersion)
 
