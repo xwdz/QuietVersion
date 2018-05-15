@@ -9,7 +9,7 @@
 ### 添加依赖
 
 ```
-    implementation 'com.xwdz:QuiteVersion:0.0.4'
+    implementation 'com.xwdz:QuiteVersion:0.0.5'
     implementation 'com.xwdz:okHttpUtils:1.0.4'
     //如已依赖可忽略
     implementation 'com.squareup.okhttp3:okhttp:3.5.0'
@@ -58,7 +58,7 @@
                 })
                 .apply();
 
-
+//界面销毁时注意释放资源
 Quite.getInstance(this).recycle()
 ```
 

@@ -1,12 +1,9 @@
 package com.xingwei.checkupdate.core;
 
-import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.IBinder;
-import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
@@ -15,7 +12,6 @@ import com.xingwei.checkupdate.Quite;
 import com.xingwei.checkupdate.Utils;
 import com.xingwei.checkupdate.callback.OnProgressListener;
 import com.xingwei.checkupdate.callback.OnUINotify;
-import com.xingwei.checkupdate.entry.ApkSource;
 import com.xingwei.checkupdate.ui.UIAdapter;
 
 import java.io.File;
@@ -59,7 +55,6 @@ public class VersionHandler {
         mDownloadApkTask.setUrl(mQuiteEntry.getUrl());
         mDownloadApkTask.setOnProgressListener(mOnProgressListener);
         mDownloadApkTask.setFilePath(mQuiteEntry.getApkPath());
-        Utils.LOG.i(TAG, "handlerApk info:" + "url = " + mQuiteEntry.getUrl());
         mApkLocalIsExist = mQuiteEntry.checkApkExits();
         handlerApk();
     }
@@ -69,6 +64,7 @@ public class VersionHandler {
         mUIAdapter = new UIAdapter(mFragmentActivity);
         mDownloadApkTask = new DownloadApkTask();
         mDownloadReceiver = new StartDownloadReceiver();
+        mFragmentActivity.registerReceiver(mDownloadReceiver, new IntentFilter(START_DOWNLOAD_ACTION));
         Utils.LOG.i(TAG, "组件初始化完毕 ...");
     }
 
@@ -116,12 +112,8 @@ public class VersionHandler {
                 }
             }
 
-            try {
-                mExecutorService.execute(mDownloadApkTask);
-                Utils.LOG.i(TAG, "开始下载服务器apk ...");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            mExecutorService.execute(mDownloadApkTask);
+            Utils.LOG.i(TAG, "开始下载服务器apk ...");
         } else {
             Utils.LOG.i(TAG, "未发现最新Apk版本 " + mQuiteEntry.getUrl());
         }
