@@ -1,6 +1,8 @@
 package com.xingwei.checkupdate;
 
+import android.content.Context;
 import android.support.v4.app.FragmentActivity;
+import android.text.TextUtils;
 
 import com.xingwei.checkupdate.callback.OnNetworkParserListener;
 import com.xingwei.checkupdate.callback.OnUINotify;
@@ -11,6 +13,7 @@ import com.xwdz.okhttpgson.OkRun;
 import com.xwdz.okhttpgson.callback.StringCallBack;
 import com.xwdz.okhttpgson.method.Request;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -124,15 +127,6 @@ public class Quite {
     public void apply() {
         try {
             Utils.LOG.i(TAG, "appUpgrade apply ... ");
-            final QuiteEntry entry = new QuiteEntry
-                    (
-                            mApkName,
-                            mApkPath,
-                            mForceDownload,
-                            false,
-                            mClz,
-                            mNotifyUIHandler
-                    );
 
             initClient();
 
@@ -150,7 +144,22 @@ public class Quite {
                             protected void onSuccess(Call call, String response) {
                                 ApkSource apkSource = mOnNetworkParserListener.parser(response);
                                 if (apkSource != null) {
-                                    mVersionHandler = VersionHandler.get(mFragmentActivity, apkSource, entry);
+                                    final QuiteEntry entry = new QuiteEntry
+                                            (
+                                                    mApkName,
+                                                    mApkPath,
+                                                    mForceDownload,
+                                                    false,
+                                                    mNotifyUIHandler,
+                                                    mClz,
+                                                    apkSource.getFileSize(),
+                                                    apkSource.getNote(),
+                                                    apkSource.getLevel(),
+                                                    apkSource.getUrl(),
+                                                    apkSource.getRemoteVersionCode(),
+                                                    mFragmentActivity.getApplicationContext()
+                                            );
+                                    mVersionHandler = VersionHandler.get(mFragmentActivity, entry);
                                 } else {
                                     Utils.LOG.i(TAG, "当前暂未发现新版本...");
                                 }
@@ -193,13 +202,28 @@ public class Quite {
         private OnUINotify mOnUINotify;
         private Class<?> mClass;
 
-        private QuiteEntry(String apkName, String apkPath, boolean forceDownload, boolean deleteApk, Class<?> clz, OnUINotify onUINotify) {
-            this.mApkName = apkName;
-            this.mApkPath = apkPath;
-            this.mForceDownload = forceDownload;
-            this.mOnUINotify = onUINotify;
-            this.mDeleteApk = deleteApk;
-            this.mClass = clz;
+        private long mFileSize;
+        private String mNote;
+        private int mLevel;
+        private String mUrl;
+        private int mRemoteVersionCode;
+        private Context mContext;
+
+
+        public QuiteEntry(String apkName, String apkPath, boolean forceDownload, boolean deleteApk, OnUINotify onUINotify, Class<?> aClass,
+                          long fileSize, String note, int level, String url, int remoteVersionCode, Context context) {
+            mApkName = apkName;
+            mApkPath = apkPath;
+            mForceDownload = forceDownload;
+            mDeleteApk = deleteApk;
+            mOnUINotify = onUINotify;
+            mClass = aClass;
+            mFileSize = fileSize;
+            mNote = note;
+            mLevel = level;
+            mUrl = url;
+            mRemoteVersionCode = remoteVersionCode;
+            mContext = context;
         }
 
         public boolean isForceDownload() {
@@ -207,11 +231,78 @@ public class Quite {
         }
 
         public String getApkName() {
+            if (mApkName == null) {
+                try {
+                    int index = mUrl.lastIndexOf("/");
+                    if (index != -1) {
+                        String name = mUrl.substring(index + 1, mUrl.length());
+                        mApkName = Utils.getApkFilename(name);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    mApkName = null;
+                }
+            }
             return mApkName;
         }
 
         public String getApkPath() {
+            if (mApkPath == null) {
+                mApkPath = Utils.getApkLocalUrl(mContext.getApplicationContext(), mApkName);
+            }
             return mApkPath;
+        }
+
+        public boolean checkApkExits() {
+            try {
+                File file = new File(getApkPath());
+                return file.exists();
+            } catch (Exception e) {
+                e.printStackTrace();
+                Utils.LOG.e(TAG, "check local apk failure = " + e);
+            }
+            return false;
+        }
+
+
+        public long getFileSize() {
+            return mFileSize;
+        }
+
+        public void setFileSize(long fileSize) {
+            mFileSize = fileSize;
+        }
+
+        public String getNote() {
+            return mNote;
+        }
+
+        public void setNote(String note) {
+            mNote = note;
+        }
+
+        public int getLevel() {
+            return mLevel;
+        }
+
+        public void setLevel(int level) {
+            mLevel = level;
+        }
+
+        public String getUrl() {
+            return mUrl;
+        }
+
+        public void setUrl(String url) {
+            mUrl = url;
+        }
+
+        public int getRemoteVersionCode() {
+            return mRemoteVersionCode;
+        }
+
+        public void setRemoteVersionCode(int remoteVersionCode) {
+            this.mRemoteVersionCode = remoteVersionCode;
         }
 
         public OnUINotify getOnUINotify() {

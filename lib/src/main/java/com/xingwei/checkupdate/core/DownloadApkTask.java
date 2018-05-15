@@ -105,19 +105,6 @@ public class DownloadApkTask implements Runnable {
         return file;
     }
 
-    /**
-     * 判断本地是否有缓存apk
-     */
-    boolean checkApkExits(String apkPath) {
-        try {
-            File file = new File(apkPath);
-            return file.exists();
-        } catch (Exception e) {
-            e.printStackTrace();
-            Utils.LOG.e(TAG, "check local apk failure = " + e);
-        }
-        return false;
-    }
 
     public static class ProgressBody extends ResponseBody {
 
