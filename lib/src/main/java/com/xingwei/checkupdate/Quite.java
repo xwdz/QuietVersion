@@ -1,8 +1,8 @@
 package com.xingwei.checkupdate;
 
+import android.app.Activity;
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
-import android.text.TextUtils;
 
 import com.xingwei.checkupdate.callback.OnNetworkParserListener;
 import com.xingwei.checkupdate.callback.OnUINotify;
@@ -35,6 +35,7 @@ public class Quite {
 
     private String mMethod;
     private FragmentActivity mFragmentActivity;
+    private Activity mActivity;
     private String mUrl;
     private VersionHandler mVersionHandler;
     private String mApkName;
@@ -50,11 +51,26 @@ public class Quite {
         this.mFragmentActivity = fragmentActivity;
     }
 
+    private Quite(Activity activity) {
+        this.mActivity = activity;
+    }
+
     public static Quite getInstance(FragmentActivity context) {
         if (sQuite == null) {
             synchronized (Quite.class) {
                 if (sQuite == null) {
                     sQuite = new Quite(context);
+                }
+            }
+        }
+        return sQuite;
+    }
+
+    public static Quite getInstance(Activity activity) {
+        if (sQuite == null) {
+            synchronized (Quite.class) {
+                if (sQuite == null) {
+                    sQuite = new Quite(activity);
                 }
             }
         }
@@ -159,7 +175,11 @@ public class Quite {
                                                     apkSource.getRemoteVersionCode(),
                                                     mFragmentActivity.getApplicationContext()
                                             );
-                                    mVersionHandler = VersionHandler.get(mFragmentActivity, entry);
+                                    if (mFragmentActivity != null) {
+                                        mVersionHandler = VersionHandler.get(mFragmentActivity, entry);
+                                    } else {
+                                        mVersionHandler = VersionHandler.get(mActivity, entry);
+                                    }
                                 } else {
                                     Utils.LOG.i(TAG, "当前暂未发现新版本...");
                                 }

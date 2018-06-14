@@ -1,9 +1,9 @@
 package com.xingwei.checkupdate.core;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 
@@ -24,10 +24,10 @@ public class ApkInstall {
 
     private static final String TAG = ApkInstall.class.getSimpleName();
 
-    private FragmentActivity mFragmentActivity;
+    private Context mContext;
 
-    ApkInstall(FragmentActivity fragmentActivity) {
-        this.mFragmentActivity = fragmentActivity;
+    ApkInstall(Context context) {
+        this.mContext = context;
 
     }
 
@@ -46,7 +46,7 @@ public class ApkInstall {
             Intent intent = new Intent(Intent.ACTION_VIEW);
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                Uri contentUri = FileProvider.getUriForFile(mFragmentActivity.getBaseContext(), mFragmentActivity.getBaseContext().getPackageName() + ".fileProvider", file);
+                Uri contentUri = FileProvider.getUriForFile(mContext, mContext.getPackageName() + ".fileProvider", file);
                 intent.setDataAndType(contentUri, "application/vnd.android.package-archive");
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -54,7 +54,7 @@ public class ApkInstall {
                 intent.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive");
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             }
-            mFragmentActivity.startActivity(intent);
+            mContext.startActivity(intent);
 
         } catch (Exception e) {
             e.printStackTrace();

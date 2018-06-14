@@ -1,5 +1,6 @@
 package com.xingwei.checkupdate.core;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -33,6 +34,8 @@ public class VersionHandler {
     private ExecutorService mExecutorService;
 
     private StartDownloadReceiver mDownloadReceiver;
+    private Context mContext;
+
     private FragmentActivity mFragmentActivity;
     private Quite.QuiteEntry mQuiteEntry;
     /**
@@ -45,7 +48,26 @@ public class VersionHandler {
         return new VersionHandler(context, entry);
     }
 
+    public static VersionHandler get(Activity activity, Quite.QuiteEntry entry) {
+        return new VersionHandler(activity, entry);
+    }
+
+    private VersionHandler(Activity activity, Quite.QuiteEntry entry) {
+        mContext = activity.getBaseContext();
+        mExecutorService = Executors.newFixedThreadPool(3);
+        checkURLNotNull(entry.getUrl());
+
+        mQuiteEntry = entry;
+        createModule();
+        mDownloadApkTask.setUrl(mQuiteEntry.getUrl());
+        mDownloadApkTask.setOnProgressListener(mOnProgressListener);
+        mDownloadApkTask.setFilePath(mQuiteEntry.getApkPath());
+        mApkLocalIsExist = mQuiteEntry.checkApkExits();
+        handlerApk();
+    }
+
     private VersionHandler(FragmentActivity fragmentActivity, Quite.QuiteEntry entry) {
+        mContext = fragmentActivity.getBaseContext();
         mExecutorService = Executors.newFixedThreadPool(3);
         mFragmentActivity = fragmentActivity;
         checkURLNotNull(entry.getUrl());
@@ -60,11 +82,11 @@ public class VersionHandler {
     }
 
     private void createModule() {
-        mApkInstall = new ApkInstall(mFragmentActivity);
-        mUIAdapter = new UIAdapter(mFragmentActivity);
+        mApkInstall = new ApkInstall(mContext);
+        mUIAdapter = new UIAdapter(mContext);
         mDownloadApkTask = new DownloadApkTask();
         mDownloadReceiver = new StartDownloadReceiver();
-        mFragmentActivity.registerReceiver(mDownloadReceiver, new IntentFilter(START_DOWNLOAD_ACTION));
+        mContext.registerReceiver(mDownloadReceiver, new IntentFilter(START_DOWNLOAD_ACTION));
         Utils.LOG.i(TAG, "组件初始化完毕 ...");
     }
 
@@ -80,9 +102,11 @@ public class VersionHandler {
                     onUINotify.show(note);
 
                     try {
-                        FragmentManager fragmentManager = mFragmentActivity.getSupportFragmentManager();
-                        if (fragmentManager != null) {
-                            onUINotify.show(note, fragmentManager);
+                        if (mFragmentActivity != null) {
+                            FragmentManager fragmentManager = mFragmentActivity.getSupportFragmentManager();
+                            if (fragmentManager != null) {
+                                onUINotify.show(note, fragmentManager);
+                            }
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -137,7 +161,7 @@ public class VersionHandler {
 
         @Override
         public void onTransfer(int percent, long currentLength, long total) {
-            updateProgress(mFragmentActivity, total, currentLength, percent);
+            updateProgress(mContext, total, currentLength, percent);
         }
 
         @Override
@@ -208,7 +232,7 @@ public class VersionHandler {
 
     public void recycle() {
         if (mDownloadReceiver != null) {
-            mFragmentActivity.getApplication().unregisterReceiver(mDownloadReceiver);
+            mContext.getApplicationContext().unregisterReceiver(mDownloadReceiver);
         }
     }
 }
