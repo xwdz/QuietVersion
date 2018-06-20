@@ -44,7 +44,7 @@ publish {
     repoName = 'xw-widget'//远程仓库名字,不指明，默认是上传到maven
     groupId = 'com.xwdz'//jcenter上的路径
     artifactId = 'QuiteVersion'//项目名称
-    publishVersion = '0.0.7.1'//版本号
+    publishVersion = '0.0.8'//版本号
     website = siteUrl//项目主页
 }
 tasks.withType(Javadoc) {//防止编码问题
