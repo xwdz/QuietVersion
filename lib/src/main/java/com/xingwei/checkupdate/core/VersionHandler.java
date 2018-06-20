@@ -148,7 +148,7 @@ public class VersionHandler {
 
         @Override
         public void onFinished(File file) {
-            Utils.LOG.i(TAG, "install done ...");
+            Utils.LOG.i(TAG, "download file done ...");
             mApkInstall.install(file.getAbsolutePath());
         }
     };
