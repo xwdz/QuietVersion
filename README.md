@@ -166,6 +166,12 @@ VersionHandler.unregisterProgressbarReceiver(getContext(), mProgressReceiver);
 </paths>
 ```
 
+#### 配置混淆
+
+```
+-keep class com.xingwei.checkupdate.** {*;}
+```
+
 [@酸菜xwdz](http://huangxingwei.cn)
 [Github](https://github.com/xwdz/QuiteVersion)
 

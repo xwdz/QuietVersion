@@ -38,14 +38,10 @@ public class Quite {
     private Activity mActivity;
     private String mUrl;
     private VersionHandler mVersionHandler;
-    private String mApkName;
-    private String mApkPath;
-    private boolean mForceDownload;
     private OnNetworkParserListener mOnNetworkParserListener;
-    private OnUINotify mNotifyUIHandler;
     private final List<Interceptor> mInterceptors = new ArrayList<>();
     private final List<Interceptor> mNetworkInterceptors = new ArrayList<>();
-    private Class<?> mClz;
+    private QuiteEntry mQuiteEntry;
 
     private Quite(FragmentActivity fragmentActivity) {
         this.mFragmentActivity = fragmentActivity;
@@ -53,6 +49,7 @@ public class Quite {
 
     private Quite(Activity activity) {
         this.mActivity = activity;
+        this.mQuiteEntry = new QuiteEntry(activity.getApplicationContext());
     }
 
     public static Quite getInstance(FragmentActivity context) {
@@ -105,7 +102,7 @@ public class Quite {
     }
 
     public Quite setShowUIActivity(Class<?> cls) {
-        this.mClz = cls;
+        mQuiteEntry.setShowUIActivityClass(cls);
         return this;
     }
 
@@ -120,22 +117,22 @@ public class Quite {
     }
 
     public Quite setApkPath(String path) {
-        this.mApkPath = path;
+        mQuiteEntry.setApkPath(path);
         return this;
     }
 
     public Quite setApkName(String name) {
-        this.mApkName = name;
+        mQuiteEntry.setApkName(name);
         return this;
     }
 
     public Quite setForceDownload(boolean isDownload) {
-        this.mForceDownload = isDownload;
+        mQuiteEntry.setForceDownload(isDownload);
         return this;
     }
 
     public Quite setNotifyHandler(OnUINotify notifyHandler) {
-        this.mNotifyUIHandler = notifyHandler;
+        mQuiteEntry.setOnUINotify(notifyHandler);
         return this;
     }
 
@@ -161,22 +158,12 @@ public class Quite {
                                 ApkSource apkSource = mOnNetworkParserListener.parser(response);
                                 if (apkSource != null) {
                                     final Context context = mFragmentActivity != null ? mFragmentActivity.getBaseContext() : mActivity.getBaseContext();
-                                    final QuiteEntry entry = new QuiteEntry
-                                            (
-                                                    mApkName,
-                                                    mApkPath,
-                                                    mForceDownload,
-                                                    false,
-                                                    mNotifyUIHandler,
-                                                    mClz,
-                                                    apkSource.getFileSize(),
-                                                    apkSource.getNote(),
-                                                    apkSource.getLevel(),
-                                                    apkSource.getUrl(),
-                                                    apkSource.getRemoteVersionCode(),
-                                                    context
-                                            );
-                                    mVersionHandler = VersionHandler.get(context, entry);
+                                    mQuiteEntry.setRemoteVersionCode(apkSource.getRemoteVersionCode());
+                                    mQuiteEntry.setUrl(apkSource.getUrl());
+                                    mQuiteEntry.setLevel(apkSource.getLevel());
+                                    mQuiteEntry.setNote(apkSource.getNote());
+                                    mQuiteEntry.setFileSize(apkSource.getFileSize());
+                                    mVersionHandler = VersionHandler.get(context, mQuiteEntry);
                                 } else {
                                     Utils.LOG.i(TAG, "当前暂未发现新版本...");
                                 }
@@ -226,22 +213,10 @@ public class Quite {
         private int mRemoteVersionCode;
         private Context mContext;
 
-
-        public QuiteEntry(String apkName, String apkPath, boolean forceDownload, boolean deleteApk, OnUINotify onUINotify, Class<?> aClass,
-                          long fileSize, String note, int level, String url, int remoteVersionCode, Context context) {
-            mApkName = apkName;
-            mApkPath = apkPath;
-            mForceDownload = forceDownload;
-            mDeleteApk = deleteApk;
-            mOnUINotify = onUINotify;
-            mClass = aClass;
-            mFileSize = fileSize;
-            mNote = note;
-            mLevel = level;
-            mUrl = url;
-            mRemoteVersionCode = remoteVersionCode;
+        public QuiteEntry(Context context) {
             mContext = context;
         }
+
 
         public boolean isForceDownload() {
             return mForceDownload;
@@ -281,6 +256,29 @@ public class Quite {
             return false;
         }
 
+        public void setApkName(String apkName) {
+            mApkName = apkName;
+        }
+
+        public void setApkPath(String apkPath) {
+            mApkPath = apkPath;
+        }
+
+        public void setForceDownload(boolean forceDownload) {
+            mForceDownload = forceDownload;
+        }
+
+        public void setDeleteApk(boolean deleteApk) {
+            mDeleteApk = deleteApk;
+        }
+
+        public void setOnUINotify(OnUINotify onUINotify) {
+            mOnUINotify = onUINotify;
+        }
+
+        public void setShowUIActivityClass(Class<?> aClass) {
+            mClass = aClass;
+        }
 
         public long getFileSize() {
             return mFileSize;
