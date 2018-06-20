@@ -18,9 +18,9 @@ public class Utils {
      */
     public static String getApkFilename(String apkUrl) throws Exception {
         String sApkMd5 = (TextUtils.isEmpty(apkUrl) ? MD5.getString(apkUrl.getBytes("UTF-8")) : apkUrl);
-        if (sApkMd5.endsWith(".apk")){
+        if (sApkMd5.endsWith(".apk")) {
             return sApkMd5;
-        }else{
+        } else {
             return (sApkMd5 + ".apk");
         }
     }
@@ -29,13 +29,13 @@ public class Utils {
      * 获取APK本地存储路径地址
      */
     public static String getApkLocalUrl(Context context, String apkFilename) {
-        String extFileDir = context.getExternalFilesDir("apk").getAbsolutePath();
+        final File file = context.getExternalFilesDir("apk");
+        String extFileDir = file.getAbsolutePath();
         return (extFileDir + File.separator + apkFilename);
     }
 
     /**
      * 获取MD5码
-     *
      */
     public static class MD5 {
         /**
@@ -45,6 +45,7 @@ public class Utils {
 
         /**
          * 获取指定文件内容对应的MD5码
+         *
          * @param file 文件
          * @return 文件内容对应的MD5码
          * @throws Exception 异常定义
@@ -56,6 +57,7 @@ public class Utils {
 
         /**
          * 获取指定文件内容对应的MD5码
+         *
          * @param file 文件
          * @return 文件内容对应的MD5码
          * @throws Exception 异常定义
@@ -94,6 +96,7 @@ public class Utils {
 
         /**
          * 获取指定文本内容对应的MD5码
+         *
          * @param plain 文本内容
          * @return 文本内容对应的MD5码
          * @throws Exception 异常定义
@@ -105,6 +108,7 @@ public class Utils {
 
         /**
          * 获取指定文本内容对应的MD5码
+         *
          * @param plain 文本内容
          * @return 文本内容对应的MD5码
          * @throws Exception 异常定义
@@ -118,6 +122,7 @@ public class Utils {
 
         /**
          * 将数组转换成十六进制字符串
+         *
          * @param b 数组
          * @param m 起始位置
          * @param n 个数
@@ -145,20 +150,16 @@ public class Utils {
         if (size >= 1024 * 1024 * 1024) {
             double i = (size / (1024.0 * 1024.0 * 1024.0));
             bytes.append(format.format(i)).append("G");
-        }
-        else if (size >= 1024 * 1024) {
+        } else if (size >= 1024 * 1024) {
             double i = (size / (1024.0 * 1024.0));
             bytes.append(format.format(i)).append("M");
-        }
-        else if (size >= 1024) {
+        } else if (size >= 1024) {
             double i = (size / (1024.0));
             bytes.append(format.format(i)).append("KB");
-        }
-        else if (size < 1024) {
+        } else if (size < 1024) {
             if (size <= 0) {
                 bytes.append("0B");
-            }
-            else {
+            } else {
                 bytes.append((int) size).append("B");
             }
         }

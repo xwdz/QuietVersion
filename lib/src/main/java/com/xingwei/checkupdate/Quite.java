@@ -265,7 +265,7 @@ public class Quite {
 
         public String getApkPath() {
             if (mApkPath == null) {
-                mApkPath = Utils.getApkLocalUrl(mContext.getApplicationContext(), mApkName);
+                mApkPath = Utils.getApkLocalUrl(mContext.getApplicationContext(), getApkName());
             }
             return mApkPath;
         }
