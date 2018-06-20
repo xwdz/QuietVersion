@@ -160,6 +160,7 @@ public class Quite {
                             protected void onSuccess(Call call, String response) {
                                 ApkSource apkSource = mOnNetworkParserListener.parser(response);
                                 if (apkSource != null) {
+                                    final Context context = mFragmentActivity != null ? mFragmentActivity.getBaseContext() : mActivity.getBaseContext();
                                     final QuiteEntry entry = new QuiteEntry
                                             (
                                                     mApkName,
@@ -173,13 +174,9 @@ public class Quite {
                                                     apkSource.getLevel(),
                                                     apkSource.getUrl(),
                                                     apkSource.getRemoteVersionCode(),
-                                                    mFragmentActivity.getApplicationContext()
+                                                    context
                                             );
-                                    if (mFragmentActivity != null) {
-                                        mVersionHandler = VersionHandler.get(mFragmentActivity, entry);
-                                    } else {
-                                        mVersionHandler = VersionHandler.get(mActivity, entry);
-                                    }
+                                    mVersionHandler = VersionHandler.get(context, entry);
                                 } else {
                                     Utils.LOG.i(TAG, "当前暂未发现新版本...");
                                 }

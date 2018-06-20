@@ -1,6 +1,5 @@
 package com.xingwei.checkupdate.core;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -44,16 +43,13 @@ public class VersionHandler {
     private boolean mApkLocalIsExist;
 
 
-    public static VersionHandler get(FragmentActivity context, Quite.QuiteEntry entry) {
+    public static VersionHandler get(Context context, Quite.QuiteEntry entry) {
         return new VersionHandler(context, entry);
     }
 
-    public static VersionHandler get(Activity activity, Quite.QuiteEntry entry) {
-        return new VersionHandler(activity, entry);
-    }
 
-    private VersionHandler(Activity activity, Quite.QuiteEntry entry) {
-        mContext = activity.getBaseContext();
+    private VersionHandler(Context context, Quite.QuiteEntry entry) {
+        mContext = context;
         mExecutorService = Executors.newFixedThreadPool(3);
         checkURLNotNull(entry.getUrl());
 
@@ -66,20 +62,6 @@ public class VersionHandler {
         handlerApk();
     }
 
-    private VersionHandler(FragmentActivity fragmentActivity, Quite.QuiteEntry entry) {
-        mContext = fragmentActivity.getBaseContext();
-        mExecutorService = Executors.newFixedThreadPool(3);
-        mFragmentActivity = fragmentActivity;
-        checkURLNotNull(entry.getUrl());
-
-        mQuiteEntry = entry;
-        createModule();
-        mDownloadApkTask.setUrl(mQuiteEntry.getUrl());
-        mDownloadApkTask.setOnProgressListener(mOnProgressListener);
-        mDownloadApkTask.setFilePath(mQuiteEntry.getApkPath());
-        mApkLocalIsExist = mQuiteEntry.checkApkExits();
-        handlerApk();
-    }
 
     private void createModule() {
         mApkInstall = new ApkInstall(mContext);
