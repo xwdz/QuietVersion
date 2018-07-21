@@ -4,7 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 
 import com.xingwei.checkupdate.Quite;
-import com.xingwei.checkupdate.callback.OnNetworkParserListener;
+import com.xingwei.checkupdate.callback.NetworkParser;
 import com.xingwei.checkupdate.entry.ApkSource;
 
 public class MainActivity extends Activity {
@@ -29,7 +29,7 @@ public class MainActivity extends Activity {
                 .GET("http://www.baidu.com")
                 //强制每次更新下载最新Apk
                 .setForceDownload(true)
-                .setOnNetworkParserListener(new OnNetworkParserListener() {
+                .setNetworkParser(new NetworkParser() {
                     @Override
                     public ApkSource parser(String response) {
                         return new ApkSource(

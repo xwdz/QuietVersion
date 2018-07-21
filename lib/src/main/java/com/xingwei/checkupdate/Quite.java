@@ -4,19 +4,15 @@ import android.app.Activity;
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 
-import com.xingwei.checkupdate.callback.OnNetworkParserListener;
+import com.xingwei.checkupdate.callback.NetworkParser;
 import com.xingwei.checkupdate.callback.OnUINotify;
 import com.xingwei.checkupdate.core.VersionHandler;
 import com.xingwei.checkupdate.entry.ApkSource;
-import com.xwdz.okhttpgson.OkHttpRun;
-import com.xwdz.okhttpgson.OkRun;
-import com.xwdz.okhttpgson.callback.StringCallBack;
-import com.xwdz.okhttpgson.method.Request;
+import com.xwdz.http.OkHttpManager;
+import com.xwdz.http.callback.StringCallBack;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Interceptor;
@@ -38,10 +34,10 @@ public class Quite {
     private Activity mActivity;
     private String mUrl;
     private VersionHandler mVersionHandler;
-    private OnNetworkParserListener mOnNetworkParserListener;
-    private final List<Interceptor> mInterceptors = new ArrayList<>();
-    private final List<Interceptor> mNetworkInterceptors = new ArrayList<>();
+    private NetworkParser mNetworkParser;
     private QuiteEntry mQuiteEntry;
+    private Interceptor mNetwordInterceptor;
+    private Interceptor mInterceptor;
 
     private Quite(FragmentActivity fragmentActivity) {
         this.mFragmentActivity = fragmentActivity;
@@ -80,8 +76,8 @@ public class Quite {
         return this;
     }
 
-    public Quite setOnNetworkParserListener(OnNetworkParserListener onNetworkParserListener) {
-        this.mOnNetworkParserListener = onNetworkParserListener;
+    public Quite setNetworkParser(NetworkParser networkParser) {
+        this.mNetworkParser = networkParser;
         return this;
     }
 
@@ -107,12 +103,12 @@ public class Quite {
     }
 
     public Quite addInterceptor(Interceptor interceptor) {
-        mInterceptors.add(interceptor);
+        mInterceptor = interceptor;
         return this;
     }
 
     public Quite addNetworkInterceptor(Interceptor interceptor) {
-        mNetworkInterceptors.add(interceptor);
+        mNetwordInterceptor = interceptor;
         return this;
     }
 
@@ -141,52 +137,46 @@ public class Quite {
         try {
             Utils.LOG.i(TAG, "appUpgrade apply ... ");
 
-            initClient();
+            if (mNetworkParser != null) {
+                OkHttpManager okHttpManager = new OkHttpManager.Builder()
+                        .addInterceptor(mInterceptor)
+                        .addNetworkInterceptor(mNetwordInterceptor)
+                        .build();
 
-            if (mOnNetworkParserListener != null) {
-                final Request request = GET.equals(mMethod) ? OkHttpRun.get(mUrl) : OkHttpRun.post(mUrl);
-                request.addParams(PARAMS)
-                        .addHeaders(HEADER)
-                        .execute(new StringCallBack() {
-                            @Override
-                            public void onFailure(Call call, Exception e) {
-                                Utils.LOG.e(TAG, "请求url = " + mUrl + " 失败! error = " + e);
-                            }
+                if (GET.equals(mMethod)) {
+                    okHttpManager.get(mUrl);
+                } else {
+                    okHttpManager.post(mUrl);
+                }
+                okHttpManager.addParams(PARAMS);
+                okHttpManager.addHeader(HEADER);
+                okHttpManager.execute(new StringCallBack() {
+                    @Override
+                    protected void onSuccess(Call call, String response) {
+                        ApkSource apkSource = mNetworkParser.parser(response);
+                        if (apkSource != null) {
+                            final Context context = mFragmentActivity != null ? mFragmentActivity.getBaseContext() : mActivity.getBaseContext();
+                            mQuiteEntry.setRemoteVersionCode(apkSource.getRemoteVersionCode());
+                            mQuiteEntry.setUrl(apkSource.getUrl());
+                            mQuiteEntry.setLevel(apkSource.getLevel());
+                            mQuiteEntry.setNote(apkSource.getNote());
+                            mQuiteEntry.setFileSize(apkSource.getFileSize());
+                            mVersionHandler = VersionHandler.get(context, mQuiteEntry);
+                        } else {
+                            Utils.LOG.i(TAG, "当前暂未发现新版本...");
+                        }
+                    }
 
-                            @Override
-                            protected void onSuccess(Call call, String response) {
-                                ApkSource apkSource = mOnNetworkParserListener.parser(response);
-                                if (apkSource != null) {
-                                    final Context context = mFragmentActivity != null ? mFragmentActivity.getBaseContext() : mActivity.getBaseContext();
-                                    mQuiteEntry.setRemoteVersionCode(apkSource.getRemoteVersionCode());
-                                    mQuiteEntry.setUrl(apkSource.getUrl());
-                                    mQuiteEntry.setLevel(apkSource.getLevel());
-                                    mQuiteEntry.setNote(apkSource.getNote());
-                                    mQuiteEntry.setFileSize(apkSource.getFileSize());
-                                    mVersionHandler = VersionHandler.get(context, mQuiteEntry);
-                                } else {
-                                    Utils.LOG.i(TAG, "当前暂未发现新版本...");
-                                }
-                            }
-                        });
+                    @Override
+                    public void onFailure(Call call, Exception e) {
+
+                    }
+                });
             }
         } catch (Exception e) {
             e.printStackTrace();
             Utils.LOG.e(TAG, "app apply error = " + e);
         }
-    }
-
-    private void initClient() {
-        final OkRun manager = OkRun.getInstance().newBuilder();
-        for (Interceptor interceptor : mInterceptors) {
-            manager.addInterceptor(interceptor);
-        }
-
-        for (Interceptor networkInterceptor : mNetworkInterceptors) {
-            manager.addNetworkInterceptor(networkInterceptor);
-        }
-        manager.attachTag(Utils.LOG.TAG);
-        manager.build();
     }
 
 
