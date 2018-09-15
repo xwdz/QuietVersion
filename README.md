@@ -58,7 +58,7 @@ VersionConfigs.getImpl()
 ### 简单使用
 
 ```
-        Quite.getInstance(this)
+        QuietVersion.getInstance(this)
                 //or POST
                 .GET("http://www.baidu.com")
                 .addHeader()
