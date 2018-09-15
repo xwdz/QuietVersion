@@ -30,7 +30,7 @@ public abstract class AbstractActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         VersionHandler.registerProgressbarReceiver(this, mProgressReceiver);
         setContentView(getContentLayoutId());
-        setUpData();
+        setupData();
     }
 
     @Override
@@ -42,7 +42,7 @@ public abstract class AbstractActivity extends AppCompatActivity {
 
     public abstract int getContentLayoutId();
 
-    public abstract void setUpData();
+    public abstract void setupData();
 
     public abstract void updateProgress(int percent, long currentLength, long total);
 

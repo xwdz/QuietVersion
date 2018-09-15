@@ -2,7 +2,6 @@ package com.xwdz.version.ui;
 
 import android.content.Context;
 import android.content.Intent;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -10,6 +9,7 @@ import android.widget.TextView;
 import com.xingwei.checkupdate.R;
 import com.xwdz.version.Utils;
 import com.xwdz.version.core.VersionHandler;
+import com.xwdz.version.entry.ApkSource;
 
 /**
  * 透明主题Activity
@@ -27,20 +27,20 @@ public class ProgressDialogActivity extends AbstractActivity {
     }
 
     @Override
-    public void setUpData() {
+    public void setupData() {
         mDefaultDialogFragment.setCancelable(false);
         TextView releaseNote = findViewById(R.id.release_note);
         Button submit = findViewById(R.id.upgrade);
 
-        String note = getIntent().getStringExtra(KEY_NOTE);
-        if (!TextUtils.isEmpty(note)) {
-            releaseNote.setText(note);
+        ApkSource source = getIntent().getParcelableExtra(KEY_NOTE);
+        if (source != null && source.getNote() != null) {
+            releaseNote.setText(source.getNote());
         }
 
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                VersionHandler.startDownloadApk(ProgressDialogActivity.this.getApplicationContext());
+                VersionHandler.startDownloader(ProgressDialogActivity.this.getApplicationContext());
                 mDefaultDialogFragment.show(getFragmentManager());
             }
         });
@@ -55,7 +55,7 @@ public class ProgressDialogActivity extends AbstractActivity {
         return Utils.formatNetFileSizeDescription(currentLength);
     }
 
-    public static void startActivity(Context context, String note) {
+    public static void startActivity(Context context, ApkSource note) {
         Intent starter = new Intent(context, ProgressDialogActivity.class);
         starter.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         starter.putExtra(KEY_NOTE, note);

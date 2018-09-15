@@ -4,14 +4,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 
-import com.xwdz.version.QuietVersion;
 import com.xwdz.version.Utils;
+import com.xwdz.version.callback.OnCheckVersionRules;
 import com.xwdz.version.callback.OnProgressListener;
 import com.xwdz.version.callback.OnUINotify;
+import com.xwdz.version.entry.ApkSource;
 import com.xwdz.version.ui.UIAdapter;
 
 import java.io.File;
@@ -34,30 +33,33 @@ public class VersionHandler {
     private StartDownloadReceiver mDownloadReceiver;
     private Context mContext;
 
-    private FragmentActivity mFragmentActivity;
-    private QuietVersion.QuiteEntry mQuiteEntry;
+    private ApkSource mApkSource;
     /**
      * 本地是否存在缓存Apk
      */
     private boolean mApkLocalIsExist;
 
+    private VersionConfigs mVersionConfigs;
 
-    public static VersionHandler get(Context context, QuietVersion.QuiteEntry entry) {
+
+    public static VersionHandler get(Context context, ApkSource entry) {
         return new VersionHandler(context, entry);
     }
 
 
-    private VersionHandler(Context context, QuietVersion.QuiteEntry entry) {
+    private VersionHandler(Context context, ApkSource apkSource) {
+        mVersionConfigs = VersionConfigs.getImpl();
+        mVersionConfigs.initContext(context,apkSource.getUrl());
         mContext = context;
         mExecutorService = Executors.newFixedThreadPool(3);
-        checkURLNotNull(entry.getUrl());
+        checkURLNotNull(apkSource.getUrl());
 
-        mQuiteEntry = entry;
+        mApkSource = apkSource;
         createModule();
-        mDownloadTask.setUrl(mQuiteEntry.getUrl());
+        mDownloadTask.setUrl(mApkSource.getUrl());
         mDownloadTask.setOnProgressListener(mOnProgressListener);
-        mDownloadTask.setFilePath(mQuiteEntry.getApkPath());
-        mApkLocalIsExist = mQuiteEntry.checkApkExits();
+        mDownloadTask.setFilePath(mVersionConfigs.getApkPath());
+        mApkLocalIsExist = mVersionConfigs.checkApkExits();
         handlerApk();
     }
 
@@ -71,34 +73,39 @@ public class VersionHandler {
     }
 
     private void handlerApk() {
-        if (CheckUpgradeVersion.get().check(mQuiteEntry.getRemoteVersionCode())) {
-            if (mApkLocalIsExist && !mQuiteEntry.isForceDownload()) {
-                Utils.LOG.i(TAG, "读取到本地缓存APk = " + mQuiteEntry.getApkPath() + " 开始安装...");
-                ApkInstallUtils.doInstall(mContext, mQuiteEntry.getApkPath());
-            } else {
-                final OnUINotify onUINotify = mQuiteEntry.getOnUINotify();
-                if (onUINotify != null) {
-                    final String note = mQuiteEntry.getNote();
-                    onUINotify.show(note);
-
-                    try {
-                        if (mFragmentActivity != null) {
-                            FragmentManager fragmentManager = mFragmentActivity.getSupportFragmentManager();
-                            if (fragmentManager != null) {
-                                onUINotify.show(note, fragmentManager);
-                            }
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        Utils.LOG.e(TAG, "get fragmentManager error = " + e);
-                    }
+        OnCheckVersionRules onCheckVersionRules = mVersionConfigs.getOnCheckVersionRules();
+        if (onCheckVersionRules != null) {
+            boolean handler = onCheckVersionRules.check(mApkSource);
+            if (handler) {
+                if (mApkLocalIsExist && !mVersionConfigs.isForceDownload()) {
+                    String path = mVersionConfigs.getApkPath();
+                    Utils.LOG.i(TAG, "读取到本地缓存APk = " + path + " 开始安装...");
+                    ApkInstallUtils.doInstall(mContext, path);
                 } else {
-                    mUIAdapter.showUpgradeDialog(mQuiteEntry.getNote(), mQuiteEntry.getActivityClass());
+                    final OnUINotify onUINotify = mVersionConfigs.getOnUINotify();
+                    if (onUINotify != null) {
+                        final String note = mApkSource.getNote();
+                        onUINotify.show(note);
+//                        try {
+//                            if (mFragmentActivity != null) {
+//                                FragmentManager fragmentManager = mFragmentActivity.getSupportFragmentManager();
+//                                if (fragmentManager != null) {
+//                                    onUINotify.show(note, fragmentManager);
+//                                }
+//                            }
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                            Utils.LOG.e(TAG, "get fragmentManager error = " + e);
+//                        }
+                    } else {
+                        mUIAdapter.showUpgradeDialog(mApkSource, mVersionConfigs.getUIActivityClass());
+                    }
                 }
-
+            } else {
+                Utils.LOG.i(TAG, "当前暂未发现新版本...");
             }
         } else {
-            Utils.LOG.i(TAG, "未发现最新Apk版本 " + mQuiteEntry.getUrl());
+            Utils.LOG.i(TAG, "未发现最新Apk版本 " + mApkSource.getUrl());
         }
     }
 
@@ -106,20 +113,18 @@ public class VersionHandler {
      * 执行下载Apk操作
      */
     private void doDownload() {
-        if (CheckUpgradeVersion.get().check(mQuiteEntry.getRemoteVersionCode())) {
-            /* 是否强制每次都从网络上下载最新apk */
-            if (!mQuiteEntry.isForceDownload()) {
+        OnCheckVersionRules onCheckVersionRules = mVersionConfigs.getOnCheckVersionRules();
+        if (onCheckVersionRules != null){
+            if (!mVersionConfigs.isForceDownload()) {
                 if (mApkLocalIsExist) {
-                    Utils.LOG.i(TAG, "读取到本地缓存APk = " + mQuiteEntry.getApkPath() + " 开始安装...");
-                    ApkInstallUtils.doInstall(mContext, mQuiteEntry.getApkPath());
+                    Utils.LOG.i(TAG, "读取到本地缓存APk = " + mVersionConfigs.getApkPath() + " 开始安装...");
+                    ApkInstallUtils.doInstall(mContext, mVersionConfigs.getApkPath());
                     return;
                 }
             }
 
             mExecutorService.execute(mDownloadTask);
             Utils.LOG.i(TAG, "开始下载服务器apk ...");
-        } else {
-            Utils.LOG.i(TAG, "未发现最新Apk版本 " + mQuiteEntry.getUrl());
         }
     }
 
@@ -129,13 +134,6 @@ public class VersionHandler {
             throw new NullPointerException("remote apk url cannot be null !");
         }
     }
-
-    public static void startDownloadApk(Context context) {
-        Intent intent = new Intent(START_DOWNLOAD_ACTION);
-        intent.putExtra(KEY_START_DOWN, FLAG_START_DOWN);
-        context.sendBroadcast(intent);
-    }
-
 
     private final OnProgressListener mOnProgressListener = new OnProgressListener() {
 
@@ -167,10 +165,10 @@ public class VersionHandler {
     }
 
 
-    public static final String UPDATE_PROGRESSBAR_ACTION = "com.xwdz.quietversion.ui.ProgressDialogActivity";
+    private static final String UPDATE_PROGRESSBAR_ACTION = "com.xwdz.qversion.ui.ProgressDialogActivity";
 
     private static final String KEY_TOTAL = "total";
-    private static final String KEY_CURRENT_LENGTH = "currentlength";
+    private static final String KEY_CURRENT_LENGTH = "current.length";
     private static final String KEY_PERCENT = "percent";
 
     public abstract static class ProgressReceiver extends BroadcastReceiver {
@@ -188,6 +186,12 @@ public class VersionHandler {
         public abstract void onUpdateProgress(long total, long currentLength, int percent);
     }
 
+
+    public static void startDownloader(Context context) {
+        Intent intent = new Intent(START_DOWNLOAD_ACTION);
+        intent.putExtra(KEY_START_DOWN, FLAG_START_DOWN);
+        context.sendBroadcast(intent);
+    }
 
     public static void registerProgressbarReceiver(Context context, ProgressReceiver progressReceiver) {
         if (progressReceiver != null) {

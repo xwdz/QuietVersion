@@ -28,7 +28,6 @@ public class MainActivity extends Activity {
                 //or POST
                 .GET("http://www.baidu.com")
                 //强制每次更新下载最新Apk
-                .setForceDownload(true)
                 .setNetworkParser(new NetworkParser() {
                     @Override
                     public ApkSource parser(String response) {

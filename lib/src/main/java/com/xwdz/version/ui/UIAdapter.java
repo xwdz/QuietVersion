@@ -3,6 +3,8 @@ package com.xwdz.version.ui;
 import android.content.Context;
 import android.content.Intent;
 
+import com.xwdz.version.entry.ApkSource;
+
 public class UIAdapter {
 
 
@@ -13,12 +15,12 @@ public class UIAdapter {
     }
 
 
-    public void showUpgradeDialog(String note, Class<?> activityClass) {
+    public void showUpgradeDialog(ApkSource source, Class<?> activityClass) {
         if (activityClass == null) {
-            ProgressDialogActivity.startActivity(mContext, note);
+            ProgressDialogActivity.startActivity(mContext, source);
         } else {
             Intent intent = new Intent(mContext, activityClass);
-            intent.putExtra("note", note);
+            intent.putExtra("note", source);
             mContext.startActivity(intent);
         }
     }
