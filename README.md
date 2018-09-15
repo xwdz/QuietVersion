@@ -21,29 +21,32 @@ $lastVersion = [![](https://jitpack.io/v/xwdz/QuiteVersion.svg)](https://jitpack
 - 支持自定义界面
 - 支持强制下载最新Apk
 - 自调起安装界面
-- 简单
 - 支持OKHttp拦截器
 - 适配7.0
+
+### 配置
+
+```
+VersionConfigs.getImpl()
+            // 是否强制每次都从服务器下载
+            .setForceDownload()
+            // 自定义activity 
+            .setUIActivityClass()
+            // 自定义升级规则
+            .setOnCheckVersionRules(new DefaultCheckVersionRules());
+```
 
 
 ### 简单使用
 
 ```
-    DialogTest dialogTest = DialogTest.newInstance();
         Quite.getInstance(this)
                 //or POST
                 .GET("http://www.baidu.com")
-                //强制每次更新都从网络下载最新Apk
-                .setForceDownload(true)
-                .setApkPath()
-                .setApkName()
                 .addHeader()
-                .setShowUIActivity()
                 .addParams()
                 .addInterceptor()
                 .addNetworkInterceptor()
-                //UI容器需实现OnUINotify接口
-                .setNotifyHandler(dialogTest)
                 .setOnNetworkParserListener(new OnNetworkParserListener() {
                     @Override
                     public ApkSource parser(String response) {
@@ -76,10 +79,24 @@ setOnNetworkParserListener(new OnNetworkParserListener() {
 ```
 
 
-####  QuiteVersion 执行更新App策略
-     - ApkSource.remoteVersionCode > 当前版本code
-     - todo
+####  `QuietVersion` 支持自定义升级规则,实现`OnCheckVersionRules`即可
 
+默认`DefaultCheckVersionRules`代码如下, `true` 则执行升级,`false` 则不进行升级
+
+```
+/**
+ * @author 黄兴伟 (xwdz9989@gamil.com)
+ * @since 2018/9/15
+ */
+public class DefaultCheckVersionRules implements OnCheckVersionRules {
+
+    @Override
+    public boolean check(ApkSource apkSource) {
+        return apkSource.getRemoteVersionCode() > BuildConfig.VERSION_CODE;
+    }
+}
+
+```
 
 #### setApkName 以及setApkPath 说明
 
@@ -89,9 +106,9 @@ setOnNetworkParserListener(new OnNetworkParserListener() {
       `ApkName为kugou_android.apk`**
 
 
-#### 自定义容器Dialog
+#### 自定义升级UI容器(推荐)
 
-1. 继承`AbstractActivity`实现自己的UI,重写如下三个方法,通过`setShowUIActivity(xxx.class)`注入.
+1. 继承`AbstractActivity`实现自己的UI,重写如下三个方法,通过`setUIActivityClass(xxx.class)`注入.
 
 ```
 //自己定义的UI layout
@@ -101,13 +118,13 @@ public abstract void setUpData();
 //当执行下载任务的时候回回调到此方法
 public abstract void updateProgress(int percent, long currentLength, long total);
 ```
-默认的[ProgressDialogActivity](https://github.com/xwdz/QuiteVersion/blob/master/lib/src/main/java/com/xingwei/checkupdate/ui/ProgressDialogActivity.java)也是基于此实现。
+默认的[ProgressDialogActivity](https://github.com/xwdz/QuietVersionVersion/blob/master/lib/src/main/java/com/xwdz/version/ui/DefaultProgressDialogActivity.java)也是基于此实现。
 可通过`String note = getIntent().getStringExtra("note")`拿到更新文本。
 
 
-2. 实现`OnUINotify`接口
+2. 实现`OnUINotify`接口(暂不支持)
 **在不指定`.setNotifyHandler()方法以及`setShowUIActivity`方法时默认实现效果参照文章开头`**
-**在自定义容器中实现此接口,在接口方法`show`中调用真正的`show`方法**,[详见simple-code](https://github.com/xwdz/QuiteVersion/blob/master/app/src/main/java/com/update/testabc/DialogTest.java)
+**在自定义容器中实现此接口,在接口方法`show`中调用真正的`show`方法**,[详见simple-code](https://github.com/xwdz/QuietVersion/blob/master/app/src/main/java/com/update/testabc/DialogTest.java)
 
 **注意:自定义容器只能使用一种方式。**
 
@@ -167,9 +184,9 @@ VersionHandler.unregisterProgressbarReceiver(getContext(), mProgressReceiver);
 #### 配置混淆
 
 ```
--keep class com.xingwei.checkupdate.** {*;}
+-keep class com.xwdz.version.** {*;}
 ```
 
 [@酸菜xwdz](http://huangxingwei.cn)
-[Github](https://github.com/xwdz/QuiteVersion)
+[Github](https://github.com/xwdz/QuietVersion)
 

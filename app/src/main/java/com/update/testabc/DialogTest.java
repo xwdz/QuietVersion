@@ -10,10 +10,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.xwdz.version.Utils;
-import com.xwdz.version.callback.OnUINotify;
+import com.xwdz.version.callback.OnUIDialogNotify;
 import com.xwdz.version.core.VersionHandler;
+import com.xwdz.version.entry.ApkSource;
 
-public class DialogTest extends DialogFragment implements OnUINotify {
+public class DialogTest extends DialogFragment implements OnUIDialogNotify {
 
 
     private final VersionHandler.ProgressReceiver mProgressReceiver = new VersionHandler.ProgressReceiver() {
@@ -45,18 +46,13 @@ public class DialogTest extends DialogFragment implements OnUINotify {
     }
 
     @Override
-    public void show(String note) {
-
-    }
-
-    @Override
-    public void show(String note, FragmentManager fragmentManager) {
-        fragmentManager.beginTransaction().add(this, getTag()).commitAllowingStateLoss();
-    }
-
-    @Override
     public void onDestroy() {
         super.onDestroy();
         VersionHandler.unregisterProgressbarReceiver(getContext(), mProgressReceiver);
+    }
+
+    @Override
+    public void show(ApkSource apkSource, FragmentManager fragmentManager) {
+        fragmentManager.beginTransaction().add(this, getTag()).commitAllowingStateLoss();
     }
 }

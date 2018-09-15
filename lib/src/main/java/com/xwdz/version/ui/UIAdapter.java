@@ -17,7 +17,7 @@ public class UIAdapter {
 
     public void showUpgradeDialog(ApkSource source, Class<?> activityClass) {
         if (activityClass == null) {
-            ProgressDialogActivity.startActivity(mContext, source);
+            DefaultProgressDialogActivity.startActivity(mContext, source);
         } else {
             Intent intent = new Intent(mContext, activityClass);
             intent.putExtra("note", source);

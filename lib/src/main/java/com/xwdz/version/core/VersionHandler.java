@@ -9,7 +9,6 @@ import android.text.TextUtils;
 import com.xwdz.version.Utils;
 import com.xwdz.version.callback.OnCheckVersionRules;
 import com.xwdz.version.callback.OnProgressListener;
-import com.xwdz.version.callback.OnUINotify;
 import com.xwdz.version.entry.ApkSource;
 import com.xwdz.version.ui.UIAdapter;
 
@@ -49,7 +48,7 @@ public class VersionHandler {
 
     private VersionHandler(Context context, ApkSource apkSource) {
         mVersionConfigs = VersionConfigs.getImpl();
-        mVersionConfigs.initContext(context,apkSource.getUrl());
+        mVersionConfigs.initContext(context, apkSource.getUrl());
         mContext = context;
         mExecutorService = Executors.newFixedThreadPool(3);
         checkURLNotNull(apkSource.getUrl());
@@ -82,24 +81,23 @@ public class VersionHandler {
                     Utils.LOG.i(TAG, "读取到本地缓存APk = " + path + " 开始安装...");
                     ApkInstallUtils.doInstall(mContext, path);
                 } else {
-                    final OnUINotify onUINotify = mVersionConfigs.getOnUINotify();
-                    if (onUINotify != null) {
-                        final String note = mApkSource.getNote();
-                        onUINotify.show(note);
+//                    final OnUIDialogNotify onUIDialogNotify = mVersionConfigs.getOnUIDialogNotify();
+//                    if (onUIDialogNotify != null) {
+//                        onUIDialogNotify.show(mApkSource,);
 //                        try {
 //                            if (mFragmentActivity != null) {
 //                                FragmentManager fragmentManager = mFragmentActivity.getSupportFragmentManager();
 //                                if (fragmentManager != null) {
-//                                    onUINotify.show(note, fragmentManager);
+//                                    onUIDialogNotify.show(note, fragmentManager);
 //                                }
 //                            }
 //                        } catch (Exception e) {
 //                            e.printStackTrace();
 //                            Utils.LOG.e(TAG, "get fragmentManager error = " + e);
 //                        }
-                    } else {
-                        mUIAdapter.showUpgradeDialog(mApkSource, mVersionConfigs.getUIActivityClass());
-                    }
+//                    } else {
+                    mUIAdapter.showUpgradeDialog(mApkSource, mVersionConfigs.getUIActivityClass());
+//                    }
                 }
             } else {
                 Utils.LOG.i(TAG, "当前暂未发现新版本...");
@@ -114,7 +112,7 @@ public class VersionHandler {
      */
     private void doDownload() {
         OnCheckVersionRules onCheckVersionRules = mVersionConfigs.getOnCheckVersionRules();
-        if (onCheckVersionRules != null){
+        if (onCheckVersionRules != null) {
             if (!mVersionConfigs.isForceDownload()) {
                 if (mApkLocalIsExist) {
                     Utils.LOG.i(TAG, "读取到本地缓存APk = " + mVersionConfigs.getApkPath() + " 开始安装...");
@@ -150,7 +148,7 @@ public class VersionHandler {
     };
 
 
-    private static final String START_DOWNLOAD_ACTION = "com.xwdz.checkupdate.core.VersionHandler";
+    private static final String START_DOWNLOAD_ACTION = "com.xwdz.version.core.VersionHandler";
     private static final String KEY_START_DOWN = "start_download";
     private static final int FLAG_START_DOWN = 1;
 
@@ -165,7 +163,7 @@ public class VersionHandler {
     }
 
 
-    private static final String UPDATE_PROGRESSBAR_ACTION = "com.xwdz.qversion.ui.ProgressDialogActivity";
+    private static final String UPDATE_PROGRESSBAR_ACTION = "com.xwdz.qversion.ui.DefaultProgressDialogActivity";
 
     private static final String KEY_TOTAL = "total";
     private static final String KEY_CURRENT_LENGTH = "current.length";

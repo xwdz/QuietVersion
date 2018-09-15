@@ -15,8 +15,7 @@ import com.xwdz.version.entry.ApkSource;
  * 透明主题Activity
  * 下载进度条
  */
-public class ProgressDialogActivity extends AbstractActivity {
-
+public class DefaultProgressDialogActivity extends AbstractActivity {
 
     private static final String KEY_NOTE = "note";
     private DefaultDialogFragment mDefaultDialogFragment = DefaultDialogFragment.newInstance();
@@ -40,7 +39,7 @@ public class ProgressDialogActivity extends AbstractActivity {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                VersionHandler.startDownloader(ProgressDialogActivity.this.getApplicationContext());
+                VersionHandler.startDownloader(DefaultProgressDialogActivity.this.getApplicationContext());
                 mDefaultDialogFragment.show(getFragmentManager());
             }
         });
@@ -56,7 +55,7 @@ public class ProgressDialogActivity extends AbstractActivity {
     }
 
     public static void startActivity(Context context, ApkSource note) {
-        Intent starter = new Intent(context, ProgressDialogActivity.class);
+        Intent starter = new Intent(context, DefaultProgressDialogActivity.class);
         starter.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         starter.putExtra(KEY_NOTE, note);
         context.startActivity(starter);

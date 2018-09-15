@@ -4,7 +4,7 @@ import android.content.Context;
 
 import com.xwdz.version.Utils;
 import com.xwdz.version.callback.OnCheckVersionRules;
-import com.xwdz.version.callback.OnUINotify;
+import com.xwdz.version.callback.OnUIDialogNotify;
 
 import java.io.File;
 
@@ -30,7 +30,7 @@ public class VersionConfigs {
     private String mApkPath;
     private boolean mForceDownload;
     private boolean mDeleteApk;
-    private OnUINotify mOnUINotify;
+    private OnUIDialogNotify mOnUIDialogNotify;
     private Class<?> mUIClass;
 
     private Context mContext;
@@ -46,8 +46,9 @@ public class VersionConfigs {
         return mOnCheckVersionRules;
     }
 
-    public void setOnCheckVersionRules(OnCheckVersionRules onCheckVersionRules) {
+    public VersionConfigs setOnCheckVersionRules(OnCheckVersionRules onCheckVersionRules) {
         mOnCheckVersionRules = onCheckVersionRules;
+        return this;
     }
 
     public String getApkName() {
@@ -77,8 +78,9 @@ public class VersionConfigs {
         return false;
     }
 
-    public void setApkName(String apkName) {
+    public VersionConfigs setApkName(String apkName) {
         mApkName = apkName;
+        return this;
     }
 
     public String getApkPath() {
@@ -88,39 +90,44 @@ public class VersionConfigs {
         return mApkPath;
     }
 
-    public void setApkPath(String apkPath) {
+    public VersionConfigs setApkPath(String apkPath) {
         mApkPath = apkPath;
+        return this;
     }
 
     public boolean isForceDownload() {
         return mForceDownload;
     }
 
-    public void setForceDownload(boolean forceDownload) {
+    public VersionConfigs setForceDownload(boolean forceDownload) {
         mForceDownload = forceDownload;
+        return this;
     }
 
     public boolean isDeleteApk() {
         return mDeleteApk;
     }
 
-    public void setIsDeleteApk(boolean deleteApk) {
+    public VersionConfigs setIsDeleteApk(boolean deleteApk) {
         mDeleteApk = deleteApk;
+        return this;
     }
 
-    public OnUINotify getOnUINotify() {
-        return mOnUINotify;
+    public OnUIDialogNotify getOnUIDialogNotify() {
+        return mOnUIDialogNotify;
     }
 
-    public void setOnUINotify(OnUINotify onUINotify) {
-        mOnUINotify = onUINotify;
+    public VersionConfigs setOnUIDialogNotify(OnUIDialogNotify onUIDialogNotify) {
+        mOnUIDialogNotify = onUIDialogNotify;
+        return this;
     }
 
     public Class<?> getUIActivityClass() {
         return mUIClass;
     }
 
-    public void setUIActivityClass(Class<?> UIClass) {
+    public VersionConfigs setUIActivityClass(Class<?> UIClass) {
         mUIClass = UIClass;
+        return this;
     }
 }
