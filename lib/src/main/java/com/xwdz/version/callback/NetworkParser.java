@@ -1,6 +1,6 @@
-package com.xwdz.quietversion.callback;
+package com.xwdz.version.callback;
 
-import com.xwdz.quietversion.entry.ApkSource;
+import com.xwdz.version.entry.ApkSource;
 
 /**
  * 自定义解析器

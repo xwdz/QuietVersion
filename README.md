@@ -11,8 +11,6 @@
 $lastVersion = [![](https://jitpack.io/v/xwdz/QuiteVersion.svg)](https://jitpack.io/#xwdz/QuiteVersion)
 
 ```
-    implementation 'com.xwdz:QuiteVersion:$lastVersion'
-    implementation 'com.xwdz:okHttpUtils:1.0.4'
     //如已依赖可忽略
     implementation 'com.squareup.okhttp3:okhttp:3.5.0'
 ```

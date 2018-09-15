@@ -1,4 +1,4 @@
-package com.xwdz.quietversion.entry;
+package com.xwdz.version.entry;
 
 import android.os.Parcel;
 import android.os.Parcelable;

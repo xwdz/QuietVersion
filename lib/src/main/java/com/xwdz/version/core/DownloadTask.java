@@ -1,8 +1,8 @@
-package com.xwdz.quietversion.core;
+package com.xwdz.version.core;
 
 
-import com.xwdz.quietversion.Utils;
-import com.xwdz.quietversion.callback.OnProgressListener;
+import com.xwdz.version.Utils;
+import com.xwdz.version.callback.OnProgressListener;
 
 import java.io.File;
 import java.io.IOException;

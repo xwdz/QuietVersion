@@ -1,10 +1,10 @@
-package com.xwdz.quietversion.ui;
+package com.xwdz.version.ui;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
-import com.xwdz.quietversion.core.VersionHandler;
+import com.xwdz.version.core.VersionHandler;
 
 public abstract class AbstractActivity extends AppCompatActivity {
 

@@ -3,9 +3,9 @@ package com.update.testabc;
 import android.app.Activity;
 import android.os.Bundle;
 
-import com.xwdz.quietversion.QuietVersion;
-import com.xwdz.quietversion.callback.NetworkParser;
-import com.xwdz.quietversion.entry.ApkSource;
+import com.xwdz.version.QuietVersion;
+import com.xwdz.version.callback.NetworkParser;
+import com.xwdz.version.entry.ApkSource;
 
 public class MainActivity extends Activity {
 

@@ -1,4 +1,4 @@
-package com.xwdz.quietversion.core;
+package com.xwdz.version.core;
 
 import android.content.Context;
 import android.content.Intent;
@@ -7,8 +7,8 @@ import android.os.Build;
 import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 
-import com.xwdz.quietversion.Utils;
-import com.xwdz.quietversion.Utils.LOG;
+import com.xwdz.version.Utils;
+import com.xwdz.version.Utils.LOG;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -20,22 +20,15 @@ import java.io.InputStream;
  * @author huangxingwei (xwdz9989@gmail.com)
  * @since v0.0.1
  */
-public class ApkInstall {
+public class ApkInstallUtils {
 
-    private static final String TAG = ApkInstall.class.getSimpleName();
+    private static final String TAG = ApkInstallUtils.class.getSimpleName();
 
-    private Context mContext;
-
-    ApkInstall(Context context) {
-        this.mContext = context;
-
+    private ApkInstallUtils() {
     }
 
-    public void install(String apkPath) {
-        doInstall(apkPath);
-    }
 
-    private void doInstall(String apkPath) {
+    public static void doInstall(Context context, String apkPath) {
         if (!apkPath.endsWith(".apk")) {
             Utils.LOG.e(TAG, "install error path = " + apkPath);
             return;
@@ -46,7 +39,7 @@ public class ApkInstall {
             Intent intent = new Intent(Intent.ACTION_VIEW);
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                Uri contentUri = FileProvider.getUriForFile(mContext, mContext.getPackageName() + ".fileProvider", file);
+                Uri contentUri = FileProvider.getUriForFile(context, context.getPackageName() + ".fileProvider", file);
                 intent.setDataAndType(contentUri, "application/vnd.android.package-archive");
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -54,7 +47,7 @@ public class ApkInstall {
                 intent.setDataAndType(Uri.fromFile(file), "application/vnd.android.package-archive");
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             }
-            mContext.startActivity(intent);
+            context.startActivity(intent);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -63,7 +56,7 @@ public class ApkInstall {
 
     }
 
-    public void installSilently(String localUrl)
+    public static void installSilently(String localUrl)
             throws Exception {
         if (TextUtils.isEmpty(localUrl)) {
             throw new IllegalArgumentException("empty local url");
@@ -78,7 +71,7 @@ public class ApkInstall {
         exeCmdArgs(args);
     }
 
-    private void exeCmdArgs(String[] args) throws Exception {
+    private static void exeCmdArgs(String[] args) throws Exception {
         ByteArrayOutputStream errorBuffer = new ByteArrayOutputStream();
         ByteArrayOutputStream resultBuffer = new ByteArrayOutputStream();
         ProcessBuilder processBuilder = null;
@@ -111,7 +104,7 @@ public class ApkInstall {
         }
     }
 
-    private void validateResult(String error, String result)
+    private static void validateResult(String error, String result)
             throws Exception {
         if (error.contains("Failure")) {
             throw new Exception("e=" + error + ", r=" + result);
@@ -122,7 +115,7 @@ public class ApkInstall {
         }
     }
 
-    private void close(InputStream is1, InputStream is2) {
+    private static void close(InputStream is1, InputStream is2) {
         try {
             if (null != is1) {
                 is1.close();
@@ -140,7 +133,7 @@ public class ApkInstall {
         }
     }
 
-    private void destroy(Process process) {
+    private static void destroy(Process process) {
         try {
             if (null != process) {
                 process.exitValue();

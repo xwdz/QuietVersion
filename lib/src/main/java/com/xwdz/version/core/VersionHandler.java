@@ -1,4 +1,4 @@
-package com.xwdz.quietversion.core;
+package com.xwdz.version.core;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -8,11 +8,11 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 
-import com.xwdz.quietversion.QuietVersion;
-import com.xwdz.quietversion.Utils;
-import com.xwdz.quietversion.callback.OnProgressListener;
-import com.xwdz.quietversion.callback.OnUINotify;
-import com.xwdz.quietversion.ui.UIAdapter;
+import com.xwdz.version.QuietVersion;
+import com.xwdz.version.Utils;
+import com.xwdz.version.callback.OnProgressListener;
+import com.xwdz.version.callback.OnUINotify;
+import com.xwdz.version.ui.UIAdapter;
 
 import java.io.File;
 import java.util.concurrent.ExecutorService;
@@ -27,7 +27,6 @@ public class VersionHandler {
 
     private static final String TAG = VersionHandler.class.getSimpleName();
 
-    private ApkInstall mApkInstall;
     private DownloadTask mDownloadTask;
     private UIAdapter mUIAdapter;
     private ExecutorService mExecutorService;
@@ -64,7 +63,6 @@ public class VersionHandler {
 
 
     private void createModule() {
-        mApkInstall = new ApkInstall(mContext);
         mUIAdapter = new UIAdapter(mContext);
         mDownloadTask = new DownloadTask();
         mDownloadReceiver = new StartDownloadReceiver();
@@ -76,7 +74,7 @@ public class VersionHandler {
         if (CheckUpgradeVersion.get().check(mQuiteEntry.getRemoteVersionCode())) {
             if (mApkLocalIsExist && !mQuiteEntry.isForceDownload()) {
                 Utils.LOG.i(TAG, "读取到本地缓存APk = " + mQuiteEntry.getApkPath() + " 开始安装...");
-                mApkInstall.install(mQuiteEntry.getApkPath());
+                ApkInstallUtils.doInstall(mContext, mQuiteEntry.getApkPath());
             } else {
                 final OnUINotify onUINotify = mQuiteEntry.getOnUINotify();
                 if (onUINotify != null) {
@@ -113,7 +111,7 @@ public class VersionHandler {
             if (!mQuiteEntry.isForceDownload()) {
                 if (mApkLocalIsExist) {
                     Utils.LOG.i(TAG, "读取到本地缓存APk = " + mQuiteEntry.getApkPath() + " 开始安装...");
-                    mApkInstall.install(mQuiteEntry.getApkPath());
+                    ApkInstallUtils.doInstall(mContext, mQuiteEntry.getApkPath());
                     return;
                 }
             }
@@ -149,7 +147,7 @@ public class VersionHandler {
         @Override
         public void onFinished(File file) {
             Utils.LOG.i(TAG, "download file done ...");
-            mApkInstall.install(file.getAbsolutePath());
+            ApkInstallUtils.doInstall(mContext, file.getAbsolutePath());
         }
     };
 

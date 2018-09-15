@@ -1,4 +1,4 @@
-package com.xwdz.quietversion.ui;
+package com.xwdz.version.ui;
 
 import android.app.DialogFragment;
 import android.app.FragmentManager;

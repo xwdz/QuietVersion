@@ -9,9 +9,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.xwdz.quietversion.Utils;
-import com.xwdz.quietversion.callback.OnUINotify;
-import com.xwdz.quietversion.core.VersionHandler;
+import com.xwdz.version.Utils;
+import com.xwdz.version.callback.OnUINotify;
+import com.xwdz.version.core.VersionHandler;
 
 public class DialogTest extends DialogFragment implements OnUINotify {
 

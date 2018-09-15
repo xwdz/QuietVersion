@@ -1,4 +1,4 @@
-package com.xwdz.quietversion;
+package com.xwdz.version;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -7,8 +7,11 @@ import android.util.Log;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.text.DecimalFormat;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 
 public class Utils {
@@ -164,6 +167,29 @@ public class Utils {
             }
         }
         return bytes.toString();
+    }
+
+    public static String appendHttpParams(LinkedHashMap<String, String> sLinkedHashMap) {
+        Iterator<String> keys = sLinkedHashMap.keySet().iterator();
+        Iterator<String> values = sLinkedHashMap.values().iterator();
+        StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append("?");
+
+        for (int i = 0; i < sLinkedHashMap.size(); i++) {
+            String value = null;
+            try {
+                value = URLEncoder.encode(values.next(), "utf-8");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            stringBuffer.append(keys.next() + "=" + value);
+            if (i != sLinkedHashMap.size() - 1) {
+                stringBuffer.append("&");
+            }
+        }
+
+        return stringBuffer.toString();
     }
 
     public static class LOG {

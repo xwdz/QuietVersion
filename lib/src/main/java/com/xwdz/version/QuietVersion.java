@@ -1,14 +1,14 @@
-package com.xwdz.quietversion;
+package com.xwdz.version;
 
 import android.app.Activity;
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 
-import com.xwdz.quietversion.callback.NetworkParser;
-import com.xwdz.quietversion.callback.OnUINotify;
-import com.xwdz.quietversion.core.VersionHandler;
-import com.xwdz.quietversion.entry.ApkSource;
+import com.xwdz.version.callback.NetworkParser;
+import com.xwdz.version.callback.OnUINotify;
+import com.xwdz.version.core.VersionHandler;
+import com.xwdz.version.entry.ApkSource;
 
 import java.io.File;
 import java.io.IOException;
@@ -153,7 +153,9 @@ public class QuietVersion {
                 call.enqueue(new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {
+                        e.printStackTrace();
                     }
+
                     @Override
                     public void onResponse(Call call, Response response) throws IOException {
                         ApkSource apkSource = mNetworkParser.parser(response.body().string());
@@ -171,7 +173,7 @@ public class QuietVersion {
                     }
                 });
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             e.printStackTrace();
             Utils.LOG.e(TAG, "app apply error = " + e);
         }
@@ -190,7 +192,7 @@ public class QuietVersion {
         }
 
         if (GET.equals(mMethod)) {
-            requestBuilder.url(mUrl + com.xwdz.http.Utils.appendHttpParams(PARAMS));
+            requestBuilder.url(mUrl + Utils.appendHttpParams(PARAMS));
         } else if (POST.equals(mMethod)) {
             for (Map.Entry<String, String> map : PARAMS.entrySet()) {
                 params.add(map.getKey(), map.getValue());

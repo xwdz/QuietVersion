@@ -1,4 +1,4 @@
-package com.xwdz.quietversion.core;
+package com.xwdz.version.core;
 
 
 import com.xingwei.checkupdate.BuildConfig;
