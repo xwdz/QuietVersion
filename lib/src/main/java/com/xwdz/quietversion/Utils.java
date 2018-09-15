@@ -1,4 +1,4 @@
-package com.xingwei.checkupdate;
+package com.xwdz.quietversion;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -168,7 +168,7 @@ public class Utils {
 
     public static class LOG {
 
-        public static final String TAG = "Quite";
+        public static final String TAG = "QuietVersion";
 
         public static void i(String tag, String msg) {
             Log.i(TAG, "[" + tag + "] " + msg);

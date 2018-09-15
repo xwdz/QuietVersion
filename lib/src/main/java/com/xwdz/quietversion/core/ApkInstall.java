@@ -1,4 +1,4 @@
-package com.xingwei.checkupdate.core;
+package com.xwdz.quietversion.core;
 
 import android.content.Context;
 import android.content.Intent;
@@ -7,8 +7,8 @@ import android.os.Build;
 import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 
-import com.xingwei.checkupdate.Utils;
-import com.xingwei.checkupdate.Utils.LOG;
+import com.xwdz.quietversion.Utils;
+import com.xwdz.quietversion.Utils.LOG;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;

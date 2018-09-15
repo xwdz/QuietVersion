@@ -3,9 +3,9 @@ package com.update.testabc;
 import android.app.Activity;
 import android.os.Bundle;
 
-import com.xingwei.checkupdate.Quite;
-import com.xingwei.checkupdate.callback.NetworkParser;
-import com.xingwei.checkupdate.entry.ApkSource;
+import com.xwdz.quietversion.QuietVersion;
+import com.xwdz.quietversion.callback.NetworkParser;
+import com.xwdz.quietversion.entry.ApkSource;
 
 public class MainActivity extends Activity {
 
@@ -24,7 +24,7 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Quite.getInstance(this)
+        QuietVersion.getInstance(this)
                 //or POST
                 .GET("http://www.baidu.com")
                 //强制每次更新下载最新Apk
@@ -47,6 +47,6 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Quite.getInstance(this).recycle();
+        QuietVersion.getInstance(this).recycle();
     }
 }

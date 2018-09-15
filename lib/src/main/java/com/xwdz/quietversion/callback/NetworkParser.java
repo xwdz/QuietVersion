@@ -1,6 +1,6 @@
-package com.xingwei.checkupdate.callback;
+package com.xwdz.quietversion.callback;
 
-import com.xingwei.checkupdate.entry.ApkSource;
+import com.xwdz.quietversion.entry.ApkSource;
 
 /**
  * 自定义解析器

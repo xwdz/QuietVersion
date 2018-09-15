@@ -1,16 +1,17 @@
-package com.xingwei.checkupdate.core;
+package com.xwdz.quietversion.core;
 
 
-import com.xingwei.checkupdate.Utils;
-import com.xingwei.checkupdate.callback.OnProgressListener;
-import com.xwdz.okhttpgson.OkHttpRun;
-import com.xwdz.okhttpgson.OkRun;
+import com.xwdz.quietversion.Utils;
+import com.xwdz.quietversion.callback.OnProgressListener;
 
 import java.io.File;
 import java.io.IOException;
 
+import okhttp3.Call;
 import okhttp3.Interceptor;
 import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okio.Buffer;
@@ -23,9 +24,9 @@ import okio.Source;
 /**
  * apk下载器
  */
-public class DownloadApkTask implements Runnable {
+public class DownloadTask implements Runnable {
 
-    private static final String TAG = DownloadApkTask.class.getSimpleName();
+    private static final String TAG = DownloadTask.class.getSimpleName();
 
     /**
      * 下载URL
@@ -37,6 +38,22 @@ public class DownloadApkTask implements Runnable {
     private String mFilePath;
 
     private OnProgressListener mOnProgressListener;
+
+    private OkHttpClient.Builder mBuilder = new OkHttpClient.Builder();
+    private OkHttpClient mOkHttpClient;
+
+
+    public DownloadTask(){
+        mOkHttpClient = mBuilder.addNetworkInterceptor(new Interceptor() {
+            @Override
+            public Response intercept(Chain chain) throws IOException {
+                final Response interceptor = chain.proceed(chain.request());
+                return interceptor.newBuilder()
+                        .body(new ProgressBody(interceptor.body(), mOnProgressListener))
+                        .build();
+            }
+        }).build();
+    }
 
 
     void setUrl(String url) {
@@ -53,21 +70,11 @@ public class DownloadApkTask implements Runnable {
 
     private void download() {
         try {
-            OkRun.getInstance()
-                    .newBuilder()
-                    .addNetworkInterceptor(new Interceptor() {
-                        @Override
-                        public Response intercept(Chain chain) throws IOException {
-                            final Response interceptor = chain.proceed(chain.request());
-                            return interceptor.newBuilder()
-                                    .body(new ProgressBody(interceptor.body(), mOnProgressListener))
-                                    .build();
-                        }
-                    }).build();
-
             File file = createBrokenFile(mFilePath);
-            Response response = OkHttpRun.get(mApkUrl)
-                    .execute();
+
+            Call call  = mOkHttpClient.newCall(new Request.Builder().url(mApkUrl).build());
+            Response response = call.execute();
+
 
             final BufferedSink sink = Okio.buffer(Okio.sink(file));
             sink.writeAll(response.body().source());

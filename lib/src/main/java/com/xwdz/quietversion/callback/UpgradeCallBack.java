@@ -1,4 +1,4 @@
-package com.xingwei.checkupdate.callback;
+package com.xwdz.quietversion.callback;
 
 
 import com.xwdz.okhttpgson.callback.AbstractCallBack;

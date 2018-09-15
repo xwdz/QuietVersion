@@ -1,10 +1,10 @@
-package com.xingwei.checkupdate.ui;
+package com.xwdz.quietversion.ui;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
-import com.xingwei.checkupdate.core.VersionHandler;
+import com.xwdz.quietversion.core.VersionHandler;
 
 public abstract class AbstractActivity extends AppCompatActivity {
 

@@ -1,4 +1,4 @@
-package com.xingwei.checkupdate.ui;
+package com.xwdz.quietversion.ui;
 
 import android.app.DialogFragment;
 import android.app.FragmentManager;

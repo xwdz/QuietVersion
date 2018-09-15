@@ -3,7 +3,7 @@
 
     <application>
         <activity
-            android:name=".ui.ProgressDialogActivity"
+            android:name="com.xwdz.quietversion.ui.ProgressDialogActivity"
             android:theme="@style/Progress.theme">
         </activity>
 

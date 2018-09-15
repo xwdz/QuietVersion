@@ -1,27 +1,33 @@
-package com.xingwei.checkupdate;
+package com.xwdz.quietversion;
 
 import android.app.Activity;
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
+import android.text.TextUtils;
 
-import com.xingwei.checkupdate.callback.NetworkParser;
-import com.xingwei.checkupdate.callback.OnUINotify;
-import com.xingwei.checkupdate.core.VersionHandler;
-import com.xingwei.checkupdate.entry.ApkSource;
-import com.xwdz.http.OkHttpManager;
-import com.xwdz.http.callback.StringCallBack;
+import com.xwdz.quietversion.callback.NetworkParser;
+import com.xwdz.quietversion.callback.OnUINotify;
+import com.xwdz.quietversion.core.VersionHandler;
+import com.xwdz.quietversion.entry.ApkSource;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
 import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
-public class Quite {
+public class QuietVersion {
 
-    private static final String TAG = Quite.class.getSimpleName();
+    private static final String TAG = QuietVersion.class.getSimpleName();
 
-    private static Quite sQuite;
+    private static QuietVersion sQuietVersion;
 
     private static final String GET = "GET";
     private static final String POST = "POST";
@@ -36,98 +42,98 @@ public class Quite {
     private VersionHandler mVersionHandler;
     private NetworkParser mNetworkParser;
     private QuiteEntry mQuiteEntry;
-    private Interceptor mNetwordInterceptor;
+    private Interceptor mNetworkInterceptor;
     private Interceptor mInterceptor;
 
-    private Quite(FragmentActivity fragmentActivity) {
+    private QuietVersion(FragmentActivity fragmentActivity) {
         this.mFragmentActivity = fragmentActivity;
     }
 
-    private Quite(Activity activity) {
+    private QuietVersion(Activity activity) {
         this.mActivity = activity;
         this.mQuiteEntry = new QuiteEntry(activity.getApplicationContext());
     }
 
-    public static Quite getInstance(FragmentActivity context) {
-        if (sQuite == null) {
-            synchronized (Quite.class) {
-                if (sQuite == null) {
-                    sQuite = new Quite(context);
+    public static QuietVersion getInstance(FragmentActivity context) {
+        if (sQuietVersion == null) {
+            synchronized (QuietVersion.class) {
+                if (sQuietVersion == null) {
+                    sQuietVersion = new QuietVersion(context);
                 }
             }
         }
-        return sQuite;
+        return sQuietVersion;
     }
 
-    public static Quite getInstance(Activity activity) {
-        if (sQuite == null) {
-            synchronized (Quite.class) {
-                if (sQuite == null) {
-                    sQuite = new Quite(activity);
+    public static QuietVersion getInstance(Activity activity) {
+        if (sQuietVersion == null) {
+            synchronized (QuietVersion.class) {
+                if (sQuietVersion == null) {
+                    sQuietVersion = new QuietVersion(activity);
                 }
             }
         }
-        return sQuite;
+        return sQuietVersion;
     }
 
-    public Quite GET(String url) {
+    public QuietVersion GET(String url) {
         this.mMethod = GET;
         this.mUrl = url;
         return this;
     }
 
-    public Quite setNetworkParser(NetworkParser networkParser) {
+    public QuietVersion setNetworkParser(NetworkParser networkParser) {
         this.mNetworkParser = networkParser;
         return this;
     }
 
-    public Quite POST(String url) {
+    public QuietVersion POST(String url) {
         this.mMethod = POST;
         this.mUrl = url;
         return this;
     }
 
-    public Quite addParams(String key, String value) {
+    public QuietVersion addParams(String key, String value) {
         PARAMS.put(key, value);
         return this;
     }
 
-    public Quite addHeader(String key, String value) {
+    public QuietVersion addHeader(String key, String value) {
         HEADER.put(key, value);
         return this;
     }
 
-    public Quite setShowUIActivity(Class<?> cls) {
+    public QuietVersion setShowUIActivity(Class<?> cls) {
         mQuiteEntry.setShowUIActivityClass(cls);
         return this;
     }
 
-    public Quite addInterceptor(Interceptor interceptor) {
+    public QuietVersion addInterceptor(Interceptor interceptor) {
         mInterceptor = interceptor;
         return this;
     }
 
-    public Quite addNetworkInterceptor(Interceptor interceptor) {
-        mNetwordInterceptor = interceptor;
+    public QuietVersion addNetworkInterceptor(Interceptor interceptor) {
+        mNetworkInterceptor = interceptor;
         return this;
     }
 
-    public Quite setApkPath(String path) {
+    public QuietVersion setApkPath(String path) {
         mQuiteEntry.setApkPath(path);
         return this;
     }
 
-    public Quite setApkName(String name) {
+    public QuietVersion setApkName(String name) {
         mQuiteEntry.setApkName(name);
         return this;
     }
 
-    public Quite setForceDownload(boolean isDownload) {
+    public QuietVersion setForceDownload(boolean isDownload) {
         mQuiteEntry.setForceDownload(isDownload);
         return this;
     }
 
-    public Quite setNotifyHandler(OnUINotify notifyHandler) {
+    public QuietVersion setNotifyHandler(OnUINotify notifyHandler) {
         mQuiteEntry.setOnUINotify(notifyHandler);
         return this;
     }
@@ -138,22 +144,19 @@ public class Quite {
             Utils.LOG.i(TAG, "appUpgrade apply ... ");
 
             if (mNetworkParser != null) {
-                OkHttpManager okHttpManager = new OkHttpManager.Builder()
-                        .addInterceptor(mInterceptor)
-                        .addNetworkInterceptor(mNetwordInterceptor)
-                        .build();
+                OkHttpClient.Builder builder = new OkHttpClient.Builder();
+                builder.addInterceptor(mInterceptor)
+                        .addNetworkInterceptor(mNetworkInterceptor);
 
-                if (GET.equals(mMethod)) {
-                    okHttpManager.get(mUrl);
-                } else {
-                    okHttpManager.post(mUrl);
-                }
-                okHttpManager.addParams(PARAMS);
-                okHttpManager.addHeader(HEADER);
-                okHttpManager.execute(new StringCallBack() {
+                OkHttpClient okHttpClient = builder.build();
+                Call call = okHttpClient.newCall(buildRequest());
+                call.enqueue(new Callback() {
                     @Override
-                    protected void onSuccess(Call call, String response) {
-                        ApkSource apkSource = mNetworkParser.parser(response);
+                    public void onFailure(Call call, IOException e) {
+                    }
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        ApkSource apkSource = mNetworkParser.parser(response.body().string());
                         if (apkSource != null) {
                             final Context context = mFragmentActivity != null ? mFragmentActivity.getBaseContext() : mActivity.getBaseContext();
                             mQuiteEntry.setRemoteVersionCode(apkSource.getRemoteVersionCode());
@@ -166,17 +169,36 @@ public class Quite {
                             Utils.LOG.i(TAG, "当前暂未发现新版本...");
                         }
                     }
-
-                    @Override
-                    public void onFailure(Call call, Exception e) {
-
-                    }
                 });
             }
         } catch (Exception e) {
             e.printStackTrace();
             Utils.LOG.e(TAG, "app apply error = " + e);
         }
+    }
+
+    private Request buildRequest() {
+        if (TextUtils.isEmpty(mUrl)) {
+            throw new NullPointerException("url = " + mUrl);
+        }
+
+        final Request.Builder requestBuilder = new Request.Builder();
+        FormBody.Builder params = new FormBody.Builder();
+
+        for (Map.Entry<String, String> map : HEADER.entrySet()) {
+            requestBuilder.addHeader(map.getKey(), map.getValue());
+        }
+
+        if (GET.equals(mMethod)) {
+            requestBuilder.url(mUrl + com.xwdz.http.Utils.appendHttpParams(PARAMS));
+        } else if (POST.equals(mMethod)) {
+            for (Map.Entry<String, String> map : PARAMS.entrySet()) {
+                params.add(map.getKey(), map.getValue());
+            }
+            requestBuilder.url(mUrl);
+            requestBuilder.post(params.build());
+        }
+        return requestBuilder.build();
     }
 
 

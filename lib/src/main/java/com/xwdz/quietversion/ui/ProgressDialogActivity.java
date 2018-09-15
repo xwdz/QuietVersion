@@ -1,4 +1,4 @@
-package com.xingwei.checkupdate.ui;
+package com.xwdz.quietversion.ui;
 
 import android.content.Context;
 import android.content.Intent;
@@ -8,8 +8,8 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.xingwei.checkupdate.R;
-import com.xingwei.checkupdate.Utils;
-import com.xingwei.checkupdate.core.VersionHandler;
+import com.xwdz.quietversion.Utils;
+import com.xwdz.quietversion.core.VersionHandler;
 
 /**
  * 透明主题Activity

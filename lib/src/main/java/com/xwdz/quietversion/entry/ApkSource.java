@@ -1,4 +1,4 @@
-package com.xingwei.checkupdate.entry;
+package com.xwdz.quietversion.entry;
 
 import android.os.Parcel;
 import android.os.Parcelable;

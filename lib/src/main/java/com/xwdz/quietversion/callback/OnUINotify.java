@@ -1,4 +1,4 @@
-package com.xingwei.checkupdate.callback;
+package com.xwdz.quietversion.callback;
 
 
 import android.support.v4.app.FragmentManager;

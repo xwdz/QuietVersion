@@ -1,4 +1,4 @@
-package com.xingwei.checkupdate.core;
+package com.xwdz.quietversion.core;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -8,11 +8,11 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 
-import com.xingwei.checkupdate.Quite;
-import com.xingwei.checkupdate.Utils;
-import com.xingwei.checkupdate.callback.OnProgressListener;
-import com.xingwei.checkupdate.callback.OnUINotify;
-import com.xingwei.checkupdate.ui.UIAdapter;
+import com.xwdz.quietversion.QuietVersion;
+import com.xwdz.quietversion.Utils;
+import com.xwdz.quietversion.callback.OnProgressListener;
+import com.xwdz.quietversion.callback.OnUINotify;
+import com.xwdz.quietversion.ui.UIAdapter;
 
 import java.io.File;
 import java.util.concurrent.ExecutorService;
@@ -28,7 +28,7 @@ public class VersionHandler {
     private static final String TAG = VersionHandler.class.getSimpleName();
 
     private ApkInstall mApkInstall;
-    private DownloadApkTask mDownloadApkTask;
+    private DownloadTask mDownloadTask;
     private UIAdapter mUIAdapter;
     private ExecutorService mExecutorService;
 
@@ -36,28 +36,28 @@ public class VersionHandler {
     private Context mContext;
 
     private FragmentActivity mFragmentActivity;
-    private Quite.QuiteEntry mQuiteEntry;
+    private QuietVersion.QuiteEntry mQuiteEntry;
     /**
      * 本地是否存在缓存Apk
      */
     private boolean mApkLocalIsExist;
 
 
-    public static VersionHandler get(Context context, Quite.QuiteEntry entry) {
+    public static VersionHandler get(Context context, QuietVersion.QuiteEntry entry) {
         return new VersionHandler(context, entry);
     }
 
 
-    private VersionHandler(Context context, Quite.QuiteEntry entry) {
+    private VersionHandler(Context context, QuietVersion.QuiteEntry entry) {
         mContext = context;
         mExecutorService = Executors.newFixedThreadPool(3);
         checkURLNotNull(entry.getUrl());
 
         mQuiteEntry = entry;
         createModule();
-        mDownloadApkTask.setUrl(mQuiteEntry.getUrl());
-        mDownloadApkTask.setOnProgressListener(mOnProgressListener);
-        mDownloadApkTask.setFilePath(mQuiteEntry.getApkPath());
+        mDownloadTask.setUrl(mQuiteEntry.getUrl());
+        mDownloadTask.setOnProgressListener(mOnProgressListener);
+        mDownloadTask.setFilePath(mQuiteEntry.getApkPath());
         mApkLocalIsExist = mQuiteEntry.checkApkExits();
         handlerApk();
     }
@@ -66,7 +66,7 @@ public class VersionHandler {
     private void createModule() {
         mApkInstall = new ApkInstall(mContext);
         mUIAdapter = new UIAdapter(mContext);
-        mDownloadApkTask = new DownloadApkTask();
+        mDownloadTask = new DownloadTask();
         mDownloadReceiver = new StartDownloadReceiver();
         mContext.registerReceiver(mDownloadReceiver, new IntentFilter(START_DOWNLOAD_ACTION));
         Utils.LOG.i(TAG, "组件初始化完毕 ...");
@@ -118,7 +118,7 @@ public class VersionHandler {
                 }
             }
 
-            mExecutorService.execute(mDownloadApkTask);
+            mExecutorService.execute(mDownloadTask);
             Utils.LOG.i(TAG, "开始下载服务器apk ...");
         } else {
             Utils.LOG.i(TAG, "未发现最新Apk版本 " + mQuiteEntry.getUrl());
@@ -169,7 +169,7 @@ public class VersionHandler {
     }
 
 
-    public static final String UPDATE_PROGRESSBAR_ACTION = "com.xingwei.checkupdate.ui.ProgressDialogActivity";
+    public static final String UPDATE_PROGRESSBAR_ACTION = "com.xwdz.quietversion.ui.ProgressDialogActivity";
 
     private static final String KEY_TOTAL = "total";
     private static final String KEY_CURRENT_LENGTH = "currentlength";
