@@ -103,6 +103,7 @@ public abstract void updateProgress(int percent, long currentLength, long total)
 
 
 2. ~~实现`OnUINotify`接口(暂不支持)~~
+
 **在不指定`.setNotifyHandler()方法以及`setShowUIActivity`方法时默认实现效果参照文章开头`**
 **在自定义容器中实现此接口,在接口方法`show`中调用真正的`show`方法**,[详见simple-code](https://github.com/xwdz/QuietVersion/blob/master/app/src/main/java/com/update/testabc/DialogTest.java)
 
