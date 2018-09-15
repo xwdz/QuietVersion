@@ -2,6 +2,7 @@
 
 用于Android App检测自动更新
 
+> 如果你觉得这个lib对你有用,随手给个Star,让我知道它是对你有帮助的,我会继续更新和维护它。
 
 ### 实现效果
 ![WeChatSight112.gif](https://upload-images.jianshu.io/upload_images/2651056-8c50665d70685c18.gif?imageMogr2/auto-orient/strip)
@@ -22,6 +23,7 @@ $lastVersion = [![](https://jitpack.io/v/xwdz/QuiteVersion.svg)](https://jitpack
 - 支持自定义界面
 - 支持强制下载最新Apk
 - 自调起安装界面
+- 内部使用okHttp进行网络通讯
 - 支持OKHttp拦截器
 - 适配7.0
 
@@ -29,13 +31,28 @@ $lastVersion = [![](https://jitpack.io/v/xwdz/QuiteVersion.svg)](https://jitpack
 
 ```
 VersionConfigs.getImpl()
+            .setForceDownload(true)
+            .setApkPath(String apkPath)
+            
+            .setApkName(String apkName)
             // 是否强制每次都从服务器下载
-            .setForceDownload()
+            .setForceDownload(boolean force)
             // 自定义activity 
-            .setUIActivityClass()
-            // 自定义升级规则
+            .setUIActivityClass(xxx.class)
+            // 
             .setOnCheckVersionRules(new DefaultCheckVersionRules());
 ```
+
+### 配置说明
+
+
+|方法名|说明|默认实现|
+|---:|:---|:----|
+|setForceDownload|是否强制每次都从服务器下载|false|
+|setApkName|apk名称|apk名称为Url最后一个`/`至`.`为止之间内容为名称|
+|setApkPath|apk文件存储路径|context.getExternalFilesDir("apk").getAbsolutePath() + / + apkFilename|
+|setUIActivityClass|自定义activity UI|[DefaultProgressDialogActivity.class](https://github.com/xwdz/QuietVersion/blob/master/lib/src/main/java/com/xwdz/version/ui/DefaultProgressDialogActivity.java)|
+|setOnCheckVersionRules|自定义升级规则|[DefaultCheckVersionRules.class](https://github.com/xwdz/QuietVersion/blob/master/lib/src/main/java/com/xwdz/version/core/DefaultCheckVersionRules.java)|
 
 
 ### 简单使用
@@ -48,6 +65,7 @@ VersionConfigs.getImpl()
                 .addParams()
                 .addInterceptor()
                 .addNetworkInterceptor()
+                // 开发者必须实现此接口,返回QuiteVersion需要的Apk信息,如果返回null,则视为没有新版本更新
                 .setOnNetworkParserListener(new OnNetworkParserListener() {
                     @Override
                     public ApkSource parser(String response) {
@@ -66,48 +84,9 @@ VersionConfigs.getImpl()
 Quite.getInstance(this).recycle()
 ```
 
-### 注意
+### 扩展
 
-####  开发者必须实现此接口,返回QuiteVersion需要的Apk信息,如果返回null,则视为没有新版本更新
-
-```
-setOnNetworkParserListener(new OnNetworkParserListener() {
-                          @Override
-                          public ApkSource parser(String response) {
-                              return null;
-                          }
-                      })
-```
-
-
-####  `QuietVersion` 支持自定义升级规则,实现`OnCheckVersionRules`即可
-
-默认`DefaultCheckVersionRules`代码如下, `true` 则执行升级,`false` 则不进行升级
-
-```
-/**
- * @author 黄兴伟 (xwdz9989@gamil.com)
- * @since 2018/9/15
- */
-public class DefaultCheckVersionRules implements OnCheckVersionRules {
-
-    @Override
-    public boolean check(ApkSource apkSource) {
-        return apkSource.getRemoteVersionCode() > BuildConfig.VERSION_CODE;
-    }
-}
-
-```
-
-#### setApkName 以及setApkPath 说明
-
-- **QuiteVersion 默认实现路径**为`context.getExternalFilesDir("apk").getAbsolutePath() + File.separator + apkFilename`
-
-- **QuiteVersion 默认实现文件名称为`Url最后一个/ 至 .apk`,如酷狗 http://download.kugou.com/download/kugou_android`
-      `ApkName为kugou_android.apk`**
-
-
-#### 自定义升级UI容器(推荐)
+#### 自定义升级UI(推荐)
 
 1. 继承`AbstractActivity`实现自己的UI,重写如下三个方法,通过`setUIActivityClass(xxx.class)`注入.
 
@@ -119,11 +98,11 @@ public abstract void setUpData();
 //当执行下载任务的时候回回调到此方法
 public abstract void updateProgress(int percent, long currentLength, long total);
 ```
-默认的[ProgressDialogActivity](https://github.com/xwdz/QuietVersionVersion/blob/master/lib/src/main/java/com/xwdz/version/ui/DefaultProgressDialogActivity.java)也是基于此实现。
-可通过`String note = getIntent().getStringExtra("note")`拿到更新文本。
+参考[`ProgressDialogActivity`](https://github.com/xwdz/QuietVersion/blob/master/lib/src/main/java/com/xwdz/version/ui/DefaultProgressDialogActivity.java)
+可通过`getIntent().getStringExtra("note")`拿到`ApkSource`对象
 
 
-2. 实现`OnUINotify`接口(暂不支持)
+2. ~~实现`OnUINotify`接口(暂不支持)~~
 **在不指定`.setNotifyHandler()方法以及`setShowUIActivity`方法时默认实现效果参照文章开头`**
 **在自定义容器中实现此接口,在接口方法`show`中调用真正的`show`方法**,[详见simple-code](https://github.com/xwdz/QuietVersion/blob/master/app/src/main/java/com/update/testabc/DialogTest.java)
 

@@ -1,6 +1,7 @@
-package com.xwdz.version.callback;
+package com.xwdz.version.core;
 
 import com.xingwei.checkupdate.BuildConfig;
+import com.xwdz.version.callback.OnCheckVersionRules;
 import com.xwdz.version.entry.ApkSource;
 
 /**

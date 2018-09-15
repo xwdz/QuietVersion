@@ -1,4 +1,4 @@
-package com.update.testabc;
+package com.update.simple;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;

@@ -1,4 +1,4 @@
-package com.update.testabc;
+package com.update.simple;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;

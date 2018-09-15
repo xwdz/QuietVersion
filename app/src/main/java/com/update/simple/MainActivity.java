@@ -1,4 +1,4 @@
-package com.update.testabc;
+package com.update.simple;
 
 import android.app.Activity;
 import android.os.Bundle;
