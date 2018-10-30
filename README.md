@@ -33,7 +33,6 @@ $lastVersion = [![](https://jitpack.io/v/xwdz/QuiteVersion.svg)](https://jitpack
 VersionConfigs.getImpl()
             .setForceDownload(true)
             .setApkPath(String apkPath)
-            
             .setApkName(String apkName)
             // 是否强制每次都从服务器下载
             .setForceDownload(boolean force)
@@ -162,10 +161,13 @@ VersionHandler.unregisterProgressbarReceiver(getContext(), mProgressReceiver);
 </paths>
 ```
 
-#### 配置混淆
+#### 混淆
 
 ```
--keep class com.xwdz.version.** {*;}
+#okhttp
+-dontwarn okhttp3.**
+-keep class okhttp3.**{*;}
+
 ```
 
 [@酸菜xwdz](http://huangxingwei.cn)
