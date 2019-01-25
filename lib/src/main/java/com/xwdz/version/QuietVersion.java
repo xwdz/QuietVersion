@@ -27,20 +27,20 @@ public class QuietVersion {
 
     private static QuietVersion sQuietVersion;
 
-    private static final String GET = "GET";
-    private static final String POST = "POST";
+    private static final String GET  = "get";
+    private static final String POST = "post";
 
     private static final LinkedHashMap<String, String> PARAMS = new LinkedHashMap<>();
     private static final LinkedHashMap<String, String> HEADER = new LinkedHashMap<>();
 
-    private String mMethod;
+    private String           mMethod;
     private FragmentActivity mFragmentActivity;
-    private Activity mActivity;
-    private String mUrl;
-    private VersionHandler mVersionHandler;
-    private NetworkParser mNetworkParser;
-    private Interceptor mNetworkInterceptor;
-    private Interceptor mInterceptor;
+    private Activity         mActivity;
+    private String           mUrl;
+    private VersionHandler   mVersionHandler;
+    private NetworkParser    mNetworkParser;
+    private Interceptor      mNetworkInterceptor;
+    private Interceptor      mInterceptor;
 
     private QuietVersion(FragmentActivity fragmentActivity) {
         this.mFragmentActivity = fragmentActivity;
@@ -72,7 +72,7 @@ public class QuietVersion {
         return sQuietVersion;
     }
 
-    public QuietVersion GET(String url) {
+    public QuietVersion get(String url) {
         this.mMethod = GET;
         this.mUrl = url;
         return this;
@@ -84,7 +84,7 @@ public class QuietVersion {
     }
 
 
-    public QuietVersion POST(String url) {
+    public QuietVersion post(String url) {
         this.mMethod = POST;
         this.mUrl = url;
         return this;
@@ -117,8 +117,14 @@ public class QuietVersion {
 
             if (mNetworkParser != null) {
                 OkHttpClient.Builder builder = new OkHttpClient.Builder();
-                builder.addInterceptor(mInterceptor)
-                        .addNetworkInterceptor(mNetworkInterceptor);
+
+                if (mInterceptor != null) {
+                    builder.addInterceptor(mInterceptor);
+                }
+
+                if (mNetworkInterceptor != null) {
+                    builder.addNetworkInterceptor(mNetworkInterceptor);
+                }
 
                 OkHttpClient okHttpClient = builder.build();
                 Call call = okHttpClient.newCall(buildRequest());
@@ -134,6 +140,7 @@ public class QuietVersion {
                         if (apkSource != null) {
                             final Context context = mFragmentActivity != null ? mFragmentActivity.getBaseContext() : mActivity.getBaseContext();
                             mVersionHandler = VersionHandler.get(context, apkSource);
+                            mVersionHandler.handler();
                         } else {
                             Utils.LOG.i(TAG, "当前暂未发现新版本...");
                         }

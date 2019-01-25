@@ -21,7 +21,7 @@ $lastVersion = [![](https://jitpack.io/v/xwdz/QuiteVersion.svg)](https://jitpack
 
 - 任何地方都可以调用
 - 支持自定义界面
-- 支持强制下载最新Apk
+- 支持静默下载最新Apk
 - 自调起安装界面
 - 内部使用okHttp进行网络通讯
 - 支持OKHttp拦截器

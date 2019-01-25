@@ -2,6 +2,7 @@ package com.update.simple;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.xwdz.version.QuietVersion;
 import com.xwdz.version.callback.NetworkParser;
@@ -11,12 +12,7 @@ public class MainActivity extends Activity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
-    String A = "zhushou360://type=apk&marketid=10000001&refer=thirdlink&name=360%E6%89%8B%E6%9C%BA%E5%8D%AB%E5%A3%AB&icon=http://p18.qhimg.com/t0168f384a0b6a971c2.png&appmd5=78ef176d24b7de2272bf8d88e9da5035&softid=77208&appadb=&url=http://shouji.360tpcdn.com/180503/78ef176d24b7de2272bf8d88e9da5035/com.qihoo360.mobilesafe_260.apk";
-    String c = "http://shouji.360tpcdn.com/180427/9050ba38f3138d9895f619389241c0c7/com.ss.android.article.video_250.apk";
-    String d = "http://openbox.mobilem.360.cn/url/r/k/std_1525405075";
-
-    String weixin = "http://dlc2.pconline.com.cn/filedown_359554_6972055/kvssBJkn/weixin665android1280.apk";
-    String kugou = "http://download.kugou.com/download/kugou_android";
+    private static final String URL = "https://github.com/xwdzProxy/version/raw/master/app-release-unsigned.apk";
 
 
     @Override
@@ -24,19 +20,21 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        Toast.makeText(this, "This is New Version", Toast.LENGTH_SHORT).show();
+
         QuietVersion.getInstance(this)
-                //or POST
-                .GET("http://www.baidu.com")
+                //or post
+                .get("http://www.baidu.com")
                 //强制每次更新下载最新Apk
                 .setNetworkParser(new NetworkParser() {
                     @Override
                     public ApkSource parser(String response) {
                         return new ApkSource(
-                                c,
+                                URL,
                                 "更新内容如下\n1.你好\n2.我不好",
                                 123123123,
                                 123,
-                                9999
+                                "v/1.2.3"
                         );
                     }
                 })

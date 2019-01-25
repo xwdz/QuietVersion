@@ -6,48 +6,37 @@ import android.os.Parcelable;
 public class ApkSource implements Parcelable {
 
     /**
-     * 更新策略
-     * 0:正常升级(用户点击确认升级再升级)
-     * 1:强制更新
-     */
-    private final int level;
-
-    /**
      * 更新文本
      */
-
-    private final String note;
+    private String note;
 
     /**
      * apk文件大小
      */
-
-    private final long fileSize;
+    private long fileSize;
 
     /**
      * apk 下载地址
      */
-
-    private final String url;
+    private String url;
 
     /**
      * 远程versionCode
      */
+    private int    remoteVersionCode;
+    /**
+     * 远程VersionName
+     */
+    private String remoteVersionName;
 
-    private final int remoteVersionCode;
-
-
-    public ApkSource( String url,String note,long fileSize,int level,int remoteVersionCode) {
-        this.level = level;
+    public ApkSource(String url, String note, long fileSize, int remoteVersionCode, String remoteVersionName) {
         this.note = note;
         this.fileSize = fileSize;
         this.url = url;
         this.remoteVersionCode = remoteVersionCode;
+        this.remoteVersionName = remoteVersionName;
     }
 
-    public int getLevel() {
-        return level;
-    }
 
     public String getNote() {
         return note;
@@ -66,37 +55,28 @@ public class ApkSource implements Parcelable {
     }
 
     @Override
-    public String toString() {
-        return "ApkSource{" +
-                "level=" + level +
-                ", url='" + url + '\'' +
-                ", remoteVersionCode=" + remoteVersionCode +
-                '}';
-    }
-
-    @Override
     public int describeContents() {
         return 0;
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(this.level);
         dest.writeString(this.note);
         dest.writeLong(this.fileSize);
         dest.writeString(this.url);
         dest.writeInt(this.remoteVersionCode);
+        dest.writeString(this.remoteVersionName);
     }
 
     protected ApkSource(Parcel in) {
-        this.level = in.readInt();
         this.note = in.readString();
         this.fileSize = in.readLong();
         this.url = in.readString();
         this.remoteVersionCode = in.readInt();
+        this.remoteVersionName = in.readString();
     }
 
-    public static final Parcelable.Creator<ApkSource> CREATOR = new Parcelable.Creator<ApkSource>() {
+    public static final Creator<ApkSource> CREATOR = new Creator<ApkSource>() {
         @Override
         public ApkSource createFromParcel(Parcel source) {
             return new ApkSource(source);

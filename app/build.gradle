@@ -6,8 +6,8 @@ android {
         applicationId "com.updateProgress.test"
         minSdkVersion 19
         targetSdkVersion 27
-        versionCode 110
-        versionName "1.1.0"
+        versionCode 199
+        versionName "1.9.9"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -31,7 +31,6 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation 'com.github.bumptech.glide:glide:3.7.0'
-    implementation 'com.xwdz:okHttpUtils:1.0.4'
     implementation 'com.squareup.okhttp3:okhttp:3.5.0'
     implementation project(':lib')
 }

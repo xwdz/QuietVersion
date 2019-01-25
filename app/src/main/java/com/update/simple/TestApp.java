@@ -14,8 +14,6 @@ public class TestApp extends Application {
         super.onCreate();
         VersionConfigs.getImpl()
                 .setForceDownload(true)
-                .setApkPath(String apkPath)
-                .setApkName(String apkName)
                 .setUIActivityClass(DefaultProgressDialogActivity.class)
                 .setOnCheckVersionRules(new DefaultCheckVersionRules());
     }

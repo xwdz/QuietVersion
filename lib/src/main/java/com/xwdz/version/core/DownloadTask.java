@@ -43,7 +43,7 @@ public class DownloadTask implements Runnable {
     private OkHttpClient mOkHttpClient;
 
 
-    public DownloadTask(){
+    public DownloadTask() {
         mOkHttpClient = mBuilder.addNetworkInterceptor(new Interceptor() {
             @Override
             public Response intercept(Chain chain) throws IOException {
@@ -69,10 +69,11 @@ public class DownloadTask implements Runnable {
     }
 
     private void download() {
+        File file = null;
         try {
-            File file = createBrokenFile(mFilePath);
+            file = createBrokenFile(mFilePath);
 
-            Call call  = mOkHttpClient.newCall(new Request.Builder().url(mApkUrl).build());
+            Call call = mOkHttpClient.newCall(new Request.Builder().url(mApkUrl).build());
             Response response = call.execute();
 
 
@@ -84,6 +85,9 @@ public class DownloadTask implements Runnable {
                 mOnProgressListener.onFinished(file);
             }
         } catch (Exception e) {
+            if (file != null){
+                file.deleteOnExit();
+            }
             Utils.LOG.e(TAG, "download file error= " + e);
         }
     }
@@ -94,9 +98,6 @@ public class DownloadTask implements Runnable {
     private File createBrokenFile(String localUrl) throws Exception {
         File file = new File(localUrl);
 
-        // 如果文件不存在，那么继续判断
-        // 如果父目录不存在，首先创建父目录，然后再创建文件
-        // 如果父目录存在，直接创建文件
         if (!file.exists()) {
             if (!file.getParentFile().exists()) {
                 if (!file.getParentFile().mkdirs()) {
@@ -115,9 +116,9 @@ public class DownloadTask implements Runnable {
 
     public static class ProgressBody extends ResponseBody {
 
-        private final ResponseBody mResponseBody;
-        private OnProgressListener mOnProgressListener;
-        private BufferedSource mBufferedSource;
+        private final ResponseBody       mResponseBody;
+        private       OnProgressListener mOnProgressListener;
+        private       BufferedSource     mBufferedSource;
 
         ProgressBody(ResponseBody responseBody, OnProgressListener progressListener) {
             this.mResponseBody = responseBody;
