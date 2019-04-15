@@ -5,7 +5,7 @@
 > 如果你觉得这个lib对你有用,随手给个Star,让我知道它是对你有帮助的,我会继续更新和维护它。
 
 ### 实现效果
-![WeChatSight112.gif](https://upload-images.jianshu.io/upload_images/2651056-8c50665d70685c18.gif?imageMogr2/auto-orient/strip)
+![simple.gif](./imgs/simple.gif)
 
 ### 添加依赖
 
@@ -25,7 +25,7 @@ $lastVersion = [![](https://jitpack.io/v/xwdz/QuiteVersion.svg)](https://jitpack
 - 自调起安装界面
 - 内部使用okHttp进行网络通讯
 - 支持OKHttp拦截器
-- 适配7.0 8.0 9.0
+- 适配7.0、8.0、9.0
 
 
 ### 需要权限
