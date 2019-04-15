@@ -2,6 +2,7 @@ package com.xwdz.version.ui;
 
 import android.content.Context;
 import android.content.Intent;
+import android.view.KeyEvent;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -11,6 +12,8 @@ import com.xwdz.version.R;
  * 下载进度条
  */
 public class DefaultProgressDialogActivity extends AbstractActivity {
+
+    private static final int MAX = 100;
 
     private ProgressBar mProgressBar;
     private TextView mSizeNote;
@@ -40,5 +43,15 @@ public class DefaultProgressDialogActivity extends AbstractActivity {
     public void update(int percent, String text) {
         mProgressBar.setProgress(percent);
         mSizeNote.setText(text);
+
+        if (percent == MAX) {
+            finish();
+        }
     }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        return true;
+    }
+
 }
