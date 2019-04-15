@@ -4,6 +4,6 @@
     <corners android:topLeftRadius="2pt"
         android:topRightRadius="2pt"/>
 
-    <solid android:color="@color/version_theme"/>
+    <solid android:color="@color/quiet_version_button_theme"/>
 
 </shape>

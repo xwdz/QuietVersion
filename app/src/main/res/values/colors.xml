@@ -4,4 +4,9 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
 
+    <color name="quiet_version_button_theme">#FF000000</color>
+    <color name="quiet_version_download_file_size">#FF000000</color>
+    <color name="quiet_version_progress_background">#FF000000</color>
+    <color name="quiet_version_progress">#FF000000</color>
+
 </resources>

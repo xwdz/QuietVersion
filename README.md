@@ -25,7 +25,7 @@ $lastVersion = [![](https://jitpack.io/v/xwdz/QuiteVersion.svg)](https://jitpack
 - 自调起安装界面
 - 内部使用okHttp进行网络通讯
 - 支持OKHttp拦截器
-- 适配7.0
+- 适配7.0 8.0 9.0
 
 
 ### 需要权限
@@ -68,10 +68,10 @@ VersionConfigs.getImpl()
 
 |名称|说明|默认实现|
 |:--:|:--:|:--:|
-|`quiet_version_button_theme`|`dialog更新按钮颜色`|[colors.xml]()|
-|`quiet_version_download_file_size`|`dialog更新按钮颜色`|[colors.xml]()|
-|`quiet_version_progress_background`|`下载进度条背景颜色`|[colors.xml]()|
-|`quiet_version_progress`|`下载进度条颜色`|[colors.xml]()|
+|`quiet_version_button_theme`|`dialog更新按钮颜色`|[colors.xml](https://github.com/xwdz/QuietVersion/blob/master/app/src/main/res/values/colors.xml)|
+|`quiet_version_download_file_size`|`进度条下面文件下载进度文字颜色`|[colors.xml](https://github.com/xwdz/QuietVersion/blob/master/app/src/main/res/values/colors.xml)|
+|`quiet_version_progress_background`|`下载进度条背景颜色`|[colors.xml](https://github.com/xwdz/QuietVersion/blob/master/app/src/main/res/values/colors.xml)|
+|`quiet_version_progress`|`下载进度条颜色`|[colors.xml](https://github.com/xwdz/QuietVersion/blob/master/app/src/main/res/values/colors.xml)|
 
 
 ### 简单使用
@@ -119,18 +119,18 @@ public void onUpdateProgress(int percent, long currentLength, long total){
 }
 ```
 
-参考[`ProgressDialogActivity`](https://github.com/xwdz/QuietVersion/blob/master/lib/src/main/java/com/xwdz/version/ui/DefaultProgressDialogActivity.java)
+参考[`DefaultDialogActivity`](https://github.com/xwdz/QuietVersion/blob/master/lib/src/main/java/com/xwdz/version/ui/DefaultDialogActivity.java)
 可通过`getIntent().getParcelableExtra("note")`拿到`ApkSource`对象
 
 
-#### 自定义容器中，点击开始下载时,需要调用如下代码
+2. **自定义容器中，点击开始下载时,需要调用如下代码**
 
 ```
 VersionHandler.startDownloadApk(getContext());
 ```
 
 
-#### 自定义容器中注册接受下载进度条组件
+3. **自定义容器中注册接受下载进度条组件**
 
 ```
 private final VersionHandler.ProgressReceiver mProgressReceiver = new VersionHandler.ProgressReceiver() {
@@ -181,6 +181,9 @@ VersionHandler.unregisterProgressbarReceiver(getContext(), mProgressReceiver);
 #okhttp
 -dontwarn okhttp3.**
 -keep class okhttp3.**{*;}
+
+#QuietVersion
+-keep class com.xwdz.version.**{*;}
 
 ```
 
