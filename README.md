@@ -59,7 +59,7 @@ VersionConfigs.getImpl()
 |setForceDownload|是否强制每次都从服务器下载|false|
 |setApkName|apk名称|apk名称为Url最后一个`/`至`.`为止之间内容为名称|
 |setApkPath|apk文件存储路径|context.getExternalFilesDir("apk").getAbsolutePath() + / + apkFilename|
-|setUIActivityClass|自定义activity UI|[DefaultProgressDialogActivity.class](https://github.com/xwdz/QuietVersion/blob/master/lib/src/main/java/com/xwdz/version/ui/DefaultProgressDialogActivity.java)|
+|setUIActivityClass|自定义activity UI|[DefaultDialogActivity.class](https://github.com/xwdz/QuietVersion/blob/master/lib/src/main/java/com/xwdz/version/ui/DefaultDialogActivity.java)|
 |setOnCheckVersionRules|自定义升级规则|[DefaultCheckVersionRules.class](https://github.com/xwdz/QuietVersion/blob/master/lib/src/main/java/com/xwdz/version/core/DefaultCheckVersionRules.java)|
 
 
