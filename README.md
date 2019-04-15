@@ -14,7 +14,7 @@ $lastVersion = [![](https://jitpack.io/v/xwdz/QuiteVersion.svg)](https://jitpack
 ```
     //如已依赖可忽略
     implementation 'com.squareup.okhttp3:okhttp:3.5.0'
-    implementation 'com.xwdz:QuietVersion:0.1.0'
+    implementation 'com.xwdz:QuietVersion:lastVersion'
 ```
 
 ### 特点
