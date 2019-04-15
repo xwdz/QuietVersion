@@ -11,6 +11,7 @@ import com.xwdz.version.entry.ApkSource;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import okhttp3.Call;
@@ -39,8 +40,8 @@ public class QuietVersion {
     private String           mUrl;
     private VersionHandler   mVersionHandler;
     private NetworkParser    mNetworkParser;
-    private Interceptor      mNetworkInterceptor;
-    private Interceptor      mInterceptor;
+    private List<Interceptor> mNetworkInterceptors;
+    private List<Interceptor> mInterceptors;
 
     private QuietVersion(FragmentActivity fragmentActivity) {
         this.mFragmentActivity = fragmentActivity;
@@ -101,12 +102,12 @@ public class QuietVersion {
     }
 
     public QuietVersion addInterceptor(Interceptor interceptor) {
-        mInterceptor = interceptor;
+        mInterceptors.add(interceptor);
         return this;
     }
 
     public QuietVersion addNetworkInterceptor(Interceptor interceptor) {
-        mNetworkInterceptor = interceptor;
+        mNetworkInterceptors.add(interceptor);
         return this;
     }
 
@@ -118,12 +119,17 @@ public class QuietVersion {
             if (mNetworkParser != null) {
                 OkHttpClient.Builder builder = new OkHttpClient.Builder();
 
-                if (mInterceptor != null) {
-                    builder.addInterceptor(mInterceptor);
+                if (mNetworkInterceptors != null && !mNetworkInterceptors.isEmpty()) {
+                    for (Interceptor mNetworkInterceptor : mNetworkInterceptors) {
+                        builder.addNetworkInterceptor(mNetworkInterceptor);
+                    }
+
                 }
 
-                if (mNetworkInterceptor != null) {
-                    builder.addNetworkInterceptor(mNetworkInterceptor);
+                if (mInterceptors != null && !mInterceptors.isEmpty()){
+                    for (Interceptor mInterceptor : mInterceptors) {
+                        builder.addInterceptor(mInterceptor);
+                    }
                 }
 
                 OkHttpClient okHttpClient = builder.build();
