@@ -2,62 +2,43 @@ package com.xwdz.version.ui;
 
 import android.content.Context;
 import android.content.Intent;
-import android.view.View;
-import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.xingwei.checkupdate.R;
-import com.xwdz.version.Utils;
-import com.xwdz.version.core.VersionHandler;
-import com.xwdz.version.entry.ApkSource;
+import com.xwdz.version.R;
 
 /**
- * 透明主题Activity
  * 下载进度条
  */
 public class DefaultProgressDialogActivity extends AbstractActivity {
 
-    private static final String KEY_NOTE = "note";
-    private DefaultDialogFragment mDefaultDialogFragment = DefaultDialogFragment.newInstance();
+    private ProgressBar mProgressBar;
+    private TextView mSizeNote;
 
     @Override
     public int getContentLayoutId() {
-        return R.layout.activity_note_dialog;
+        return R.layout.quiet_version_activity_progress_layout;
     }
 
     @Override
-    public void setupData() {
-        mDefaultDialogFragment.setCancelable(false);
-        TextView releaseNote = findViewById(R.id.release_note);
-        Button submit = findViewById(R.id.upgrade);
-
-        ApkSource source = getIntent().getParcelableExtra(KEY_NOTE);
-        if (source != null && source.getNote() != null) {
-            releaseNote.setText(source.getNote());
-        }
-
-        submit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                VersionHandler.startDownloader(DefaultProgressDialogActivity.this.getApplicationContext());
-                mDefaultDialogFragment.show(getFragmentManager());
-            }
-        });
+    public void onViewCreated() {
+        mProgressBar = findViewById(R.id.progressBar);
+        mSizeNote = findViewById(R.id.percent);
     }
 
     @Override
-    public void updateProgress(int percent, long currentLength, long total) {
-        mDefaultDialogFragment.update(percent, format(currentLength) + "/" + format(total));
+    public void onUpdateProgress(int percent, long currentLength, long total) {
+        update(percent, percent + "/" + 100);
     }
 
-    private String format(long currentLength) {
-        return Utils.formatNetFileSizeDescription(currentLength);
-    }
-
-    public static void startActivity(Context context, ApkSource note) {
+    public static void start(Context context) {
         Intent starter = new Intent(context, DefaultProgressDialogActivity.class);
         starter.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        starter.putExtra(KEY_NOTE, note);
         context.startActivity(starter);
+    }
+
+    public void update(int percent, String text) {
+        mProgressBar.setProgress(percent);
+        mSizeNote.setText(text);
     }
 }

@@ -14,6 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.CacheControl;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
@@ -28,20 +29,21 @@ public class QuietVersion {
 
     private static QuietVersion sQuietVersion;
 
-    private static final String GET  = "get";
+    private static final String GET = "get";
     private static final String POST = "post";
 
     private static final LinkedHashMap<String, String> PARAMS = new LinkedHashMap<>();
     private static final LinkedHashMap<String, String> HEADER = new LinkedHashMap<>();
 
-    private String           mMethod;
+    private String mMethod;
     private FragmentActivity mFragmentActivity;
-    private Activity         mActivity;
-    private String           mUrl;
-    private VersionHandler   mVersionHandler;
-    private NetworkParser    mNetworkParser;
+    private Activity mActivity;
+    private String mUrl;
+    private VersionHandler mVersionHandler;
+    private NetworkParser mNetworkParser;
     private List<Interceptor> mNetworkInterceptors;
     private List<Interceptor> mInterceptors;
+    private OkHttpClient mOkHttpClient;
 
     private QuietVersion(FragmentActivity fragmentActivity) {
         this.mFragmentActivity = fragmentActivity;
@@ -71,6 +73,11 @@ public class QuietVersion {
             }
         }
         return sQuietVersion;
+    }
+
+    public QuietVersion initOkHttpClient(OkHttpClient okHttpClient) {
+        this.mOkHttpClient = okHttpClient;
+        return this;
     }
 
     public QuietVersion get(String url) {
@@ -126,7 +133,7 @@ public class QuietVersion {
 
                 }
 
-                if (mInterceptors != null && !mInterceptors.isEmpty()){
+                if (mInterceptors != null && !mInterceptors.isEmpty()) {
                     for (Interceptor mInterceptor : mInterceptors) {
                         builder.addInterceptor(mInterceptor);
                     }
@@ -146,9 +153,8 @@ public class QuietVersion {
                         if (apkSource != null) {
                             final Context context = mFragmentActivity != null ? mFragmentActivity.getBaseContext() : mActivity.getBaseContext();
                             mVersionHandler = VersionHandler.get(context, apkSource);
-                            mVersionHandler.handler();
                         } else {
-                            Utils.LOG.i(TAG, "当前暂未发现新版本...");
+                            Utils.LOG.i(TAG, "not New Version");
                         }
                     }
                 });
@@ -171,6 +177,7 @@ public class QuietVersion {
             requestBuilder.addHeader(map.getKey(), map.getValue());
         }
 
+        requestBuilder.cacheControl(CacheControl.FORCE_NETWORK);
         if (GET.equals(mMethod)) {
             requestBuilder.url(mUrl + Utils.appendHttpParams(PARAMS));
         } else if (POST.equals(mMethod)) {

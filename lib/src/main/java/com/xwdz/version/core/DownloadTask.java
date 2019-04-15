@@ -43,7 +43,7 @@ public class DownloadTask implements Runnable {
     private OkHttpClient mOkHttpClient;
 
 
-    public DownloadTask() {
+    DownloadTask() {
         mOkHttpClient = mBuilder.addNetworkInterceptor(new Interceptor() {
             @Override
             public Response intercept(Chain chain) throws IOException {
@@ -85,7 +85,7 @@ public class DownloadTask implements Runnable {
                 mOnProgressListener.onFinished(file);
             }
         } catch (Exception e) {
-            if (file != null){
+            if (file != null) {
                 file.deleteOnExit();
             }
             Utils.LOG.e(TAG, "download file error= " + e);
@@ -116,9 +116,9 @@ public class DownloadTask implements Runnable {
 
     public static class ProgressBody extends ResponseBody {
 
-        private final ResponseBody       mResponseBody;
-        private       OnProgressListener mOnProgressListener;
-        private       BufferedSource     mBufferedSource;
+        private final ResponseBody mResponseBody;
+        private OnProgressListener mOnProgressListener;
+        private BufferedSource mBufferedSource;
 
         ProgressBody(ResponseBody responseBody, OnProgressListener progressListener) {
             this.mResponseBody = responseBody;

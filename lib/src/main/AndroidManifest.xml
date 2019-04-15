@@ -1,7 +1,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.xingwei.checkupdate">
+    package="com.xwdz.version">
 
     <application>
+        <activity
+            android:name="com.xwdz.version.ui.DefaultDialogActivity"
+            android:banner="@android:color/black"
+            android:theme="@style/Progress.theme">
+
+        </activity>
+
         <activity
             android:name="com.xwdz.version.ui.DefaultProgressDialogActivity"
             android:theme="@style/Progress.theme">

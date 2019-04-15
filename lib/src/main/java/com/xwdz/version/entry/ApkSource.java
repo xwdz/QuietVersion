@@ -3,6 +3,9 @@ package com.xwdz.version.entry;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class ApkSource implements Parcelable {
 
     /**
@@ -23,18 +26,24 @@ public class ApkSource implements Parcelable {
     /**
      * 远程versionCode
      */
-    private int    remoteVersionCode;
+    private int remoteVersionCode;
     /**
      * 远程VersionName
      */
     private String remoteVersionName;
 
-    public ApkSource(String url, String note, long fileSize, int remoteVersionCode, String remoteVersionName) {
+    private String md5;
+
+    public ApkSource() {
+    }
+
+    public ApkSource(String url, String note, long fileSize, int remoteVersionCode, String remoteVersionName, String md5) {
         this.note = note;
         this.fileSize = fileSize;
         this.url = url;
         this.remoteVersionCode = remoteVersionCode;
         this.remoteVersionName = remoteVersionName;
+        this.md5 = md5;
     }
 
 
@@ -42,16 +51,48 @@ public class ApkSource implements Parcelable {
         return note;
     }
 
+    public void setNote(String note) {
+        this.note = note;
+    }
+
     public long getFileSize() {
         return fileSize;
+    }
+
+    public void setFileSize(long fileSize) {
+        this.fileSize = fileSize;
     }
 
     public String getUrl() {
         return url;
     }
 
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
     public int getRemoteVersionCode() {
         return remoteVersionCode;
+    }
+
+    public void setRemoteVersionCode(int remoteVersionCode) {
+        this.remoteVersionCode = remoteVersionCode;
+    }
+
+    public String getRemoteVersionName() {
+        return remoteVersionName;
+    }
+
+    public void setRemoteVersionName(String remoteVersionName) {
+        this.remoteVersionName = remoteVersionName;
+    }
+
+    public String getMd5() {
+        return md5;
+    }
+
+    public void setMd5(String md5) {
+        this.md5 = md5;
     }
 
     @Override
@@ -66,6 +107,7 @@ public class ApkSource implements Parcelable {
         dest.writeString(this.url);
         dest.writeInt(this.remoteVersionCode);
         dest.writeString(this.remoteVersionName);
+        dest.writeString(this.md5);
     }
 
     protected ApkSource(Parcel in) {
@@ -74,6 +116,7 @@ public class ApkSource implements Parcelable {
         this.url = in.readString();
         this.remoteVersionCode = in.readInt();
         this.remoteVersionName = in.readString();
+        this.md5 = in.readString();
     }
 
     public static final Creator<ApkSource> CREATOR = new Creator<ApkSource>() {
@@ -87,4 +130,24 @@ public class ApkSource implements Parcelable {
             return new ApkSource[size];
         }
     };
+
+
+    ///////////
+
+    public static ApkSource simpleParser(String json) {
+        try {
+            JSONObject jsonObject = new JSONObject(json);
+            String note = jsonObject.getString("note");
+            String fileSize = jsonObject.getString("fileSize");
+            String url = jsonObject.getString("url");
+            String remoteVersionCode = jsonObject.getString("remoteVersionCode");
+            String remoteVersionName = jsonObject.getString("remoteVersionName");
+            String md5 = jsonObject.getString("md5");
+            return new ApkSource(url, note, Long.parseLong(fileSize), Integer.parseInt(remoteVersionCode), remoteVersionName, md5);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return new ApkSource();
+    }
 }

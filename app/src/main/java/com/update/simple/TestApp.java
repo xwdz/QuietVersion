@@ -4,7 +4,7 @@ import android.app.Application;
 
 import com.xwdz.version.core.DefaultCheckVersionRules;
 import com.xwdz.version.core.VersionConfigs;
-import com.xwdz.version.ui.DefaultProgressDialogActivity;
+import com.xwdz.version.ui.DefaultDialogActivity;
 
 
 public class TestApp extends Application {
@@ -14,7 +14,7 @@ public class TestApp extends Application {
         super.onCreate();
         VersionConfigs.getImpl()
                 .setForceDownload(true)
-                .setUIActivityClass(DefaultProgressDialogActivity.class)
+                .setUIActivityClass(DefaultDialogActivity.class)
                 .setOnCheckVersionRules(new DefaultCheckVersionRules());
     }
 }

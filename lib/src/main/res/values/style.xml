@@ -2,7 +2,7 @@
 <resources>
     <style name="Progress.theme" parent="Base.Theme.AppCompat.Light.Dialog.MinWidth">
         <item name="android:windowCloseOnTouchOutside">false</item>
-        <item name="android:windowBackground">@drawable/bg_transparent</item>
+        <item name="android:windowBackground">@drawable/quiet_version_bg_transparent</item>
         <item name="windowNoTitle">true</item>
     </style>
 </resources>

@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="version_theme">#FF4081</color>
+    <color name="quiet_version_button_theme">#FF4081</color>
+
+    <color name="quiet_version_download_file_size">#3A5064</color>
+    <color name="quiet_version_progress_background">#801D8FEE</color>
+    <color name="quiet_version_progress">#1D8FEE</color>
 </resources>

@@ -54,20 +54,23 @@ public class VersionHandler {
         checkURLNotNull(apkSource.getUrl());
 
         mApkSource = apkSource;
-        createModule();
+        initModule();
+
         mDownloadTask.setUrl(mApkSource.getUrl());
         mDownloadTask.setOnProgressListener(mOnProgressListener);
         mDownloadTask.setFilePath(mVersionConfigs.getApkPath());
         mApkLocalIsExist = mVersionConfigs.checkApkExits();
+
+        handler();
     }
 
 
-    private void createModule() {
+    private void initModule() {
         mUIAdapter = new UIAdapter(mContext);
         mDownloadTask = new DownloadTask();
         mDownloadReceiver = new StartDownloadReceiver();
         mContext.registerReceiver(mDownloadReceiver, new IntentFilter(START_DOWNLOAD_ACTION));
-        Utils.LOG.i(TAG, "组件初始化完毕 ...");
+        Utils.LOG.i(TAG, "init module complete!");
     }
 
     /**
@@ -78,14 +81,14 @@ public class VersionHandler {
         if (onCheckVersionRules != null) {
             if (!mVersionConfigs.isForceDownload()) {
                 if (mApkLocalIsExist) {
-                    Utils.LOG.i(TAG, "读取到本地缓存APk = " + mVersionConfigs.getApkPath() + " 开始安装...");
+                    Utils.LOG.i(TAG, "real local APk = " + mVersionConfigs.getApkPath() + " start install!");
                     ApkInstallUtils.doInstall(mContext, mVersionConfigs.getApkPath());
                     return;
                 }
             }
 
             mExecutorService.execute(mDownloadTask);
-            Utils.LOG.i(TAG, "开始下载服务器apk ...");
+            Utils.LOG.i(TAG, "start downloading apk ...");
         }
     }
 
@@ -105,7 +108,7 @@ public class VersionHandler {
 
         @Override
         public void onFinished(File file) {
-            Utils.LOG.i(TAG, "download file done ...");
+            Utils.LOG.i(TAG, "File Download complete!");
             ApkInstallUtils.doInstall(mContext, file.getAbsolutePath());
         }
     };
@@ -118,16 +121,16 @@ public class VersionHandler {
             if (handler) {
                 if (mApkLocalIsExist && !mVersionConfigs.isForceDownload()) {
                     String path = mVersionConfigs.getApkPath();
-                    Utils.LOG.i(TAG, "读取到本地缓存APk = " + path + " 开始安装...");
+                    Utils.LOG.i(TAG, "read apk for cache:" + path + " start install!");
                     ApkInstallUtils.doInstall(mContext, path);
                 } else {
                     mUIAdapter.showUpgradeDialog(mApkSource, mVersionConfigs.getUIActivityClass());
                 }
             } else {
-                Utils.LOG.i(TAG, "当前暂未发现新版本...");
+                Utils.LOG.i(TAG, "not New Version!");
             }
         } else {
-            Utils.LOG.i(TAG, "未发现最新Apk版本 " + mApkSource.getUrl());
+            Utils.LOG.i(TAG, "not New Version " + mApkSource.getUrl());
         }
     }
 
@@ -147,7 +150,7 @@ public class VersionHandler {
     }
 
 
-    private static final String UPDATE_PROGRESSBAR_ACTION = "com.xwdz.qversion.ui.DefaultProgressDialogActivity";
+    private static final String UPDATE_PROGRESSBAR_ACTION = "com.xwdz.qversion.ui.DefaultDialogActivity";
     private static final String KEY_TOTAL                 = "total";
     private static final String KEY_CURRENT_LENGTH        = "current.length";
     private static final String KEY_PERCENT               = "percent";

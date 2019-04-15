@@ -27,6 +27,15 @@ $lastVersion = [![](https://jitpack.io/v/xwdz/QuiteVersion.svg)](https://jitpack
 - 支持OKHttp拦截器
 - 适配7.0
 
+
+### 需要权限
+```
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+```
+
 ### 配置
 
 ```
@@ -52,6 +61,17 @@ VersionConfigs.getImpl()
 |setApkPath|apk文件存储路径|context.getExternalFilesDir("apk").getAbsolutePath() + / + apkFilename|
 |setUIActivityClass|自定义activity UI|[DefaultProgressDialogActivity.class](https://github.com/xwdz/QuietVersion/blob/master/lib/src/main/java/com/xwdz/version/ui/DefaultProgressDialogActivity.java)|
 |setOnCheckVersionRules|自定义升级规则|[DefaultCheckVersionRules.class](https://github.com/xwdz/QuietVersion/blob/master/lib/src/main/java/com/xwdz/version/core/DefaultCheckVersionRules.java)|
+
+
+### 颜色配置
+如果`lib`颜色配置不满意可在您项目`colors.xml`文件下重写以下颜色值
+
+|名称|说明|默认实现|
+|:--:|:--:|:--:|
+|`quiet_version_button_theme`|`dialog更新按钮颜色`|[colors.xml]()|
+|`quiet_version_download_file_size`|`dialog更新按钮颜色`|[colors.xml]()|
+|`quiet_version_progress_background`|`下载进度条背景颜色`|[colors.xml]()|
+|`quiet_version_progress`|`下载进度条颜色`|[colors.xml]()|
 
 
 ### 简单使用
@@ -83,9 +103,8 @@ VersionConfigs.getImpl()
 Quite.getInstance(this).recycle()
 ```
 
-### 扩展
+### 自定义UI
 
-#### 自定义升级UI(推荐)
 
 1. 继承`AbstractActivity`实现自己的UI,重写如下三个方法,通过`setUIActivityClass(xxx.class)`注入.
 
@@ -93,20 +112,15 @@ Quite.getInstance(this).recycle()
 //自己定义的UI layout
 public abstract int getContentLayoutId();
 //数据初始化
-public abstract void setUpData();
-//当执行下载任务的时候回回调到此方法
-public abstract void updateProgress(int percent, long currentLength, long total);
+public abstract void onViewCreated();
+//当执行下载任务的时候回回调到此方法,需要可重写此方法
+public void onUpdateProgress(int percent, long currentLength, long total){
+
+}
 ```
+
 参考[`ProgressDialogActivity`](https://github.com/xwdz/QuietVersion/blob/master/lib/src/main/java/com/xwdz/version/ui/DefaultProgressDialogActivity.java)
-可通过`getIntent().getStringExtra("note")`拿到`ApkSource`对象
-
-
-2. ~~实现`OnUINotify`接口(暂不支持)~~
-
-**在不指定`.setNotifyHandler()方法以及`setShowUIActivity`方法时默认实现效果参照文章开头`**
-**在自定义容器中实现此接口,在接口方法`show`中调用真正的`show`方法**,[详见simple-code](https://github.com/xwdz/QuietVersion/blob/master/app/src/main/java/com/update/testabc/DialogTest.java)
-
-**注意:自定义容器只能使用一种方式。**
+可通过`getIntent().getParcelableExtra("note")`拿到`ApkSource`对象
 
 
 #### 自定义容器中，点击开始下载时,需要调用如下代码

@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">lib</string>
+    <string name="download_title">Do not cancel during the upgrade.</string>
+    <string name="tip_updates">Upgrade</string>
 </resources>

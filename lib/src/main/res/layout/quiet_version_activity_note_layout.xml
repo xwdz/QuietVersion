@@ -4,7 +4,7 @@
               android:layout_height="wrap_content"
               android:layout_marginLeft="16dp"
               android:layout_marginRight="16dp"
-              android:background="@drawable/bg_round_white"
+              android:background="@drawable/quiet_version_bg_round_white"
               android:orientation="vertical">
 
 
@@ -41,8 +41,8 @@
             android:layout_height="45dp"
             android:layout_marginTop="15dp"
             android:height="45dp"
-            android:background="@drawable/bg_theme"
-            android:text="立即更新"
+            android:background="@drawable/quiet_version_bg_theme"
+            android:text="@string/tip_updates"
             android:textColor="@android:color/white"
             android:textSize="7pt"/>
 

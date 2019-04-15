@@ -19,7 +19,7 @@ public abstract class AbstractActivity extends AppCompatActivity {
                     return;
                 }
 
-                updateProgress(percent, currentLength, total);
+                AbstractActivity.this.onUpdateProgress(percent, currentLength, total);
             }
         }
     };
@@ -30,7 +30,7 @@ public abstract class AbstractActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         VersionHandler.registerProgressbarReceiver(this, mProgressReceiver);
         setContentView(getContentLayoutId());
-        setupData();
+        onViewCreated();
     }
 
     @Override
@@ -42,8 +42,10 @@ public abstract class AbstractActivity extends AppCompatActivity {
 
     public abstract int getContentLayoutId();
 
-    public abstract void setupData();
+    public abstract void onViewCreated();
 
-    public abstract void updateProgress(int percent, long currentLength, long total);
+    protected void onUpdateProgress(int percent, long currentLength, long total){
+
+    }
 
 }

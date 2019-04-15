@@ -51,7 +51,6 @@ public class Utils {
          *
          * @param file 文件
          * @return 文件内容对应的MD5码
-         * @throws Exception 异常定义
          */
         public static String getString(File file)
                 throws Exception {
@@ -63,7 +62,6 @@ public class Utils {
          *
          * @param file 文件
          * @return 文件内容对应的MD5码
-         * @throws Exception 异常定义
          */
         public static byte[] getByteArray(File file)
                 throws Exception {

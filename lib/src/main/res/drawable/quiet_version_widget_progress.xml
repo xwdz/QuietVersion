@@ -11,9 +11,9 @@
         <shape>
             <corners android:radius="1dp"/>
             <gradient
-                android:centerColor="@android:color/white"
-                android:endColor="@android:color/white"
-                android:startColor="@android:color/white"/>
+                android:centerColor="@color/quiet_version_progress_background"
+                android:endColor="@color/quiet_version_progress_background"
+                android:startColor="@color/quiet_version_progress_background"/>
         </shape>
     </item>
 
@@ -23,8 +23,8 @@
                 <corners android:radius="1dp"/>
                 <gradient
                     android:angle="45"
-                    android:endColor="#1D8FEE"
-                    android:startColor="#1D8FEE"/>
+                    android:endColor="@color/quiet_version_progress"
+                    android:startColor="@color/quiet_version_progress"/>
             </shape>
         </clip>
     </item>
