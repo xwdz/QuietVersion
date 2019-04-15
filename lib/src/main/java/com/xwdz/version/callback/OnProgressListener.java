@@ -3,7 +3,7 @@ package com.xwdz.version.callback;
 import java.io.File;
 
 /**
- * 下载进度监听器
+ * 内层使用的接口下载进度监听器
  */
 public interface OnProgressListener {
     /**

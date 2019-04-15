@@ -106,31 +106,32 @@ Quite.getInstance(this).recycle()
 ### 自定义UI
 
 
-1. 继承`AbstractActivity`实现自己的UI,重写如下三个方法,通过`setUIActivityClass(xxx.class)`注入.
+1. **继承[`AbstractActivity`](https://github.com/xwdz/QuietVersion/blob/master/lib/src/main/java/com/xwdz/version/ui/AbstractActivity.java)重写如下三个方法,通过`setUIActivityClass(xxx.class)`注入.**
 
 ```
-//自己定义的UI layout
-public abstract int getContentLayoutId();
-//数据初始化
-public abstract void onViewCreated();
-//当执行下载任务的时候回回调到此方法,需要可重写此方法
-public void onUpdateProgress(int percent, long currentLength, long total){
-
-}
+    //自己定义的UI layout
+    public abstract int getContentLayoutId();
+    //setContentView方法调用以后会调用此方法（通常用来做一些初始化操作）
+    public abstract void onViewCreated();
+    //当执行下载任务的时候回回调到此方法,需要可重写此方法
+    public void onUpdateProgress(int percent, long currentLength, long total){
+    
+    }
 ```
+
 
 参考[`DefaultDialogActivity`](https://github.com/xwdz/QuietVersion/blob/master/lib/src/main/java/com/xwdz/version/ui/DefaultDialogActivity.java)
 可通过`getIntent().getParcelableExtra("note")`拿到`ApkSource`对象
 
 
-2. **自定义容器中，点击开始下载时,需要调用如下代码**
+2. **自定义容器中，点击开始下载时,一定要调用如下代码**
 
 ```
 VersionHandler.startDownloadApk(getContext());
 ```
 
 
-3. **自定义容器中注册接受下载进度条组件**
+3. **自定义容器中注册接受下载进度条组件。如果继承了`AbstractActivity`可忽略(可选)**
 
 ```
 private final VersionHandler.ProgressReceiver mProgressReceiver = new VersionHandler.ProgressReceiver() {
