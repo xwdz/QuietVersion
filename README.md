@@ -66,7 +66,7 @@ VersionConfigs.getImpl()
 ### 颜色配置
 如果`lib`颜色配置不满意可在您项目`colors.xml`文件下重写以下颜色值
 
-|名称|说明|默认实现|
+|名称|说明|示例|
 |:--:|:--:|:--:|
 |`quiet_version_button_theme`|`dialog更新按钮颜色`|[colors.xml](https://github.com/xwdz/QuietVersion/blob/master/app/src/main/res/values/colors.xml)|
 |`quiet_version_download_file_size`|`进度条下面文件下载进度文字颜色`|[colors.xml](https://github.com/xwdz/QuietVersion/blob/master/app/src/main/res/values/colors.xml)|
