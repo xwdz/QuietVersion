@@ -1,4 +1,4 @@
-### QuiteVersion
+### QuietVersion
 
 ![logo](./imgs/logo.jpg)
 
