@@ -1,6 +1,6 @@
 ### QuiteVersion
 
-![logo](/.imgs/logo.jpg)
+![logo](./imgs/logo.jpg)
 
 用于Android App检测自动更新
 
