@@ -1,5 +1,7 @@
 ### QuiteVersion
 
+![logo](/.imgs/logo.jpg)
+
 用于Android App检测自动更新
 
 > 如果你觉得这个lib对你有用,随手给个Star,让我知道它是对你有帮助的,我会继续更新和维护它。
