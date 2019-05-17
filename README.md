@@ -7,7 +7,7 @@
 > 如果你觉得这个lib对你有用,随手给个Star,让我知道它是对你有帮助的,我会继续更新和维护它。
 
 ### 实现效果
-![simple.gif](./imgs/simple.gif)
+<img src="./imgs/simple.gif" width="200px">
 
 ### 添加依赖
 
