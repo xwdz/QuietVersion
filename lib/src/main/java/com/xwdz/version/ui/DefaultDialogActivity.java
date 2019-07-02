@@ -35,7 +35,7 @@ public class DefaultDialogActivity extends AbstractActivity {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                VersionHandler.startDownloader(DefaultDialogActivity.this.getApplicationContext());
+                VersionHandler.startDownloaderApk(DefaultDialogActivity.this.getApplicationContext());
                 DefaultProgressDialogActivity.start(DefaultDialogActivity.this.getApplicationContext());
                 finish();
             }

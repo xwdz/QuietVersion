@@ -103,6 +103,7 @@ public class VersionHandler {
 
         @Override
         public void onTransfer(int percent, long currentLength, long total) {
+            //
             updateProgress(mContext, total, currentLength, percent);
         }
 
@@ -171,7 +172,7 @@ public class VersionHandler {
     }
 
 
-    public static void startDownloader(Context context) {
+    public static void startDownloaderApk(Context context) {
         Intent intent = new Intent(START_DOWNLOAD_ACTION);
         intent.putExtra(KEY_START_DOWN, FLAG_START_DOWN);
         context.sendBroadcast(intent);

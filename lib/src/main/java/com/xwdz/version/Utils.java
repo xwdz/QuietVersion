@@ -1,6 +1,7 @@
 package com.xwdz.version;
 
 import android.content.Context;
+import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -31,10 +32,15 @@ public class Utils {
     /**
      * 获取APK本地存储路径地址
      */
-    public static String getApkLocalUrl(Context context, String apkFilename) {
-        final File file = context.getExternalFilesDir("apk");
-        String extFileDir = file.getAbsolutePath();
-        return (extFileDir + File.separator + apkFilename);
+    public static File getApkPath(Context context, String uniqueName) {
+        String cachePath;
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())
+                || !Environment.isExternalStorageRemovable()) {
+            cachePath = context.getExternalCacheDir().getPath();
+        } else {
+            cachePath = context.getCacheDir().getPath();
+        }
+        return new File(cachePath + File.separator + uniqueName);
     }
 
     /**

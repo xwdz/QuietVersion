@@ -85,7 +85,7 @@ public class VersionConfigs {
 
     public String getApkPath() {
         if (mApkPath == null) {
-            mApkPath = Utils.getApkLocalUrl(mContext.getApplicationContext(), getApkName());
+            mApkPath = Utils.getApkPath(mContext.getApplicationContext(), getApkName()).getAbsolutePath();
         }
         return mApkPath;
     }

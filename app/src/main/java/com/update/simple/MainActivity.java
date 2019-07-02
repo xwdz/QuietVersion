@@ -24,7 +24,7 @@ public class MainActivity extends Activity {
                 //or post
                 .get(REQUEST_URL)
                 //强制每次更新下载最新Apk
-                .setNetworkParser(new NetworkParser() {
+                .onNetworkParser(new NetworkParser() {
                     @Override
                     public ApkSource parser(String response) {
                         Log.i("QuietVersion", "response:" + response);

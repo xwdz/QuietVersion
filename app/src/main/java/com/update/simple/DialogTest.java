@@ -41,7 +41,7 @@ public class DialogTest extends DialogFragment implements OnUIDialogNotify {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        VersionHandler.startDownloader(getContext());
+        VersionHandler.startDownloaderApk(getContext());
         VersionHandler.registerProgressbarReceiver(getContext(), mProgressReceiver);
     }
 

@@ -86,7 +86,7 @@ public class QuietVersion {
         return this;
     }
 
-    public QuietVersion setNetworkParser(NetworkParser networkParser) {
+    public QuietVersion onNetworkParser(NetworkParser networkParser) {
         this.mNetworkParser = networkParser;
         return this;
     }
