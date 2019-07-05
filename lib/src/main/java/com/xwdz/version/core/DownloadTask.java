@@ -40,14 +40,13 @@ public class DownloadTask implements Runnable {
 
     private OnProgressListener mOnProgressListener;
     private OnErrorListener    mOnErrorListener;
-
-    private OkHttpClient mOkHttpClient;
+    private OkHttpClient       mOkHttpClient;
 
     DownloadTask(OkHttpClient okHttpClient, OnErrorListener listener) {
         mOnErrorListener = listener;
-        mOkHttpClient = okHttpClient;
+        OkHttpClient.Builder builder = okHttpClient.newBuilder();
 
-        mOkHttpClient.newBuilder().addNetworkInterceptor(new Interceptor() {
+        builder.addNetworkInterceptor(new Interceptor() {
             @Override
             public Response intercept(Chain chain) throws IOException {
                 final Response interceptor = chain.proceed(chain.request());
@@ -56,6 +55,7 @@ public class DownloadTask implements Runnable {
                         .build();
             }
         });
+        mOkHttpClient = builder.build();
     }
 
 
