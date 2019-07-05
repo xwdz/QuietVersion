@@ -25,7 +25,7 @@ public class QuietVersion {
     private static final String TAG = QuietVersion.class.getSimpleName();
 
 
-    private static final String GET  = "get";
+    private static final String GET  = "create";
     private static final String POST = "post";
 
     private static OkHttpClient  sOkHttpClient;
@@ -129,7 +129,7 @@ public class QuietVersion {
                         public void onResponse(Call call, Response response) throws IOException {
                             ApkSource apkSource = networkParser.parser(response.body().string());
                             if (apkSource != null) {
-                                UpgradeHandler.get(sVersionConfig, apkSource, sOkHttpClient, mErrorListener);
+                                UpgradeHandler.create(sVersionConfig, apkSource, sOkHttpClient, mErrorListener);
                             } else {
                                 LOG.i(TAG, "not New Version");
                             }

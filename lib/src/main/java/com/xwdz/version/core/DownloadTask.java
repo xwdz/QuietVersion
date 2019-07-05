@@ -3,6 +3,7 @@ package com.xwdz.version.core;
 
 import com.xwdz.version.callback.OnErrorListener;
 import com.xwdz.version.callback.OnProgressListener;
+import com.xwdz.version.utils.LOG;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,7 +55,7 @@ public class DownloadTask implements Runnable {
                         .body(new ProgressBody(interceptor.body(), mOnProgressListener))
                         .build();
             }
-        }).build();
+        });
     }
 
 
@@ -79,7 +80,7 @@ public class DownloadTask implements Runnable {
     }
 
     private void download() {
-        File file = null;
+        File file;
         try {
             file = new File(mDownloadPath);
 

@@ -42,7 +42,7 @@ public class UpgradeHandler {
     private OnErrorListener mOnErrorListener;
 
 
-    public static UpgradeHandler get(VersionConfig context, ApkSource entry, OkHttpClient okHttpClient, OnErrorListener listener) {
+    public static UpgradeHandler create(VersionConfig context, ApkSource entry, OkHttpClient okHttpClient, OnErrorListener listener) {
         return new UpgradeHandler(context, entry, okHttpClient, listener);
     }
 
@@ -63,6 +63,9 @@ public class UpgradeHandler {
         final int    index    = url.lastIndexOf('/');
         final String fileName = url.substring(index);
         final File   root     = Utils.getApkPath(mContext, "QuietVersion");
+        if (!root.exists()) {
+            root.mkdir();
+        }
         mDownloadTask.setFilePath(root.getAbsolutePath() + fileName);
 
         handler();
@@ -128,7 +131,7 @@ public class UpgradeHandler {
 
         @Override
         public void onTransfer(int percent, long currentLength, long total) {
-            //
+            LOG.i(TAG, "fse:" + percent);
             updateProgress(mContext, total, currentLength, percent);
         }
 
@@ -146,10 +149,14 @@ public class UpgradeHandler {
 
 
     private void doInstall(String path) {
-        if (checkMD5()) {
-            ApkInstallUtils.doInstall(mContext, path, mOnErrorListener);
-        } else {
-            throw new IllegalStateException("verify signature md5 failed!");
+        try {
+            if (checkMD5()) {
+                ApkInstallUtils.doInstall(mContext, path, mOnErrorListener);
+            } else {
+                throw new IllegalStateException("verify signature failed");
+            }
+        } catch (Throwable e) {
+            mOnErrorListener.listener(e);
         }
     }
 
