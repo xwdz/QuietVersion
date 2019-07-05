@@ -4,13 +4,13 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
-import com.xwdz.version.core.VersionHandler;
+import com.xwdz.version.core.UpgradeHandler;
 
 public abstract class AbstractActivity extends AppCompatActivity {
 
     protected static final int MAX = 100;
 
-    private VersionHandler.ProgressReceiver mProgressReceiver = new VersionHandler.ProgressReceiver() {
+    private UpgradeHandler.ProgressReceiver mProgressReceiver = new UpgradeHandler.ProgressReceiver() {
         @Override
         public void onUpdateProgress(long total, long currentLength, int percent) {
             if (total > 0 && currentLength > 0 && percent >= 0) {
@@ -28,7 +28,7 @@ public abstract class AbstractActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        VersionHandler.registerProgressbarReceiver(this, mProgressReceiver);
+        UpgradeHandler.registerProgressbarReceiver(this, mProgressReceiver);
         setContentView(getContentLayoutId());
         onViewCreated();
     }
@@ -36,7 +36,7 @@ public abstract class AbstractActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        VersionHandler.unregisterProgressbarReceiver(this, mProgressReceiver);
+        UpgradeHandler.unregisterProgressbarReceiver(this, mProgressReceiver);
     }
 
 

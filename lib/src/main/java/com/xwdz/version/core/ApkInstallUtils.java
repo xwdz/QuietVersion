@@ -6,7 +6,9 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.v4.content.FileProvider;
 
-import com.xwdz.version.Utils;
+import com.xwdz.version.callback.OnErrorListener;
+import com.xwdz.version.utils.LOG;
+import com.xwdz.version.utils.Utils;
 
 import java.io.File;
 
@@ -24,14 +26,14 @@ public class ApkInstallUtils {
     }
 
 
-    public static void doInstall(Context context, String apkPath) {
+    public static void doInstall(Context context, String apkPath, OnErrorListener onErrorListener) {
         if (!apkPath.endsWith(".apk")) {
-            Utils.LOG.e(TAG, "install error path = " + apkPath);
+            LOG.e(TAG, "install error path = " + apkPath);
             return;
         }
 
         try {
-            File file = new File(apkPath);
+            File   file   = new File(apkPath);
             Intent intent = new Intent(Intent.ACTION_VIEW);
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -44,11 +46,13 @@ public class ApkInstallUtils {
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             }
             context.startActivity(intent);
-            Utils.LOG.i(TAG, "install complete");
+            LOG.i(TAG, "install complete");
 
         } catch (Exception e) {
             e.printStackTrace();
-            Utils.LOG.e(TAG, "install error = " + e.toString());
+            if (onErrorListener != null) {
+                onErrorListener.listener(e);
+            }
         }
 
     }

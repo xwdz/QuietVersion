@@ -7,7 +7,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.xwdz.version.R;
-import com.xwdz.version.core.VersionHandler;
+import com.xwdz.version.core.UpgradeHandler;
 import com.xwdz.version.entry.ApkSource;
 
 /**
@@ -35,7 +35,7 @@ public class DefaultDialogActivity extends AbstractActivity {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                VersionHandler.startDownloaderApk(DefaultDialogActivity.this.getApplicationContext());
+                UpgradeHandler.startDownloaderApk(DefaultDialogActivity.this.getApplicationContext());
                 DefaultProgressDialogActivity.start(DefaultDialogActivity.this.getApplicationContext());
                 finish();
             }

@@ -48,10 +48,4 @@ public class DefaultProgressDialogActivity extends AbstractActivity {
             finish();
         }
     }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        return true;
-    }
-
 }

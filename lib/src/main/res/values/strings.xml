@@ -1,4 +1,4 @@
 <resources>
-    <string name="download_title">Do not cancel during the upgrade.</string>
-    <string name="tip_updates">Upgrade</string>
+    <string name="download_title">更新中,请勿退出</string>
+    <string name="tip_updates">立即更新</string>
 </resources>

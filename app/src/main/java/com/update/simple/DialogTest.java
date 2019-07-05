@@ -9,18 +9,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.xwdz.version.Utils;
+import com.xwdz.version.utils.LOG;
+import com.xwdz.version.utils.Utils;
 import com.xwdz.version.callback.OnUIDialogNotify;
-import com.xwdz.version.core.VersionHandler;
+import com.xwdz.version.core.UpgradeHandler;
 import com.xwdz.version.entry.ApkSource;
 
 public class DialogTest extends DialogFragment implements OnUIDialogNotify {
 
 
-    private final VersionHandler.ProgressReceiver mProgressReceiver = new VersionHandler.ProgressReceiver() {
+    private final UpgradeHandler.ProgressReceiver mProgressReceiver = new UpgradeHandler.ProgressReceiver() {
         @Override
         public void onUpdateProgress(long total, long currentLength, int percent) {
-            Utils.LOG.i("tag", "current = " + currentLength);
+            LOG.i("tag", "current = " + currentLength);
         }
     };
 
@@ -41,14 +42,14 @@ public class DialogTest extends DialogFragment implements OnUIDialogNotify {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        VersionHandler.startDownloaderApk(getContext());
-        VersionHandler.registerProgressbarReceiver(getContext(), mProgressReceiver);
+        UpgradeHandler.startDownloaderApk(getContext());
+        UpgradeHandler.registerProgressbarReceiver(getContext(), mProgressReceiver);
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        VersionHandler.unregisterProgressbarReceiver(getContext(), mProgressReceiver);
+        UpgradeHandler.unregisterProgressbarReceiver(getContext(), mProgressReceiver);
     }
 
     @Override

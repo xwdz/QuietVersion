@@ -1,7 +1,7 @@
 package com.xwdz.version.core;
 
 
-import com.xwdz.version.Utils;
+import com.xwdz.version.callback.OnErrorListener;
 import com.xwdz.version.callback.OnProgressListener;
 
 import java.io.File;
@@ -31,20 +31,22 @@ public class DownloadTask implements Runnable {
     /**
      * 下载URL
      */
-    private String mApkUrl;
+    private String mURL;
     /**
      * 存放apk路径
      */
-    private String mFilePath;
+    private String mDownloadPath;
 
     private OnProgressListener mOnProgressListener;
+    private OnErrorListener    mOnErrorListener;
 
-    private OkHttpClient.Builder mBuilder = new OkHttpClient.Builder();
     private OkHttpClient mOkHttpClient;
 
+    DownloadTask(OkHttpClient okHttpClient, OnErrorListener listener) {
+        mOnErrorListener = listener;
+        mOkHttpClient = okHttpClient;
 
-    DownloadTask() {
-        mOkHttpClient = mBuilder.addNetworkInterceptor(new Interceptor() {
+        mOkHttpClient.newBuilder().addNetworkInterceptor(new Interceptor() {
             @Override
             public Response intercept(Chain chain) throws IOException {
                 final Response interceptor = chain.proceed(chain.request());
@@ -57,11 +59,19 @@ public class DownloadTask implements Runnable {
 
 
     void setUrl(String url) {
-        this.mApkUrl = url;
+        mURL = url;
     }
 
     void setFilePath(String filePath) {
-        this.mFilePath = filePath;
+        mDownloadPath = filePath;
+    }
+
+    public boolean hasLocalApk() {
+        return new File(mDownloadPath).exists();
+    }
+
+    String getDownloadPath() {
+        return mDownloadPath;
     }
 
     void setOnProgressListener(OnProgressListener onProgressListener) {
@@ -71,11 +81,10 @@ public class DownloadTask implements Runnable {
     private void download() {
         File file = null;
         try {
-            file = createBrokenFile(mFilePath);
+            file = new File(mDownloadPath);
 
-            Call call = mOkHttpClient.newCall(new Request.Builder().url(mApkUrl).build());
+            Call     call     = mOkHttpClient.newCall(new Request.Builder().url(mURL).build());
             Response response = call.execute();
-
 
             final BufferedSink sink = Okio.buffer(Okio.sink(file));
             sink.writeAll(response.body().source());
@@ -85,40 +94,20 @@ public class DownloadTask implements Runnable {
                 mOnProgressListener.onFinished(file);
             }
         } catch (Exception e) {
-            if (file != null) {
-                file.deleteOnExit();
+            if (mDownloadPath != null) {
+                new File(mDownloadPath).deleteOnExit();
             }
-            Utils.LOG.e(TAG, "download file error= " + e);
-        }
-    }
-
-    /**
-     * 创建APK文件
-     */
-    private File createBrokenFile(String localUrl) throws Exception {
-        File file = new File(localUrl);
-
-        if (!file.exists()) {
-            if (!file.getParentFile().exists()) {
-                if (!file.getParentFile().mkdirs()) {
-                    throw new Exception("mkdirs failed");
-                }
-            }
-
-            if (!file.createNewFile()) {
-                throw new Exception("create file failed");
+            if (mOnErrorListener != null) {
+                mOnErrorListener.listener(e);
             }
         }
-
-        return file;
     }
-
 
     public static class ProgressBody extends ResponseBody {
 
-        private final ResponseBody mResponseBody;
-        private OnProgressListener mOnProgressListener;
-        private BufferedSource mBufferedSource;
+        private final ResponseBody       mResponseBody;
+        private       OnProgressListener mOnProgressListener;
+        private       BufferedSource     mBufferedSource;
 
         ProgressBody(ResponseBody responseBody, OnProgressListener progressListener) {
             this.mResponseBody = responseBody;
@@ -158,8 +147,8 @@ public class DownloadTask implements Runnable {
                 public long read(Buffer sink, long byteCount) throws IOException {
                     final long read = super.read(sink, byteCount);
                     mCurrentRead += read != -1 ? read : 0;
-                    float length = mCurrentRead * 1.0f / mTotalLength;
-                    int percent = (int) (length * 100);
+                    float length  = mCurrentRead * 1.0f / mTotalLength;
+                    int   percent = (int) (length * 100);
                     if (isControlCallback(percent)) {
                         mPercent = percent;
                         mOnProgressListener.onTransfer(percent, mCurrentRead, mTotalLength);

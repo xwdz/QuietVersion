@@ -6,7 +6,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.text.TextUtils;
 
-import com.xwdz.version.Utils;
+import com.xwdz.version.callback.OnErrorListener;
+import com.xwdz.version.utils.LOG;
+import com.xwdz.version.utils.SignatureUtil;
+import com.xwdz.version.utils.Utils;
 import com.xwdz.version.callback.OnCheckVersionRules;
 import com.xwdz.version.callback.OnProgressListener;
 import com.xwdz.version.entry.ApkSource;
@@ -16,14 +19,16 @@ import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import okhttp3.OkHttpClient;
+
 
 /**
  * @author huangxingwei (xwdz9989@gmail.com)
  * @since 2018/5/3
  */
-public class VersionHandler {
+public class UpgradeHandler {
 
-    private static final String TAG = VersionHandler.class.getSimpleName();
+    private static final String TAG = UpgradeHandler.class.getSimpleName();
 
     private DownloadTask    mDownloadTask;
     private UIAdapter       mUIAdapter;
@@ -32,63 +37,83 @@ public class VersionHandler {
     private StartDownloadReceiver mDownloadReceiver;
     private Context               mContext;
 
-    private ApkSource mApkSource;
-    /**
-     * 本地是否存在缓存Apk
-     */
-    private boolean   mApkLocalIsExist;
-
-    private VersionConfigs mVersionConfigs;
+    private ApkSource       mSource;
+    private VersionConfig   mVersionConfig;
+    private OnErrorListener mOnErrorListener;
 
 
-    public static VersionHandler get(Context context, ApkSource entry) {
-        return new VersionHandler(context, entry);
+    public static UpgradeHandler get(VersionConfig context, ApkSource entry, OkHttpClient okHttpClient, OnErrorListener listener) {
+        return new UpgradeHandler(context, entry, okHttpClient, listener);
     }
 
 
-    private VersionHandler(Context context, ApkSource apkSource) {
-        mVersionConfigs = VersionConfigs.getImpl();
-        mVersionConfigs.initContext(context, apkSource.getUrl());
-        mContext = context.getApplicationContext();
+    private UpgradeHandler(VersionConfig versionConfig, ApkSource source, OkHttpClient okHttpClient, OnErrorListener listener) {
+        mVersionConfig = versionConfig;
+        mOnErrorListener = listener;
+        mContext = versionConfig.getApplication().getApplicationContext();
         mExecutorService = Executors.newFixedThreadPool(3);
-        checkURLNotNull(apkSource.getUrl());
+        mSource = source;
 
-        mApkSource = apkSource;
-        initModule();
+        initModule(okHttpClient);
 
-        mDownloadTask.setUrl(mApkSource.getUrl());
+        final String url = mSource.getUrl();
+        mDownloadTask.setUrl(url);
         mDownloadTask.setOnProgressListener(mOnProgressListener);
-        mDownloadTask.setFilePath(mVersionConfigs.getApkPath());
-        mApkLocalIsExist = mVersionConfigs.checkApkExits();
+
+        final int    index    = url.lastIndexOf('/');
+        final String fileName = url.substring(index);
+        final File   root     = Utils.getApkPath(mContext, "QuietVersion");
+        mDownloadTask.setFilePath(root.getAbsolutePath() + fileName);
 
         handler();
     }
 
 
-    private void initModule() {
+    private void initModule(OkHttpClient okHttpClient) {
         mUIAdapter = new UIAdapter(mContext);
-        mDownloadTask = new DownloadTask();
+        mDownloadTask = new DownloadTask(okHttpClient, mOnErrorListener);
         mDownloadReceiver = new StartDownloadReceiver();
         mContext.registerReceiver(mDownloadReceiver, new IntentFilter(START_DOWNLOAD_ACTION));
-        Utils.LOG.i(TAG, "init module complete!");
+        LOG.i(TAG, "init module complete!");
+    }
+
+
+    private void handler() {
+        OnCheckVersionRules onCheckVersionRules = mVersionConfig.getOnCheckVersionRules();
+        if (onCheckVersionRules != null) {
+            boolean handler = onCheckVersionRules.check(mSource);
+            if (handler) {
+                if (mDownloadTask.hasLocalApk() && !mVersionConfig.isForceDownload()) {
+                    String path = mDownloadTask.getDownloadPath();
+                    LOG.i(TAG, "read apk for cache:" + path + " start install!");
+                    doInstall(path);
+                } else {
+                    mUIAdapter.showUpgradeDialog(mSource, mVersionConfig.getUIActivityClass());
+                }
+            } else {
+                LOG.i(TAG, "not New Version!");
+            }
+        } else {
+            LOG.i(TAG, "not New Version " + mSource.getUrl());
+        }
     }
 
     /**
      * 执行下载Apk操作
      */
     private void doDownload() {
-        OnCheckVersionRules onCheckVersionRules = mVersionConfigs.getOnCheckVersionRules();
+        OnCheckVersionRules onCheckVersionRules = mVersionConfig.getOnCheckVersionRules();
         if (onCheckVersionRules != null) {
-            if (!mVersionConfigs.isForceDownload()) {
-                if (mApkLocalIsExist) {
-                    Utils.LOG.i(TAG, "real local APk = " + mVersionConfigs.getApkPath() + " start install!");
-                    ApkInstallUtils.doInstall(mContext, mVersionConfigs.getApkPath());
+            if (!mVersionConfig.isForceDownload()) {
+                if (mDownloadTask.hasLocalApk()) {
+                    LOG.i(TAG, "real local APk = " + mDownloadTask.getDownloadPath() + " start install!");
+                    doInstall(mDownloadTask.getDownloadPath());
                     return;
                 }
             }
 
             mExecutorService.execute(mDownloadTask);
-            Utils.LOG.i(TAG, "start downloading apk ...");
+            LOG.i(TAG, "downloading apk:" + mSource.getUrl());
         }
     }
 
@@ -109,34 +134,27 @@ public class VersionHandler {
 
         @Override
         public void onFinished(File file) {
-            Utils.LOG.i(TAG, "File Download complete!");
-            ApkInstallUtils.doInstall(mContext, file.getAbsolutePath());
+            LOG.i(TAG, "File Download complete! exist:" + file.exists());
+            doInstall(file.getAbsolutePath());
         }
     };
 
+    private boolean checkMD5() {
+        String md5 = SignatureUtil.getAppSignatureMD5(mContext);
+        return mSource.getMd5().equals(md5);
+    }
 
-    public void handler() {
-        OnCheckVersionRules onCheckVersionRules = mVersionConfigs.getOnCheckVersionRules();
-        if (onCheckVersionRules != null) {
-            boolean handler = onCheckVersionRules.check(mApkSource);
-            if (handler) {
-                if (mApkLocalIsExist && !mVersionConfigs.isForceDownload()) {
-                    String path = mVersionConfigs.getApkPath();
-                    Utils.LOG.i(TAG, "read apk for cache:" + path + " start install!");
-                    ApkInstallUtils.doInstall(mContext, path);
-                } else {
-                    mUIAdapter.showUpgradeDialog(mApkSource, mVersionConfigs.getUIActivityClass());
-                }
-            } else {
-                Utils.LOG.i(TAG, "not New Version!");
-            }
+
+    private void doInstall(String path) {
+        if (checkMD5()) {
+            ApkInstallUtils.doInstall(mContext, path, mOnErrorListener);
         } else {
-            Utils.LOG.i(TAG, "not New Version " + mApkSource.getUrl());
+            throw new IllegalStateException("verify signature md5 failed!");
         }
     }
 
 
-    private static final String START_DOWNLOAD_ACTION = "com.xwdz.version.core.VersionHandler";
+    private static final String START_DOWNLOAD_ACTION = "com.xwdz.version.core.UpgradeHandler";
     private static final String KEY_START_DOWN        = "start_download";
     private static final int    FLAG_START_DOWN       = 1;
 
@@ -160,9 +178,9 @@ public class VersionHandler {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            long total = intent.getLongExtra(KEY_TOTAL, 0);
+            long total         = intent.getLongExtra(KEY_TOTAL, 0);
             long currentLength = intent.getLongExtra(KEY_CURRENT_LENGTH, 0);
-            int percent = intent.getIntExtra(KEY_PERCENT, 0);
+            int  percent       = intent.getIntExtra(KEY_PERCENT, 0);
 
             onUpdateProgress(total, currentLength, percent);
 
@@ -180,7 +198,7 @@ public class VersionHandler {
 
     public static void registerProgressbarReceiver(Context context, ProgressReceiver progressReceiver) {
         if (progressReceiver != null) {
-            context.getApplicationContext().registerReceiver(progressReceiver, new IntentFilter(VersionHandler.UPDATE_PROGRESSBAR_ACTION));
+            context.getApplicationContext().registerReceiver(progressReceiver, new IntentFilter(UpgradeHandler.UPDATE_PROGRESSBAR_ACTION));
         }
     }
 
