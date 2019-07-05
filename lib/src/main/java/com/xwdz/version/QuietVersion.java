@@ -1,7 +1,9 @@
 package com.xwdz.version;
 
 import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
+import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 
@@ -29,21 +31,21 @@ public class QuietVersion {
 
     private static QuietVersion sQuietVersion;
 
-    private static final String GET = "get";
+    private static final String GET  = "get";
     private static final String POST = "post";
 
     private static final LinkedHashMap<String, String> PARAMS = new LinkedHashMap<>();
     private static final LinkedHashMap<String, String> HEADER = new LinkedHashMap<>();
 
-    private String mMethod;
-    private FragmentActivity mFragmentActivity;
-    private Activity mActivity;
-    private String mUrl;
-    private VersionHandler mVersionHandler;
-    private NetworkParser mNetworkParser;
+    private String            mMethod;
+    private FragmentActivity  mFragmentActivity;
+    private Activity          mActivity;
+    private String            mUrl;
+    private VersionHandler    mVersionHandler;
+    private NetworkParser     mNetworkParser;
     private List<Interceptor> mNetworkInterceptors;
     private List<Interceptor> mInterceptors;
-    private OkHttpClient mOkHttpClient;
+    private OkHttpClient      mOkHttpClient;
 
     private QuietVersion(FragmentActivity fragmentActivity) {
         this.mFragmentActivity = fragmentActivity;
@@ -73,6 +75,20 @@ public class QuietVersion {
             }
         }
         return sQuietVersion;
+    }
+
+    public static void initializeUpdater(Application application) {
+        application.registerActivityLifecycleCallbacks(new SimpleCallback(){
+            @Override
+            public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+                super.onActivityCreated(activity, savedInstanceState);
+            }
+
+            @Override
+            public void onActivityDestroyed(Activity activity) {
+                super.onActivityDestroyed(activity);
+            }
+        });
     }
 
     public QuietVersion initOkHttpClient(OkHttpClient okHttpClient) {
@@ -140,7 +156,7 @@ public class QuietVersion {
                 }
 
                 OkHttpClient okHttpClient = builder.build();
-                Call call = okHttpClient.newCall(buildRequest());
+                Call         call         = okHttpClient.newCall(buildRequest());
                 call.enqueue(new Callback() {
                     @Override
                     public void onFailure(Call call, IOException e) {
@@ -171,7 +187,7 @@ public class QuietVersion {
         }
 
         final Request.Builder requestBuilder = new Request.Builder();
-        FormBody.Builder params = new FormBody.Builder();
+        FormBody.Builder      params         = new FormBody.Builder();
 
         for (Map.Entry<String, String> map : HEADER.entrySet()) {
             requestBuilder.addHeader(map.getKey(), map.getValue());
@@ -194,6 +210,45 @@ public class QuietVersion {
     public void recycle() {
         if (mVersionHandler != null) {
             mVersionHandler.recycle();
+        }
+    }
+
+
+    public static class SimpleCallback implements Application.ActivityLifecycleCallbacks {
+
+        @Override
+        public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
+
+        }
+
+        @Override
+        public void onActivityStarted(Activity activity) {
+
+        }
+
+        @Override
+        public void onActivityResumed(Activity activity) {
+
+        }
+
+        @Override
+        public void onActivityPaused(Activity activity) {
+
+        }
+
+        @Override
+        public void onActivityStopped(Activity activity) {
+
+        }
+
+        @Override
+        public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
+
+        }
+
+        @Override
+        public void onActivityDestroyed(Activity activity) {
+
         }
     }
 }
