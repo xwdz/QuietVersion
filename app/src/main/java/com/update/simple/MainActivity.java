@@ -1,6 +1,8 @@
 package com.update.simple;
 
 import android.app.Activity;
+import android.app.Notification;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -8,10 +10,13 @@ import android.widget.Toast;
 
 import com.xwdz.version.QuietVersion;
 import com.xwdz.version.callback.NetworkParser;
+import com.xwdz.version.callback.NotificationFactory;
 import com.xwdz.version.callback.OnErrorListener;
+import com.xwdz.version.callback.OnProgressListener;
 import com.xwdz.version.entry.ApkSource;
 import com.xwdz.version.utils.LOG;
 
+import java.io.File;
 import java.util.logging.Logger;
 
 public class MainActivity extends Activity {
@@ -35,23 +40,21 @@ public class MainActivity extends Activity {
     }
 
     public void onClickUpdated(View view) {
-        QuietVersion
-                //or post
-                .get(REQUEST_URL)
-                //强制每次更新下载最新Apk
-                .onNetworkParser(new NetworkParser() {
+        QuietVersion.
+                get(REQUEST_URL).
+                onNetworkParser(new NetworkParser() {
                     @Override
                     public ApkSource parser(String response) {
-                        Log.i("QuietVersion", "response:" + response);
                         return ApkSource.simpleParser(response);
                     }
-                })
-                .error(new OnErrorListener() {
+                }).
+                error(new OnErrorListener() {
                     @Override
                     public void listener(Throwable throwable) {
-                        LOG.e(TAG,"Updated error:"+throwable);
+                        LOG.e(TAG, "Updated error:" + throwable);
                     }
-                })
-                .apply();
+                }).
+                apply();
+
     }
 }

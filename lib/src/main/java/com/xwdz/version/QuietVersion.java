@@ -1,7 +1,9 @@
 package com.xwdz.version;
 
 import com.xwdz.version.callback.NetworkParser;
+import com.xwdz.version.callback.NotificationFactory;
 import com.xwdz.version.callback.OnErrorListener;
+import com.xwdz.version.callback.OnProgressListener;
 import com.xwdz.version.core.VersionConfig;
 import com.xwdz.version.core.UpgradeHandler;
 import com.xwdz.version.entry.ApkSource;
@@ -25,7 +27,7 @@ public class QuietVersion {
     private static final String TAG = QuietVersion.class.getSimpleName();
 
 
-    private static final String GET  = "create";
+    private static final String GET  = "created";
     private static final String POST = "post";
 
     private static OkHttpClient  sOkHttpClient;
@@ -62,10 +64,12 @@ public class QuietVersion {
         HashMap<String, String> HEADERS = new HashMap<>();
         HashMap<String, String> PARAMS  = new HashMap<>();
 
-        String          url;
-        NetworkParser   networkParser;
-        String          method;
-        OnErrorListener mErrorListener;
+        public String              url;
+        public NetworkParser       networkParser;
+        public String              method;
+        public OnErrorListener     errorListener;
+        public NotificationFactory notificationFactory;
+
 
         public Builder get(String url) {
             this.method = GET;
@@ -91,7 +95,7 @@ public class QuietVersion {
         }
 
         public Builder error(OnErrorListener listener) {
-            this.mErrorListener = listener;
+            this.errorListener = listener;
             return this;
         }
 
@@ -120,8 +124,8 @@ public class QuietVersion {
                     call.enqueue(new Callback() {
                         @Override
                         public void onFailure(Call call, IOException e) {
-                            if (mErrorListener != null) {
-                                mErrorListener.listener(e);
+                            if (Builder.this.errorListener != null) {
+                                Builder.this.errorListener.listener(e);
                             }
                         }
 
@@ -129,7 +133,7 @@ public class QuietVersion {
                         public void onResponse(Call call, Response response) throws IOException {
                             ApkSource apkSource = networkParser.parser(response.body().string());
                             if (apkSource != null) {
-                                UpgradeHandler.create(sVersionConfig, apkSource, sOkHttpClient, mErrorListener);
+                                UpgradeHandler.create(sVersionConfig, apkSource, sOkHttpClient, Builder.this);
                             } else {
                                 LOG.i(TAG, "not New Version");
                             }
@@ -138,8 +142,8 @@ public class QuietVersion {
                 }
             } catch (Throwable e) {
                 e.printStackTrace();
-                if (mErrorListener != null) {
-                    mErrorListener.listener(e);
+                if (this.errorListener != null) {
+                    this.errorListener.listener(e);
                 }
             }
         }
@@ -166,6 +170,9 @@ public class QuietVersion {
             return requestBuilder.build();
         }
 
-
+        public Builder createNotify(NotificationFactory notificationFactory) {
+            this.notificationFactory = notificationFactory;
+            return this;
+        }
     }
 }
