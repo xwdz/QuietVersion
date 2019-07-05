@@ -11,5 +11,5 @@ public interface DownloadProgressListener {
      * @param percent 进度百分比
      * @param total   总大小
      */
-    void onProgress(int percent, long currentLength, long total);
+    void onUpdateProgress(int percent, long currentLength, long total);
 }

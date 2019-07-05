@@ -169,10 +169,5 @@ public class QuietVersion {
             }
             return requestBuilder.build();
         }
-
-        public Builder createNotify(NotificationFactory notificationFactory) {
-            this.notificationFactory = notificationFactory;
-            return this;
-        }
     }
 }

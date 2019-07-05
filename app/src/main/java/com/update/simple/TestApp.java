@@ -18,7 +18,8 @@ public class TestApp extends Application {
         super.onCreate();
 
         VersionConfig versionConfig = VersionConfig.with(this);
-        versionConfig.setForceDownload(true)
+        versionConfig
+                .setForceDownload(true)
                 .setUIActivityClass(DefaultDialogActivity.class)
                 .setOnCheckVersionRules(new OnCheckVersionRules() {
                     @Override

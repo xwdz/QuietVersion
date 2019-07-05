@@ -10,14 +10,10 @@ import android.widget.Toast;
 
 import com.xwdz.version.QuietVersion;
 import com.xwdz.version.callback.NetworkParser;
-import com.xwdz.version.callback.NotificationFactory;
 import com.xwdz.version.callback.OnErrorListener;
-import com.xwdz.version.callback.OnProgressListener;
 import com.xwdz.version.entry.ApkSource;
 import com.xwdz.version.utils.LOG;
 
-import java.io.File;
-import java.util.logging.Logger;
 
 public class MainActivity extends Activity {
 

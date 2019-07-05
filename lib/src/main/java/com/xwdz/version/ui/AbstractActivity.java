@@ -4,15 +4,18 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
+import com.xwdz.version.callback.DownloadProgressListener;
 import com.xwdz.version.core.UpgradeHandler;
+import com.xwdz.version.utils.LOG;
 
 public abstract class AbstractActivity extends AppCompatActivity {
 
     protected static final int MAX = 100;
 
-    private UpgradeHandler.ProgressReceiver mProgressReceiver = new UpgradeHandler.ProgressReceiver() {
+
+    private DownloadProgressListener mOnProgressListener = new DownloadProgressListener() {
         @Override
-        public void onUpdateProgress(long total, long currentLength, int percent) {
+        public void onUpdateProgress(int percent, long currentLength, long total) {
             if (total > 0 && currentLength > 0 && percent >= 0) {
                 if (percent == MAX) {
                     finish();
@@ -28,7 +31,7 @@ public abstract class AbstractActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        UpgradeHandler.registerProgressbarReceiver(this, mProgressReceiver);
+        UpgradeHandler.registerProgressListener(mOnProgressListener);
         setContentView(getContentLayoutId());
         onViewCreated();
     }
@@ -36,7 +39,6 @@ public abstract class AbstractActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        UpgradeHandler.unregisterProgressbarReceiver(this, mProgressReceiver);
     }
 
 
@@ -44,7 +46,7 @@ public abstract class AbstractActivity extends AppCompatActivity {
 
     public abstract void onViewCreated();
 
-    protected void onUpdateProgress(int percent, long currentLength, long total){
+    protected void onUpdateProgress(int percent, long currentLength, long total) {
 
     }
 

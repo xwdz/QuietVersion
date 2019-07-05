@@ -23,14 +23,6 @@ public class VersionConfig {
     private Class<?>            uIClass;
     private Application         application;
 
-    //////
-    private int     smallIcon   = R.drawable.ic_launcher_background;
-    private Bitmap  largeIcon;
-    /**
-     *  是否使用通知栏
-     */
-    private boolean isUseNotify = false;
-
 
     public static VersionConfig with(Application application) {
         return new VersionConfig(application);
@@ -88,30 +80,5 @@ public class VersionConfig {
     public VersionConfig setUIActivityClass(Class<?> UIClass) {
         uIClass = UIClass;
         return this;
-    }
-
-    public int getSmallIcon() {
-        return smallIcon;
-    }
-
-    public void setSmallIcon(int smallIcon) {
-        this.smallIcon = smallIcon;
-    }
-
-    public Bitmap getLargeIcon() {
-        return largeIcon;
-    }
-
-    public void setLargeIcon(Bitmap largeIcon) {
-        this.largeIcon = largeIcon;
-    }
-
-
-    public boolean isUseNotify() {
-        return isUseNotify;
-    }
-
-    public void setUseNotify(boolean useNotify) {
-        isUseNotify = useNotify;
     }
 }

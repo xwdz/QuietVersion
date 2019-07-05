@@ -7,6 +7,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.xwdz.version.R;
+import com.xwdz.version.core.UpgradeHandler;
 
 /**
  * 下载进度条
@@ -47,5 +48,16 @@ public class DefaultProgressDialogActivity extends AbstractActivity {
         if (percent == MAX) {
             finish();
         }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        return true;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        UpgradeHandler.recycle();
     }
 }
