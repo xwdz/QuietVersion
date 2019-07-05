@@ -98,6 +98,8 @@ $lastVersion = [![](https://jitpack.io/v/xwdz/QuiteVersion.svg)](https://jitpack
                        apply();
 ```
 
+#### 注意一定要调用`onNetworkParser`将数据`ApkSource`返回给`QuietVersion`
+
 
 ### 颜色配置
 如果`lib`颜色配置不满意可在您项目`colors.xml`文件下重写以下颜色值
@@ -139,7 +141,7 @@ $lastVersion = [![](https://jitpack.io/v/xwdz/QuiteVersion.svg)](https://jitpack
 VersionHandler.startDownloadApk(getContext());
 ```
 
-##### 注意: 当自定义UI进度条界面销毁时候调用`UpgradeHandler.recycle();
+##### 注意: 当自定义UI进度条界面销毁时候调用`UpgradeHandler.recycle()`;
 
 #### 适配7.0
 
