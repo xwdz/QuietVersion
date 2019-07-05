@@ -69,7 +69,7 @@ $lastVersion = [![](https://jitpack.io/v/xwdz/QuiteVersion.svg)](https://jitpack
 
 |方法名|说明|默认实现|
 |---:|:---|:----|
-|setForceDownload|是否强制每次都从服务器下载|false|
+|setForceDownload|是否强制每次都从服务器下载|true|
 |setUIActivityClass|自定义activity UI|[DefaultDialogActivity.class](https://github.com/xwdz/QuietVersion/blob/master/lib/src/main/java/com/xwdz/version/ui/DefaultDialogActivity.java)|
 |setOnCheckVersionRules|自定义升级规则|[DefaultCheckVersionRules.class](https://github.com/xwdz/QuietVersion/blob/master/lib/src/main/java/com/xwdz/version/core/DefaultCheckVersionRules.java)|
 
