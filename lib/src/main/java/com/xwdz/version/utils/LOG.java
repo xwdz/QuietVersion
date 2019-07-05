@@ -2,7 +2,7 @@ package com.xwdz.version.utils;
 
 import android.util.Log;
 
-import com.xwdz.version.QuietVersion;
+import com.xwdz.version.core.QuietVersion;
 
 /**
  * @author xingwei.huang (xwdz9989@gmail.com)

@@ -41,16 +41,27 @@ $lastVersion = [![](https://jitpack.io/v/xwdz/QuiteVersion.svg)](https://jitpack
 ### 配置
 
 ```
-VersionConfigs.getImpl()
-            .setForceDownload(true)
-            .setApkPath(String apkPath)
-            .setApkName(String apkName)
-            // 是否强制每次都从服务器下载
-            .setForceDownload(boolean force)
-            // 自定义activity 
-            .setUIActivityClass(xxx.class)
-            // 
-            .setOnCheckVersionRules(new DefaultCheckVersionRules());
+ public class TestApp extends Application {
+ 
+     @Override
+     public void onCreate() {
+         super.onCreate();
+ 
+         VersionConfig versionConfig = VersionConfig.with(this);
+         versionConfig.setForceDownload(true)
+                 .setUIActivityClass(DefaultDialogActivity.class)
+                 .setOnCheckVersionRules(new OnCheckVersionRules() {
+                     @Override
+                     public boolean check(ApkSource apkSource) {
+                         return apkSource.getRemoteVersionCode() > BuildConfig.VERSION_CODE;
+                     }
+                 });
+         QuietVersion.initializeUpdater(versionConfig);
+ 
+ 
+     }
+ }
+
 ```
 
 ### 配置说明
@@ -59,10 +70,33 @@ VersionConfigs.getImpl()
 |方法名|说明|默认实现|
 |---:|:---|:----|
 |setForceDownload|是否强制每次都从服务器下载|false|
-|setApkName|apk名称|apk名称为Url最后一个`/`至`.`为止之间内容为名称|
-|setApkPath|apk文件存储路径|context.getExternalFilesDir("apk").getAbsolutePath() + / + apkFilename|
 |setUIActivityClass|自定义activity UI|[DefaultDialogActivity.class](https://github.com/xwdz/QuietVersion/blob/master/lib/src/main/java/com/xwdz/version/ui/DefaultDialogActivity.java)|
 |setOnCheckVersionRules|自定义升级规则|[DefaultCheckVersionRules.class](https://github.com/xwdz/QuietVersion/blob/master/lib/src/main/java/com/xwdz/version/core/DefaultCheckVersionRules.java)|
+
+   ...
+
+### 使用
+
+```
+               QuietVersion.
+                       get(REQUEST_URL)
+                       .addParams("", "")
+                       .addParams("", "")
+                       .addHeaders("", "")
+                       .onNetworkParser(new NetworkParser() {
+                           @Override
+                           public ApkSource parser(String response) {
+                               return ApkSource.simpleParser(response);
+                           }
+                       })
+                       .error(new OnErrorListener() {
+                           @Override
+                           public void listener(Throwable throwable) {
+                               LOG.e(TAG, "Updated error:" + throwable);
+                           }
+                       }).
+                       apply();
+```
 
 
 ### 颜色配置
@@ -70,40 +104,13 @@ VersionConfigs.getImpl()
 
 |名称|说明|示例|
 |:--:|:--:|:--:|
-|`quiet_version_button_theme`|`dialog更新按钮颜色`|[colors.xml](https://github.com/xwdz/QuietVersion/blob/master/app/src/main/res/values/colors.xml)|
-|`quiet_version_download_file_size`|`进度条下面文件下载进度文字颜色`|[colors.xml](https://github.com/xwdz/QuietVersion/blob/master/app/src/main/res/values/colors.xml)|
-|`quiet_version_progress_background`|`下载进度条背景颜色`|[colors.xml](https://github.com/xwdz/QuietVersion/blob/master/app/src/main/res/values/colors.xml)|
-|`quiet_version_progress`|`下载进度条颜色`|[colors.xml](https://github.com/xwdz/QuietVersion/blob/master/app/src/main/res/values/colors.xml)|
+|`quiet_version_button_theme`|`dialog更新按钮颜色`|[quiet_version_button_theme](https://github.com/xwdz/QuietVersion/blob/master/app/src/main/res/values/colors.xml)|
+|`quiet_version_download_file_size`|`进度条下面文件下载进度文字颜色`|[quiet_version_download_file_size](https://github.com/xwdz/QuietVersion/blob/master/app/src/main/res/values/colors.xml)|
+|`quiet_version_progress_background`|`下载进度条背景颜色`|[quiet_version_progress_background](https://github.com/xwdz/QuietVersion/blob/master/app/src/main/res/values/colors.xml)|
+|`quiet_version_progress`|`下载进度条颜色`|[quiet_version_progress](https://github.com/xwdz/QuietVersion/blob/master/app/src/main/res/values/colors.xml)|
 
 
-### 简单使用
 
-```
-        QuietVersion.getInstance(this)
-                //or POST
-                .GET("http://www.baidu.com")
-                .addHeader()
-                .addParams()
-                .addInterceptor()
-                .addNetworkInterceptor()
-                // 开发者必须实现此接口,返回QuiteVersion需要的Apk信息,如果返回null,则视为没有新版本更新
-                .setOnNetworkParserListener(new OnNetworkParserListener() {
-                    @Override
-                    public ApkSource parser(String response) {
-                        return new ApkSource(
-                                kugou,
-                                "更新内容如下\n1.你好\n2.我不好",
-                                123123123,
-                                123,
-                                9999
-                        );
-                    }
-                })
-                .apply();
-
-//界面销毁时注意释放资源
-Quite.getInstance(this).recycle()
-```
 
 ### 自定义UI
 
@@ -132,25 +139,7 @@ Quite.getInstance(this).recycle()
 VersionHandler.startDownloadApk(getContext());
 ```
 
-
-3. **自定义容器中注册接受下载进度条组件。如果继承了`AbstractActivity`可忽略(可选)**
-
-```
-private final VersionHandler.ProgressReceiver mProgressReceiver = new VersionHandler.ProgressReceiver() {
-        @Override
-        public void onUpdateProgress(long total, long currentLength, int percent) {
-            Utils.LOG.i("tag", "current = " + currentLength);
-        }
-    };
-
-
-//在容器创建等合适的时候调用注册代码
-VersionHandler.registerProgressbarReceiver(getContext(), mProgressReceiver);
-
-//容器销毁的时候调用注销代码
-VersionHandler.unregisterProgressbarReceiver(getContext(), mProgressReceiver);
-```
-
+##### 注意: 当自定义UI进度条界面销毁时候调用`UpgradeHandler.recycle();
 
 #### 适配7.0
 

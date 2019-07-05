@@ -1,12 +1,8 @@
 package com.xwdz.version.core;
 
 import android.app.Application;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 
-import com.xwdz.version.R;
 import com.xwdz.version.callback.OnCheckVersionRules;
-import com.xwdz.version.callback.OnUIDialogNotify;
 
 /**
  * @author 黄兴伟 (xwdz9989@gamil.com)
@@ -17,9 +13,8 @@ public class VersionConfig {
     private static final String TAG = VersionConfig.class.getSimpleName();
 
     private OnCheckVersionRules onCheckVersionRules;
-    private boolean             forceDownload;
+    private boolean             forceDownload = true;
     private boolean             deleteApk;
-    private OnUIDialogNotify    onUIDialogNotify;
     private Class<?>            uIClass;
     private Application         application;
 
@@ -61,15 +56,6 @@ public class VersionConfig {
 
     public VersionConfig setIsDeleteApk(boolean deleteApk) {
         this.deleteApk = deleteApk;
-        return this;
-    }
-
-    public OnUIDialogNotify getOnUIDialogNotify() {
-        return onUIDialogNotify;
-    }
-
-    public VersionConfig setOnUIDialogNotify(OnUIDialogNotify onUIDialogNotify) {
-        this.onUIDialogNotify = onUIDialogNotify;
         return this;
     }
 

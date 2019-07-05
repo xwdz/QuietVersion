@@ -1,14 +1,11 @@
 package com.update.simple;
 
 import android.app.Activity;
-import android.app.Notification;
-import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.xwdz.version.QuietVersion;
+import com.xwdz.version.core.QuietVersion;
 import com.xwdz.version.callback.NetworkParser;
 import com.xwdz.version.callback.OnErrorListener;
 import com.xwdz.version.entry.ApkSource;
@@ -32,19 +29,18 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-//        QuietVersion.getInstance(this).recycle();
     }
 
     public void onClickUpdated(View view) {
         QuietVersion.
-                get(REQUEST_URL).
-                onNetworkParser(new NetworkParser() {
+                get(REQUEST_URL)
+                .onNetworkParser(new NetworkParser() {
                     @Override
                     public ApkSource parser(String response) {
                         return ApkSource.simpleParser(response);
                     }
-                }).
-                error(new OnErrorListener() {
+                })
+                .error(new OnErrorListener() {
                     @Override
                     public void listener(Throwable throwable) {
                         LOG.e(TAG, "Updated error:" + throwable);

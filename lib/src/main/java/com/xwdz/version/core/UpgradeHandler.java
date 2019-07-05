@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
-import com.xwdz.version.QuietVersion;
 import com.xwdz.version.callback.DownloadProgressListener;
 import com.xwdz.version.utils.LOG;
 import com.xwdz.version.utils.SignatureUtil;
@@ -17,7 +16,6 @@ import com.xwdz.version.ui.UIAdapter;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -109,7 +107,7 @@ public class UpgradeHandler {
     /**
      * 执行下载Apk操作
      */
-    private void doDownload() {
+    private void doUpgradeApp() {
         OnCheckVersionRules onCheckVersionRules = mVersionConfig.getOnCheckVersionRules();
         if (onCheckVersionRules != null) {
             if (!mVersionConfig.isForceDownload()) {
@@ -166,7 +164,7 @@ public class UpgradeHandler {
         public void onReceive(Context context, Intent intent) {
             int flag = intent.getIntExtra(KEY_START_DOWN, 0);
             if (flag == FLAG_START_DOWN) {
-                doDownload();
+                doUpgradeApp();
             }
         }
     }

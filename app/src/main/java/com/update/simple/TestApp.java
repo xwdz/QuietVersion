@@ -3,8 +3,7 @@ package com.update.simple;
 import android.app.Application;
 
 import com.xwdz.version.BuildConfig;
-import com.xwdz.version.QuietVersion;
-import com.xwdz.version.callback.NetworkParser;
+import com.xwdz.version.core.QuietVersion;
 import com.xwdz.version.callback.OnCheckVersionRules;
 import com.xwdz.version.core.VersionConfig;
 import com.xwdz.version.entry.ApkSource;
@@ -18,8 +17,7 @@ public class TestApp extends Application {
         super.onCreate();
 
         VersionConfig versionConfig = VersionConfig.with(this);
-        versionConfig
-                .setForceDownload(true)
+        versionConfig.setForceDownload(true)
                 .setUIActivityClass(DefaultDialogActivity.class)
                 .setOnCheckVersionRules(new OnCheckVersionRules() {
                     @Override

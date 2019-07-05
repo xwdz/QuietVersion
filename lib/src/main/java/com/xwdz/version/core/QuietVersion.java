@@ -1,11 +1,8 @@
-package com.xwdz.version;
+package com.xwdz.version.core;
 
 import com.xwdz.version.callback.NetworkParser;
 import com.xwdz.version.callback.NotificationFactory;
 import com.xwdz.version.callback.OnErrorListener;
-import com.xwdz.version.callback.OnProgressListener;
-import com.xwdz.version.core.VersionConfig;
-import com.xwdz.version.core.UpgradeHandler;
 import com.xwdz.version.entry.ApkSource;
 import com.xwdz.version.utils.LOG;
 import com.xwdz.version.utils.Utils;
@@ -52,23 +49,15 @@ public class QuietVersion {
 
     }
 
-    public static void recycle() {
-//        if (mVersionHandler != null) {
-//            mVersionHandler.recycle();
-//        }
-    }
-
-
     public static final class Builder {
 
         HashMap<String, String> HEADERS = new HashMap<>();
         HashMap<String, String> PARAMS  = new HashMap<>();
 
-        public String              url;
-        public NetworkParser       networkParser;
-        public String              method;
-        public OnErrorListener     errorListener;
-        public NotificationFactory notificationFactory;
+        String              url;
+        NetworkParser       networkParser;
+        String              method;
+        OnErrorListener     errorListener;
 
 
         public Builder get(String url) {
@@ -117,7 +106,6 @@ public class QuietVersion {
         public void apply() {
             try {
                 LOG.i(TAG, "appUpgrade apply ... ");
-
                 if (networkParser != null) {
 
                     Call call = sOkHttpClient.newCall(buildRequest());
@@ -147,7 +135,6 @@ public class QuietVersion {
                 }
             }
         }
-
 
         private Request buildRequest() {
             final Request.Builder requestBuilder = new Request.Builder();
