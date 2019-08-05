@@ -27,6 +27,8 @@ public class Utils {
      * 获取APK本地存储路径地址
      */
     public static File getApkPath(Context context, String uniqueName) {
+//        final File f = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+//        return new File(f.getAbsolutePath() + File.separator + uniqueName);
         String cachePath;
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())
                 || !Environment.isExternalStorageRemovable()) {

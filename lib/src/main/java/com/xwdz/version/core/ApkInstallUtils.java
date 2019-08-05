@@ -26,7 +26,7 @@ public class ApkInstallUtils {
     }
 
 
-    public static void doInstall(Context context, String apkPath, OnErrorListener onErrorListener) {
+    static void doInstall(Context context, String apkPath, OnErrorListener onErrorListener) {
         if (!apkPath.endsWith(".apk")) {
             LOG.e(TAG, "install error path = " + apkPath);
             return;
@@ -46,7 +46,6 @@ public class ApkInstallUtils {
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             }
             context.startActivity(intent);
-            LOG.i(TAG, "install complete");
 
         } catch (Exception e) {
             e.printStackTrace();

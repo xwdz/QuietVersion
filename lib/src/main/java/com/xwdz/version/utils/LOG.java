@@ -16,6 +16,10 @@ public class LOG {
         Log.i(TAG, "[" + tag + "] " + msg);
     }
 
+    public static void w(String tag, String msg) {
+        Log.w(TAG, "[" + tag + "] " + msg);
+    }
+
     public static void e(String tag, String msg) {
         Log.e(TAG, "[" + tag + "] " + msg);
     }

@@ -49,4 +49,8 @@ public class MainActivity extends Activity {
                 apply();
 
     }
+
+    public void onOtherClickUpdated(View view){
+
+    }
 }

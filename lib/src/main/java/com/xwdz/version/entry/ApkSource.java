@@ -26,24 +26,34 @@ public class ApkSource implements Parcelable {
     /**
      * 远程versionCode
      */
-    private int remoteVersionCode;
+    private int    remoteVersionCode;
     /**
      * 远程VersionName
      */
     private String remoteVersionName;
-
+    /**
+     * 应用md5
+     */
     private String md5;
+
+    /**
+     * 是否强制升级
+     * 1: yes
+     * 0: no
+     */
+    private String isForceUpdated;
 
     public ApkSource() {
     }
 
-    public ApkSource(String url, String note, long fileSize, int remoteVersionCode, String remoteVersionName, String md5) {
+    public ApkSource(String url, String note, long fileSize, int remoteVersionCode, String remoteVersionName, String md5, String isForceUpdated) {
         this.note = note;
         this.fileSize = fileSize;
         this.url = url;
         this.remoteVersionCode = remoteVersionCode;
         this.remoteVersionName = remoteVersionName;
         this.md5 = md5;
+        this.isForceUpdated = isForceUpdated;
     }
 
 
@@ -108,6 +118,7 @@ public class ApkSource implements Parcelable {
         dest.writeInt(this.remoteVersionCode);
         dest.writeString(this.remoteVersionName);
         dest.writeString(this.md5);
+        dest.writeString(this.isForceUpdated);
     }
 
     protected ApkSource(Parcel in) {
@@ -117,6 +128,7 @@ public class ApkSource implements Parcelable {
         this.remoteVersionCode = in.readInt();
         this.remoteVersionName = in.readString();
         this.md5 = in.readString();
+        this.isForceUpdated = in.readString();
     }
 
     public static final Creator<ApkSource> CREATOR = new Creator<ApkSource>() {
@@ -136,14 +148,20 @@ public class ApkSource implements Parcelable {
 
     public static ApkSource simpleParser(String json) {
         try {
-            JSONObject jsonObject = new JSONObject(json);
-            String note = jsonObject.getString("note");
-            String fileSize = jsonObject.getString("fileSize");
-            String url = jsonObject.getString("url");
-            String remoteVersionCode = jsonObject.getString("remoteVersionCode");
-            String remoteVersionName = jsonObject.getString("remoteVersionName");
-            String md5 = jsonObject.getString("md5");
-            return new ApkSource(url, note, Long.parseLong(fileSize), Integer.parseInt(remoteVersionCode), remoteVersionName, md5);
+            JSONObject jsonObject        = new JSONObject(json);
+            String     note              = jsonObject.getString("note");
+            String     fileSize          = jsonObject.getString("fileSize");
+            String     url               = jsonObject.getString("url");
+            String     remoteVersionCode = jsonObject.getString("remoteVersionCode");
+            String     remoteVersionName = jsonObject.getString("remoteVersionName");
+            String     md5               = jsonObject.getString("md5");
+//            String     isForceUpdated    = jsonObject.getString("isForceUpdated");
+            return new ApkSource(url, note,
+                    Long.parseLong(fileSize),
+                    Integer.parseInt(remoteVersionCode),
+                    remoteVersionName,
+                    md5,
+                    "1");
 
         } catch (JSONException e) {
             e.printStackTrace();

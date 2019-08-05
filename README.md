@@ -47,8 +47,8 @@ $lastVersion = [![](https://jitpack.io/v/xwdz/QuiteVersion.svg)](https://jitpack
      public void onCreate() {
          super.onCreate();
  
-         VersionConfig versionConfig = VersionConfig.with(this);
-         versionConfig.setForceDownload(true)
+         VersionConfig appVersionBuilder = VersionConfig.with(this);
+         appVersionBuilder.setForceDownload(true)
                  .setUIActivityClass(DefaultDialogActivity.class)
                  .setOnCheckVersionRules(new OnCheckVersionRules() {
                      @Override
@@ -56,7 +56,7 @@ $lastVersion = [![](https://jitpack.io/v/xwdz/QuiteVersion.svg)](https://jitpack
                          return apkSource.getRemoteVersionCode() > BuildConfig.VERSION_CODE;
                      }
                  });
-         QuietVersion.initializeUpdater(versionConfig);
+         QuietVersion.initializeUpdater(appVersionBuilder);
  
  
      }

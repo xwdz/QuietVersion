@@ -1,7 +1,7 @@
 package com.xwdz.version.core;
 
+import com.xwdz.version.callback.DownloadProgressListener;
 import com.xwdz.version.callback.NetworkParser;
-import com.xwdz.version.callback.NotificationFactory;
 import com.xwdz.version.callback.OnErrorListener;
 import com.xwdz.version.entry.ApkSource;
 import com.xwdz.version.utils.LOG;
@@ -27,12 +27,11 @@ public class QuietVersion {
     private static final String GET  = "created";
     private static final String POST = "post";
 
-    private static OkHttpClient  sOkHttpClient;
-    private static VersionConfig sVersionConfig;
+    private static OkHttpClient sOkHttpClient;
 
-    public static void initializeUpdater(VersionConfig versionConfig) {
+    public static void initialize(AppVersionBuilder appVersionBuilder) {
         sOkHttpClient = new OkHttpClient();
-        sVersionConfig = versionConfig;
+        UpgradeHandler.getInstance().initBuilder(appVersionBuilder);
     }
 
     public static void setOkHttpClient(OkHttpClient okHttpClient) {
@@ -46,7 +45,19 @@ public class QuietVersion {
 
     public static Builder post(String url) {
         return new Builder().post(url);
+    }
 
+    public static void startDownloaderApk() {
+        UpgradeHandler.getInstance().startDownloaderApk();
+    }
+
+
+    public static void registerProgressListener(DownloadProgressListener listener) {
+        UpgradeHandler.getInstance().registerProgressListener(listener);
+    }
+
+    public static void unRegisterProgressListener() {
+        UpgradeHandler.getInstance().unRegisterProgressListener();
     }
 
     public static final class Builder {
@@ -54,10 +65,10 @@ public class QuietVersion {
         HashMap<String, String> HEADERS = new HashMap<>();
         HashMap<String, String> PARAMS  = new HashMap<>();
 
-        String              url;
-        NetworkParser       networkParser;
-        String              method;
-        OnErrorListener     errorListener;
+        String          url;
+        NetworkParser   networkParser;
+        String          method;
+        OnErrorListener errorListener;
 
 
         public Builder get(String url) {
@@ -84,7 +95,7 @@ public class QuietVersion {
         }
 
         public Builder error(OnErrorListener listener) {
-            this.errorListener = listener;
+            errorListener = listener;
             return this;
         }
 
@@ -112,8 +123,8 @@ public class QuietVersion {
                     call.enqueue(new Callback() {
                         @Override
                         public void onFailure(Call call, IOException e) {
-                            if (Builder.this.errorListener != null) {
-                                Builder.this.errorListener.listener(e);
+                            if (errorListener != null) {
+                                errorListener.listener(e);
                             }
                         }
 
@@ -121,7 +132,8 @@ public class QuietVersion {
                         public void onResponse(Call call, Response response) throws IOException {
                             ApkSource apkSource = networkParser.parser(response.body().string());
                             if (apkSource != null) {
-                                UpgradeHandler.create(sVersionConfig, apkSource, sOkHttpClient, Builder.this);
+                                UpgradeHandler.getInstance().launcherUpgrade(apkSource, sOkHttpClient, errorListener);
+
                             } else {
                                 LOG.i(TAG, "not New Version");
                             }
@@ -130,8 +142,9 @@ public class QuietVersion {
                 }
             } catch (Throwable e) {
                 e.printStackTrace();
-                if (this.errorListener != null) {
-                    this.errorListener.listener(e);
+
+                if (errorListener != null) {
+                    errorListener.listener(e);
                 }
             }
         }

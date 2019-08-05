@@ -1,21 +1,23 @@
 package com.xwdz.version.core;
 
-import android.content.BroadcastReceiver;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 
 import com.xwdz.version.callback.DownloadProgressListener;
+import com.xwdz.version.callback.OnErrorListener;
+import com.xwdz.version.entry.Network;
+import com.xwdz.version.network.NetworkUtils;
+import com.xwdz.version.notify.AppUpgradeNotification;
+import com.xwdz.version.strategy.AppNetworkStrategy;
+import com.xwdz.version.strategy.AppUpgradeStrategy;
 import com.xwdz.version.utils.LOG;
-import com.xwdz.version.utils.SignatureUtil;
 import com.xwdz.version.utils.Utils;
-import com.xwdz.version.callback.OnCheckVersionRules;
 import com.xwdz.version.callback.OnProgressListener;
 import com.xwdz.version.entry.ApkSource;
 import com.xwdz.version.ui.UIAdapter;
 
 import java.io.File;
-import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -28,34 +30,51 @@ import okhttp3.OkHttpClient;
  */
 public class UpgradeHandler {
 
-    private static final String TAG = UpgradeHandler.class.getSimpleName();
+    private volatile static UpgradeHandler sUpgradeHandler;
 
-    private static final HashMap<String, DownloadProgressListener> MAP     = new HashMap<>();
-    private static final String                                    DEF_KEY = "def.key";
+    static UpgradeHandler getInstance() {
+        if (sUpgradeHandler == null) {
+            synchronized (UpgradeHandler.class) {
+                if (sUpgradeHandler == null) {
+                    sUpgradeHandler = new UpgradeHandler();
+                }
+            }
+        }
+        return sUpgradeHandler;
+    }
 
-    private DownloadTask    mDownloadTask;
-    private UIAdapter       mUIAdapter;
     private ExecutorService mExecutorService;
 
-    private StartDownloadReceiver mDownloadReceiver;
-    private Context               mContext;
-
-    private ApkSource            mSource;
-    private VersionConfig        mVersionConfig;
-    private QuietVersion.Builder mVersionBuilder;
-
-
-    public static UpgradeHandler create(VersionConfig context, ApkSource entry, OkHttpClient okHttpClient, QuietVersion.Builder builder) {
-        return new UpgradeHandler(context, entry, okHttpClient, builder);
+    private UpgradeHandler() {
+        mExecutorService = Executors.newCachedThreadPool();
     }
 
 
-    private UpgradeHandler(VersionConfig versionConfig, ApkSource source, OkHttpClient okHttpClient, QuietVersion.Builder versionBuilder) {
-        mVersionConfig = versionConfig;
-        mVersionBuilder = versionBuilder;
-        mContext = versionConfig.getApplication().getApplicationContext();
-        mExecutorService = Executors.newFixedThreadPool(3);
+    private static final String TAG = UpgradeHandler.class.getSimpleName();
+
+    private DownloadProgressListener mDownloadProgressListener;
+
+    private DownloadTask mDownloadTask;
+    private UIAdapter    mUIAdapter;
+
+    private Context mContext;
+
+    private ApkSource         mSource;
+    private AppVersionBuilder mAppVersionBuilder;
+
+    private Notification mNotification;
+    private int          mId = 1;
+
+
+    void initBuilder(AppVersionBuilder builder) {
+        mAppVersionBuilder = builder;
+        mContext = mAppVersionBuilder.context;
+    }
+
+
+    void launcherUpgrade(ApkSource source, OkHttpClient okHttpClient, OnErrorListener errorListener) {
         mSource = source;
+        mAppVersionBuilder.errorListener = errorListener;
 
         initModule(okHttpClient);
 
@@ -71,55 +90,84 @@ public class UpgradeHandler {
         }
         mDownloadTask.setFilePath(root.getAbsolutePath() + fileName);
 
-        handler();
+        //
+        prepare();
     }
-
 
     private void initModule(OkHttpClient okHttpClient) {
         mUIAdapter = new UIAdapter(mContext);
-        mDownloadTask = new DownloadTask(okHttpClient, mVersionBuilder.errorListener);
-        mDownloadReceiver = new StartDownloadReceiver();
-        mContext.registerReceiver(mDownloadReceiver, new IntentFilter(START_DOWNLOAD_ACTION));
+        mDownloadTask = new DownloadTask(okHttpClient, mAppVersionBuilder.errorListener);
         LOG.i(TAG, "init module complete!");
     }
 
 
-    private void handler() {
-        OnCheckVersionRules onCheckVersionRules = mVersionConfig.getOnCheckVersionRules();
-        if (onCheckVersionRules != null) {
-            boolean handler = onCheckVersionRules.check(mSource);
-            if (handler) {
-                if (mDownloadTask.hasLocalApk() && !mVersionConfig.isForceDownload()) {
-                    String path = mDownloadTask.getDownloadPath();
-                    LOG.i(TAG, "read apk for cache:" + path + " start install!");
-                    doInstall(path);
+    private void prepare() {
+        AppUpgradeStrategy appUpgradeStrategy = mAppVersionBuilder.appUpgradeStrategy;
+
+        AppUpgradeStrategy.UpgradeStrategy upgradeStrategy = appUpgradeStrategy.getAppUpgradeStrategy(mSource);
+        boolean                            hasNewVersion   = appUpgradeStrategy.check(mSource, mContext);
+
+        if (hasNewVersion) {
+
+            final AppNetworkStrategy networkStrategy = mAppVersionBuilder.appNetworkStrategy;
+            Network                  network         = networkStrategy.getAppUpgradeStrategy(mSource, mContext);
+
+
+            if (Network.ALL == network) {
+                doUpgrade(upgradeStrategy);
+            } else if (Network.MOBILE == network) {
+                // network mobile type
+                if (NetworkUtils.isMobileAvailable(mContext)) {
+                    doUpgrade(upgradeStrategy);
                 } else {
-                    mUIAdapter.showUpgradeDialog(mSource, mVersionConfig.getUIActivityClass());
+                    LOG.w(TAG, "当前网络类型不匹配无法进行升级。指定升级网络类型为:" + network);
                 }
-            } else {
-                LOG.i(TAG, "not New Version!");
+            } else if (Network.WIFI == network) {
+                // wifi
+                if (NetworkUtils.isWIFIAvailable(mContext)) {
+                    doUpgrade(upgradeStrategy);
+                } else {
+                    LOG.w(TAG, "当前网络类型不匹配无法进行升级。指定升级网络类型为:" + network);
+                }
             }
+
         } else {
-            LOG.i(TAG, "not New Version " + mSource.getUrl());
+            LOG.i(TAG, "not New Version!");
         }
     }
 
-    /**
-     * 执行下载Apk操作
-     */
-    private void doUpgradeApp() {
-        OnCheckVersionRules onCheckVersionRules = mVersionConfig.getOnCheckVersionRules();
-        if (onCheckVersionRules != null) {
-            if (!mVersionConfig.isForceDownload()) {
-                if (mDownloadTask.hasLocalApk()) {
-                    LOG.i(TAG, "real local APk = " + mDownloadTask.getDownloadPath() + " start install!");
-                    doInstall(mDownloadTask.getDownloadPath());
-                    return;
+
+    private void doUpgrade(AppUpgradeStrategy.UpgradeStrategy upgradeStrategy) {
+        if (mDownloadTask.hasLocalApk() && !mAppVersionBuilder.forceDownload) {
+            String path = mDownloadTask.getDownloadPath();
+            LOG.i(TAG, "read apk for cache:" + path + " start install!");
+            doInstallApp(path);
+        } else {
+            // 正常升级策略
+            if (AppUpgradeStrategy.UpgradeStrategy.NORMAL == upgradeStrategy) {
+                mUIAdapter.showUpgradeDialog(mSource, mAppVersionBuilder.uiClass);
+            } else if (AppUpgradeStrategy.UpgradeStrategy.SILENT == upgradeStrategy) {
+                // 静默下载策略, 下载完成后调用安装界面
+                doDownloadUpgradeApp();
+            }
+        }
+    }
+
+    private void doDownloadUpgradeApp() {
+        final AppUpgradeNotification appUpgradeNotification = mAppVersionBuilder.appUpgradeNotification;
+        if (appUpgradeNotification != null) {
+            mNotification = appUpgradeNotification.createNotification(mSource, mContext);
+            mId = appUpgradeNotification.getNotificationId();
+            if (mNotification != null) {
+                NotificationManager manager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+                if (manager != null) {
+                    manager.notify(mId, mNotification);
                 }
             }
-            mExecutorService.execute(mDownloadTask);
-            LOG.i(TAG, "downloading apk:" + mSource.getUrl());
         }
+
+        mExecutorService.execute(mDownloadTask);
+        LOG.i(TAG, "downloading apk:" + mSource.getUrl());
     }
 
     private final OnProgressListener mOnProgressListener = new OnProgressListener() {
@@ -132,63 +180,46 @@ public class UpgradeHandler {
         @Override
         public void onFinished(File file) {
             LOG.i(TAG, "File Download complete! exist:" + file.exists());
-            doInstall(file.getAbsolutePath());
+            doInstallApp(file.getAbsolutePath());
         }
     };
 
-    private boolean checkMD5() {
-        String md5 = SignatureUtil.getAppSignatureMD5(mContext);
-        return mSource.getMd5().equals(md5);
-    }
 
-
-    private void doInstall(String path) {
+    private void doInstallApp(String path) {
         try {
-            if (checkMD5()) {
-                ApkInstallUtils.doInstall(mContext, path, mVersionBuilder.errorListener);
+
+            boolean result = mAppVersionBuilder.appVerifyStrategy.verify(mContext, mSource, new File(path));
+            if (result) {
+                LOG.i(TAG, "verify success!");
+                ApkInstallUtils.doInstall(mContext, path, mAppVersionBuilder.errorListener);
             } else {
                 throw new IllegalStateException("verify signature failed");
             }
         } catch (Throwable e) {
-            mVersionBuilder.errorListener.listener(e);
+            mAppVersionBuilder.errorListener.listener(e);
         }
     }
 
 
-    private static final String START_DOWNLOAD_ACTION = "com.xwdz.version.core.UpgradeHandler";
-    private static final String KEY_START_DOWN        = "start_download";
-    private static final int    FLAG_START_DOWN       = 1;
+    void startDownloaderApk() {
+        doDownloadUpgradeApp();
+    }
 
-    public class StartDownloadReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            int flag = intent.getIntExtra(KEY_START_DOWN, 0);
-            if (flag == FLAG_START_DOWN) {
-                doUpgradeApp();
-            }
+
+    void registerProgressListener(DownloadProgressListener listener) {
+        mDownloadProgressListener = listener;
+    }
+
+    void unRegisterProgressListener() {
+        if (mDownloadProgressListener != null) {
+            mDownloadProgressListener = null;
         }
     }
 
-
-    public static void startDownloaderApk(Context context) {
-        Intent intent = new Intent(START_DOWNLOAD_ACTION);
-        intent.putExtra(KEY_START_DOWN, FLAG_START_DOWN);
-        context.sendBroadcast(intent);
-    }
-
-
-    public static void registerProgressListener(DownloadProgressListener listener) {
-        MAP.put(DEF_KEY, listener);
-    }
-
-    public static void recycle() {
-        MAP.clear();
-    }
 
     private void notifyProgress(long total, long currentLength, int percent) {
-        final DownloadProgressListener listener = MAP.get(DEF_KEY);
-        if (listener != null) {
-            listener.onUpdateProgress(percent, currentLength, total);
+        if (mDownloadProgressListener != null) {
+            mDownloadProgressListener.onUpdateProgress(percent, currentLength, total);
         }
     }
 }

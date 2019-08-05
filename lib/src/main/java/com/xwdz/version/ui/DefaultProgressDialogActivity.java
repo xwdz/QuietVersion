@@ -2,12 +2,16 @@ package com.xwdz.version.ui;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Looper;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.xwdz.version.R;
+import com.xwdz.version.core.QuietVersion;
 import com.xwdz.version.core.UpgradeHandler;
+import com.xwdz.version.utils.LOG;
 
 /**
  * 下载进度条
@@ -17,7 +21,7 @@ public class DefaultProgressDialogActivity extends AbstractActivity {
     private static final int MAX = 100;
 
     private ProgressBar mProgressBar;
-    private TextView mSizeNote;
+    private TextView    mSizeNote;
 
     @Override
     public int getContentLayoutId() {
@@ -58,6 +62,6 @@ public class DefaultProgressDialogActivity extends AbstractActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        UpgradeHandler.recycle();
+        QuietVersion.unRegisterProgressListener();
     }
 }

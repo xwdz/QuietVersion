@@ -6,7 +6,7 @@ android {
         applicationId "com.update.simple"
         minSdkVersion 19
         targetSdkVersion 27
-        versionCode 200
+        versionCode 9
         versionName "2.1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -34,4 +34,5 @@ dependencies {
     implementation project(':lib')
     //
     implementation 'com.tencent:mmkv:1.0.22'
+
 }

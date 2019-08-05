@@ -3,7 +3,6 @@ package com.xwdz.version.core;
 
 import com.xwdz.version.callback.OnErrorListener;
 import com.xwdz.version.callback.OnProgressListener;
-import com.xwdz.version.utils.LOG;
 
 import java.io.File;
 import java.io.IOException;
@@ -67,7 +66,7 @@ public class DownloadTask implements Runnable {
         mDownloadPath = filePath;
     }
 
-    public boolean hasLocalApk() {
+    boolean hasLocalApk() {
         return new File(mDownloadPath).exists();
     }
 
