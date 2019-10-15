@@ -6,7 +6,7 @@ import com.xwdz.version.strategy.AppNetworkStrategy;
  * @author xingwei.huang (xwdz9989@gmail.com)
  * @since v1.0.0
  */
-public enum Network {
+public enum AppNetwork {
     /**
      * 所有网络条件下
      */

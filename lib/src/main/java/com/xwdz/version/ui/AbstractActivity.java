@@ -6,10 +6,10 @@ import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
-import com.xwdz.version.callback.DownloadProgressListener;
 import com.xwdz.version.core.QuietVersion;
-import com.xwdz.version.core.UpgradeHandler;
-import com.xwdz.version.utils.LOG;
+import com.xwdz.version.entry.ApkSource;
+
+import java.io.File;
 
 public abstract class AbstractActivity extends AppCompatActivity {
 
@@ -18,7 +18,7 @@ public abstract class AbstractActivity extends AppCompatActivity {
     final Handler mHandler = new Handler(Looper.getMainLooper());
 
 
-    private DownloadProgressListener mOnProgressListener = new DownloadProgressListener() {
+    private OnNotifyUIListener mOnNotifyUIListenerListener = new OnNotifyUIListener() {
         @Override
         public void onUpdateProgress(final int percent, final long currentLength, final long total) {
             if (total > 0 && currentLength > 0 && percent >= 0) {
@@ -35,20 +35,30 @@ public abstract class AbstractActivity extends AppCompatActivity {
                 });
             }
         }
+
+        @Override
+        public void onFinished(File file) {
+            AbstractActivity.this.onDownloadCompleted(file);
+        }
+
+        @Override
+        public void onUpgradeFailure(Throwable error) {
+            AbstractActivity.this.onUpgradeFailure(error);
+        }
+
+        @Override
+        public void onHadNewVersion(boolean isNewVersion, ApkSource apkSource) {
+            AbstractActivity.this.onNewVersion(isNewVersion, apkSource);
+        }
     };
 
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        QuietVersion.registerProgressListener(mOnProgressListener);
+        QuietVersion.registerProgressListener(mOnNotifyUIListenerListener);
         super.onCreate(savedInstanceState);
         setContentView(getContentLayoutId());
         onViewCreated();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
     }
 
 
@@ -56,8 +66,29 @@ public abstract class AbstractActivity extends AppCompatActivity {
 
     public abstract void onViewCreated();
 
+    public abstract void onNewVersion(boolean isNewVersion, ApkSource apkSource);
+
     protected void onUpdateProgress(int percent, long currentLength, long total) {
 
     }
+
+    /**
+     * 成功下载APK文件
+     *
+     * @param file
+     */
+    protected void onDownloadCompleted(File file) {
+
+    }
+
+    /**
+     * 更新失败
+     *
+     * @param throwable
+     */
+    protected void onUpgradeFailure(Throwable throwable) {
+
+    }
+
 
 }

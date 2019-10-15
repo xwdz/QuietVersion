@@ -8,20 +8,13 @@ import com.xwdz.version.entry.ApkSource;
 public class UIAdapter {
 
 
-    private Context mContext;
-
-    public UIAdapter(Context context) {
-        mContext = context;
-    }
-
-
-    public void showUpgradeDialog(ApkSource source, Class<?> activityClass) {
+    public static void showUpgradeDialog(Context context, ApkSource source, Class<?> activityClass) {
         if (activityClass == null) {
-            DefaultDialogActivity.startActivity(mContext, source);
+            DefaultDialogActivity.startActivity(context, source);
         } else {
-            Intent intent = new Intent(mContext, activityClass);
+            Intent intent = new Intent(context, activityClass);
             intent.putExtra("note", source);
-            mContext.startActivity(intent);
+            context.startActivity(intent);
         }
     }
 }

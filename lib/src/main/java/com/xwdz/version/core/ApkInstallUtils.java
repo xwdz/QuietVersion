@@ -6,9 +6,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.v4.content.FileProvider;
 
-import com.xwdz.version.callback.OnErrorListener;
+import com.xwdz.version.callback.ErrorListener;
 import com.xwdz.version.utils.LOG;
-import com.xwdz.version.utils.Utils;
 
 import java.io.File;
 
@@ -26,7 +25,7 @@ public class ApkInstallUtils {
     }
 
 
-    static void doInstall(Context context, String apkPath, OnErrorListener onErrorListener) {
+    public static void doInstall(Context context, String apkPath, ErrorListener onErrorListener) {
         if (!apkPath.endsWith(".apk")) {
             LOG.e(TAG, "install error path = " + apkPath);
             return;

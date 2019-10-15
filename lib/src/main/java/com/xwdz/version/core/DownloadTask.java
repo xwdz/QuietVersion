@@ -1,11 +1,12 @@
 package com.xwdz.version.core;
 
 
-import com.xwdz.version.callback.OnErrorListener;
+import com.xwdz.version.callback.ErrorListener;
 import com.xwdz.version.callback.OnProgressListener;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
 import okhttp3.Interceptor;
@@ -38,12 +39,15 @@ public class DownloadTask implements Runnable {
     private String mDownloadPath;
 
     private OnProgressListener mOnProgressListener;
-    private OnErrorListener    mOnErrorListener;
     private OkHttpClient       mOkHttpClient;
 
-    DownloadTask(OkHttpClient okHttpClient, OnErrorListener listener) {
-        mOnErrorListener = listener;
+    DownloadTask(OkHttpClient okHttpClient) {
         OkHttpClient.Builder builder = okHttpClient.newBuilder();
+
+        builder.connectTimeout(QuietVersion.DEFAULT_TIMEOUT_CONNECT, TimeUnit.SECONDS)
+                .readTimeout(QuietVersion.DEFAULT_TIMEOUT_READ, TimeUnit.SECONDS)
+                .writeTimeout(QuietVersion.DEFAULT_TIMEOUT_WRITE, TimeUnit.SECONDS)
+                .retryOnConnectionFailure(true);
 
         builder.addNetworkInterceptor(new Interceptor() {
             @Override
@@ -97,9 +101,7 @@ public class DownloadTask implements Runnable {
             if (mDownloadPath != null) {
                 new File(mDownloadPath).deleteOnExit();
             }
-            if (mOnErrorListener != null) {
-                mOnErrorListener.listener(e);
-            }
+            mOnProgressListener.onError(e);
         }
     }
 

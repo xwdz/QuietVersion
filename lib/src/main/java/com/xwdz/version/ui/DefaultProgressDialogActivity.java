@@ -2,16 +2,15 @@ package com.xwdz.version.ui;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Looper;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.xwdz.version.R;
 import com.xwdz.version.core.QuietVersion;
-import com.xwdz.version.core.UpgradeHandler;
-import com.xwdz.version.utils.LOG;
+import com.xwdz.version.entry.ApkSource;
+
+import java.io.File;
 
 /**
  * 下载进度条
@@ -35,8 +34,18 @@ public class DefaultProgressDialogActivity extends AbstractActivity {
     }
 
     @Override
+    public void onNewVersion(boolean isNewVersion, ApkSource apkSource) {
+
+    }
+
+    @Override
     public void onUpdateProgress(int percent, long currentLength, long total) {
         update(percent, percent + "/" + 100);
+    }
+
+    @Override
+    protected void onDownloadCompleted(File file) {
+
     }
 
     public static void start(Context context) {

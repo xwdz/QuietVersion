@@ -1,7 +1,7 @@
 package com.xwdz.version.notify;
 
-import android.app.Notification;
 import android.content.Context;
+import android.support.v4.app.NotificationCompat;
 
 import com.xwdz.version.entry.ApkSource;
 
@@ -11,7 +11,7 @@ import com.xwdz.version.entry.ApkSource;
  */
 public interface AppUpgradeNotification {
 
-    Notification createNotification(ApkSource apkSource, Context context);
+    NotificationCompat.Builder createNotification(ApkSource apkSource, Context context);
 
     int getNotificationId();
 }

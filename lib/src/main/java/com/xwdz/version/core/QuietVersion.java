@@ -1,15 +1,17 @@
 package com.xwdz.version.core;
 
-import com.xwdz.version.callback.DownloadProgressListener;
+
 import com.xwdz.version.callback.NetworkParser;
-import com.xwdz.version.callback.OnErrorListener;
+import com.xwdz.version.callback.ErrorListener;
 import com.xwdz.version.entry.ApkSource;
+import com.xwdz.version.ui.OnNotifyUIListener;
 import com.xwdz.version.utils.LOG;
 import com.xwdz.version.utils.Utils;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.CacheControl;
 import okhttp3.Call;
@@ -23,15 +25,24 @@ public class QuietVersion {
 
     private static final String TAG = QuietVersion.class.getSimpleName();
 
+    public static final long DEFAULT_TIMEOUT_CONNECT = 30;
+    public static final long DEFAULT_TIMEOUT_READ    = 30;
+    public static final long DEFAULT_TIMEOUT_WRITE   = 30;
+
 
     private static final String GET  = "created";
     private static final String POST = "post";
 
     private static OkHttpClient sOkHttpClient;
 
-    public static void initialize(AppVersionBuilder appVersionBuilder) {
-        sOkHttpClient = new OkHttpClient();
-        UpgradeHandler.getInstance().initBuilder(appVersionBuilder);
+    public static void initialize(AppConfig appConfig) {
+        sOkHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(DEFAULT_TIMEOUT_CONNECT, TimeUnit.SECONDS)
+                .readTimeout(DEFAULT_TIMEOUT_READ, TimeUnit.SECONDS)
+                .writeTimeout(DEFAULT_TIMEOUT_WRITE, TimeUnit.SECONDS)
+                .retryOnConnectionFailure(true)
+                .build();
+        UpgradeHandler.getInstance().initConfig(appConfig);
     }
 
     public static void setOkHttpClient(OkHttpClient okHttpClient) {
@@ -52,7 +63,7 @@ public class QuietVersion {
     }
 
 
-    public static void registerProgressListener(DownloadProgressListener listener) {
+    public static void registerProgressListener(OnNotifyUIListener listener) {
         UpgradeHandler.getInstance().registerProgressListener(listener);
     }
 
@@ -65,10 +76,10 @@ public class QuietVersion {
         HashMap<String, String> HEADERS = new HashMap<>();
         HashMap<String, String> PARAMS  = new HashMap<>();
 
-        String          url;
-        NetworkParser   networkParser;
-        String          method;
-        OnErrorListener errorListener;
+        String        url;
+        NetworkParser networkParser;
+        String        method;
+        ErrorListener errorListener;
 
 
         public Builder get(String url) {
@@ -94,7 +105,7 @@ public class QuietVersion {
             return this;
         }
 
-        public Builder error(OnErrorListener listener) {
+        public Builder error(ErrorListener listener) {
             errorListener = listener;
             return this;
         }
@@ -114,10 +125,17 @@ public class QuietVersion {
             return this;
         }
 
-        public void apply() {
+
+        public void check() {
             try {
-                LOG.i(TAG, "appUpgrade apply ... ");
+                LOG.i(TAG, "检测程序升级开始.");
                 if (networkParser != null) {
+//
+//                    boolean result = UpgradeHandler.getInstance().checkLocalHanNewVersion(url);
+//                    LOG.i(TAG, "检测到服务器发布新版本。远程版本号为:" + mSource.toString());
+//                    if (result){
+//                        UpgradeHandler.getInstance().postNewVersionRunnable();
+//                    }
 
                     Call call = sOkHttpClient.newCall(buildRequest());
                     call.enqueue(new Callback() {
@@ -135,7 +153,7 @@ public class QuietVersion {
                                 UpgradeHandler.getInstance().launcherUpgrade(apkSource, sOkHttpClient, errorListener);
 
                             } else {
-                                LOG.i(TAG, "not New Version");
+                                LOG.i(TAG, "not New Version! ");
                             }
                         }
                     });

@@ -13,14 +13,14 @@ public class LOG {
     public static final String TAG = QuietVersion.class.getSimpleName();
 
     public static void i(String tag, String msg) {
-        Log.i(TAG, "[" + tag + "] " + msg);
+        Log.i(TAG, "[" + tag + "]" + msg);
     }
 
     public static void w(String tag, String msg) {
-        Log.w(TAG, "[" + tag + "] " + msg);
+        Log.w(TAG, "[" + tag + "]" + msg);
     }
 
     public static void e(String tag, String msg) {
-        Log.e(TAG, "[" + tag + "] " + msg);
+        Log.e(TAG, "[" + tag + "]" + msg);
     }
 }

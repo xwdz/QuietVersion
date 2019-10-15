@@ -1,13 +1,16 @@
 package com.update.simple;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import com.xwdz.version.core.QuietVersion;
 import com.xwdz.version.callback.NetworkParser;
-import com.xwdz.version.callback.OnErrorListener;
+import com.xwdz.version.callback.ErrorListener;
 import com.xwdz.version.entry.ApkSource;
 import com.xwdz.version.utils.LOG;
 
@@ -34,23 +37,25 @@ public class MainActivity extends Activity {
     public void onClickUpdated(View view) {
         QuietVersion.
                 get(REQUEST_URL)
+//                .addParams()
+//                .addHeaders()
                 .onNetworkParser(new NetworkParser() {
                     @Override
                     public ApkSource parser(String response) {
                         return ApkSource.simpleParser(response);
                     }
                 })
-                .error(new OnErrorListener() {
+                .error(new ErrorListener() {
                     @Override
                     public void listener(Throwable throwable) {
                         LOG.e(TAG, "Updated error:" + throwable);
                     }
                 }).
-                apply();
+                check();
 
     }
 
-    public void onOtherClickUpdated(View view){
+    public void onOtherClickUpdated(View view) {
 
     }
 }

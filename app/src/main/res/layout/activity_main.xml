@@ -11,13 +11,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="onClickUpdated"
-        android:text="Normal Updated" />
+        android:text="正常升级(setAppUpdatedStrategy：NORMAL)" />
 
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="onOtherClickUpdated"
-        android:text="Other Updated" />
+        android:text="静默升级下载好了发通知(setAppUpdatedStrategy：SILENT_DOWNLOADER_NOTIFICATION)" />
 
 </LinearLayout>

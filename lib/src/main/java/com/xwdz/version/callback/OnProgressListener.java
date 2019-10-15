@@ -20,4 +20,6 @@ public interface OnProgressListener {
      * @param file 文件
      */
     void onFinished(File file);
+
+    void onError(Throwable e);
 }
