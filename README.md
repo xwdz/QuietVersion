@@ -9,6 +9,8 @@
 ### 实现效果
 <img src="./imgs/simple.gif" width="200px">
 
+<img src="./imgs/simple2.gif" width="200px">
+
 ### 添加依赖
 
 $lastVersion = [![](https://jitpack.io/v/xwdz/QuiteVersion.svg)](https://jitpack.io/#xwdz/QuiteVersion)
@@ -48,8 +50,8 @@ $lastVersion = [![](https://jitpack.io/v/xwdz/QuiteVersion.svg)](https://jitpack
 |setForceDownload|是否强制每次都从服务器下载|true|
 |setUIActivityClass|自定义activity UI|[DefaultDialogActivity.class](https://github.com/xwdz/QuietVersion/blob/master/lib/src/main/java/com/xwdz/version/ui/DefaultDialogActivity.java)|
 |setUpgradeNetworkStrategy|自定义升级规则|[AppUpgradeStrategy.class](https://github.com/xwdz/QuietVersion/blob/master/lib/src/main/java/com/xwdz/version/strategy/AppUpgradeStrategy.java)|
-|addVerifyApkStrategy|安装校验规则|[AppUpgradeStrategy.class](https://github.com/xwdz/QuietVersion/blob/master/lib/src/main/java/com/xwdz/version/strategy/VerifyApkStrategy.java)|
-|setUpgradeNetworkStrategy|指定网络下进行跟新|[AppUpgradeStrategy.class](https://github.com/xwdz/QuietVersion/blob/master/lib/src/main/java/com/xwdz/entry/AppNetwork.java)|
+|addVerifyApkStrategy|安装校验规则|[VerifyApkStrategy.java](https://github.com/xwdz/QuietVersion/blob/master/lib/src/main/java/com/xwdz/version/strategy/VerifyApkStrategy.java)|
+|setUpgradeNetworkStrategy|指定网络下进行跟新|[AppNetwork.java](https://github.com/xwdz/QuietVersion/blob/master/lib/src/main/java/com/xwdz/entry/AppNetwork.java)|
 
    ...
 
@@ -137,6 +139,7 @@ $lastVersion = [![](https://jitpack.io/v/xwdz/QuiteVersion.svg)](https://jitpack
             @Override
             public boolean verify(Context context, ApkSource apkSource, File file, AppConfig appConfig) {
                 // 其他自定义安装策略
+                // true 检验正确 反之错误
                 return false;
             }
 
