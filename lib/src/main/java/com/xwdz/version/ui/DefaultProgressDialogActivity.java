@@ -33,10 +33,6 @@ public class DefaultProgressDialogActivity extends AbstractActivity {
         mSizeNote = findViewById(R.id.percent);
     }
 
-    @Override
-    public void onNewVersion(boolean isNewVersion, ApkSource apkSource) {
-
-    }
 
     @Override
     public void onUpdateProgress(int percent, long currentLength, long total) {

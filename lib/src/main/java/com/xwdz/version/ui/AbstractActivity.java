@@ -45,11 +45,6 @@ public abstract class AbstractActivity extends AppCompatActivity {
         public void onUpgradeFailure(Throwable error) {
             AbstractActivity.this.onUpgradeFailure(error);
         }
-
-        @Override
-        public void onHadNewVersion(boolean isNewVersion, ApkSource apkSource) {
-            AbstractActivity.this.onNewVersion(isNewVersion, apkSource);
-        }
     };
 
 
@@ -65,8 +60,6 @@ public abstract class AbstractActivity extends AppCompatActivity {
     public abstract int getContentLayoutId();
 
     public abstract void onViewCreated();
-
-    public abstract void onNewVersion(boolean isNewVersion, ApkSource apkSource);
 
     protected void onUpdateProgress(int percent, long currentLength, long total) {
 

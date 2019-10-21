@@ -56,11 +56,6 @@ public class DefaultDialogActivity extends AbstractActivity {
     }
 
     @Override
-    public void onNewVersion(boolean isNewVersion, ApkSource apkSource) {
-        mSubmit.setText(isNewVersion ? "已在WIFI下载好新版本,点击安装" : "立即更新");
-    }
-
-    @Override
     public void onUpdateProgress(int percent, long currentLength, long total) {
         update(percent, percent + "/" + 100);
     }

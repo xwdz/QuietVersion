@@ -32,8 +32,4 @@ public interface OnNotifyUIListener {
      */
     void onUpgradeFailure(Throwable error);
 
-    /**
-     * 是否有新版本
-     */
-    void onHadNewVersion(boolean isNewVersion, ApkSource apkSource);
 }
