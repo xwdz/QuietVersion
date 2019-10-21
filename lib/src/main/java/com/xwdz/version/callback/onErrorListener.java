@@ -6,10 +6,10 @@ import com.xwdz.version.utils.LOG;
  * @author xingwei.huang (xwdz9989@gmail.com)
  * @since v1.0.0
  */
-public interface ErrorListener {
+public interface onErrorListener {
     void listener(Throwable throwable);
 
-    ErrorListener sDef = new ErrorListener() {
+    onErrorListener sDef = new onErrorListener() {
         @Override
         public void listener(Throwable throwable) {
             LOG.e(LOG.TAG, "error:" + throwable);

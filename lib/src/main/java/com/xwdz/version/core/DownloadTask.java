@@ -1,7 +1,9 @@
 package com.xwdz.version.core;
 
 
-import com.xwdz.version.callback.ErrorListener;
+import android.content.Context;
+import android.os.Environment;
+
 import com.xwdz.version.callback.OnProgressListener;
 
 import java.io.File;
@@ -33,17 +35,17 @@ public class DownloadTask implements Runnable {
      * 下载URL
      */
     private String mURL;
-    /**
-     * 存放apk路径
-     */
-    private String mDownloadPath;
 
     private OnProgressListener mOnProgressListener;
     private OkHttpClient       mOkHttpClient;
+    private Context            mContext;
+    private String             mDownloadPath;
 
-    DownloadTask(OkHttpClient okHttpClient) {
+    DownloadTask(OkHttpClient okHttpClient, Context context) {
+        mContext = context;
+
+
         OkHttpClient.Builder builder = okHttpClient.newBuilder();
-
         builder.connectTimeout(QuietVersion.DEFAULT_TIMEOUT_CONNECT, TimeUnit.SECONDS)
                 .readTimeout(QuietVersion.DEFAULT_TIMEOUT_READ, TimeUnit.SECONDS)
                 .writeTimeout(QuietVersion.DEFAULT_TIMEOUT_WRITE, TimeUnit.SECONDS)
@@ -59,22 +61,21 @@ public class DownloadTask implements Runnable {
             }
         });
         mOkHttpClient = builder.build();
+
+        //
     }
 
 
     void setUrl(String url) {
         mURL = url;
+        mDownloadPath = getDownloadPath(mContext) + getDownloadName(url);
     }
 
-    void setFilePath(String filePath) {
-        mDownloadPath = filePath;
-    }
-
-    boolean hasLocalApk() {
+    boolean hasCacheApp() {
         return new File(mDownloadPath).exists();
     }
 
-    String getDownloadPath() {
+    String getAppPath() {
         return mDownloadPath;
     }
 
@@ -164,5 +165,29 @@ public class DownloadTask implements Runnable {
     @Override
     public void run() {
         download();
+    }
+
+    public static File getDownloadDir(Context context) {
+        String path;
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())
+                || !Environment.isExternalStorageRemovable()) {
+            path = context.getExternalCacheDir().getPath();
+        } else {
+            path = context.getCacheDir().getPath();
+        }
+        return new File(path + File.separator + "QuietVersion");
+    }
+
+    public static String getDownloadPath(Context context) {
+        File root = getDownloadDir(context);
+        if (!root.exists()) {
+            root.mkdir();
+        }
+        return root.getAbsolutePath();
+    }
+
+    public static String getDownloadName(String url) {
+        final int index = url.lastIndexOf('/');
+        return url.substring(index);
     }
 }

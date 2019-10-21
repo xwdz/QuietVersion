@@ -1,15 +1,23 @@
 package com.xwdz.version.core;
 
 
-import com.xwdz.version.callback.NetworkParser;
-import com.xwdz.version.callback.ErrorListener;
+import android.annotation.TargetApi;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Context;
+import android.os.Build;
+import android.support.annotation.NonNull;
+
+import com.xwdz.version.callback.ResponseNetworkParser;
 import com.xwdz.version.entry.ApkSource;
+import com.xwdz.version.strategy.AppUpgradeStrategy;
 import com.xwdz.version.ui.OnNotifyUIListener;
 import com.xwdz.version.utils.LOG;
-import com.xwdz.version.utils.Utils;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -43,7 +51,24 @@ public class QuietVersion {
                 .retryOnConnectionFailure(true)
                 .build();
         UpgradeHandler.getInstance().initConfig(appConfig);
+        //
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String channelId   = "install";
+            String channelName = "安装消息";
+            int    importance  = NotificationManager.IMPORTANCE_HIGH;
+            createNotificationChannel(appConfig.getContext(), channelId, channelName, importance);
+        }
     }
+
+    @TargetApi(Build.VERSION_CODES.O)
+    private static void createNotificationChannel(Context context, String channelId, String channelName, int importance) {
+        NotificationChannel channel = new NotificationChannel(channelId, channelName, importance);
+        NotificationManager notificationManager = (NotificationManager) context.getSystemService(
+                Context.NOTIFICATION_SERVICE);
+        notificationManager.createNotificationChannel(channel);
+    }
+
 
     public static void setOkHttpClient(OkHttpClient okHttpClient) {
         sOkHttpClient = okHttpClient;
@@ -73,13 +98,14 @@ public class QuietVersion {
 
     public static final class Builder {
 
-        HashMap<String, String> HEADERS = new HashMap<>();
-        HashMap<String, String> PARAMS  = new HashMap<>();
+        private HashMap<String, String> HEADERS = new HashMap<>();
+        private HashMap<String, String> PARAMS  = new HashMap<>();
+        private String                  url;
+        private ResponseNetworkParser   mResponseNetworkParser;
+        private String                  method;
 
-        String        url;
-        NetworkParser networkParser;
-        String        method;
-        ErrorListener errorListener;
+        public AppUpgradeStrategy upgradeStrategy;
+        public BaseNotification   baseNotification;
 
 
         public Builder get(String url) {
@@ -94,19 +120,23 @@ public class QuietVersion {
             return this;
         }
 
+        public Builder setUpgradeStrategy(AppUpgradeStrategy upgradeStrategy) {
+            this.upgradeStrategy = upgradeStrategy;
+            return this;
+        }
 
-        public Builder onNetworkParser(NetworkParser networkParser) {
-            this.networkParser = networkParser;
+        public Builder setNotification(BaseNotification notification) {
+            this.baseNotification = notification;
+            return this;
+        }
+
+        public Builder setResponseNetworkParser(ResponseNetworkParser responseNetworkParser) {
+            this.mResponseNetworkParser = responseNetworkParser;
             return this;
         }
 
         public Builder addParams(String key, String value) {
             PARAMS.put(key, value);
-            return this;
-        }
-
-        public Builder error(ErrorListener listener) {
-            errorListener = listener;
             return this;
         }
 
@@ -129,29 +159,20 @@ public class QuietVersion {
         public void check() {
             try {
                 LOG.i(TAG, "检测程序升级开始.");
-                if (networkParser != null) {
-//
-//                    boolean result = UpgradeHandler.getInstance().checkLocalHanNewVersion(url);
-//                    LOG.i(TAG, "检测到服务器发布新版本。远程版本号为:" + mSource.toString());
-//                    if (result){
-//                        UpgradeHandler.getInstance().postNewVersionRunnable();
-//                    }
+                if (mResponseNetworkParser != null) {
 
                     Call call = sOkHttpClient.newCall(buildRequest());
                     call.enqueue(new Callback() {
                         @Override
-                        public void onFailure(Call call, IOException e) {
-                            if (errorListener != null) {
-                                errorListener.listener(e);
-                            }
+                        public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                            UpgradeHandler.getInstance().callbackRequestUpgradeError(e);
                         }
 
                         @Override
-                        public void onResponse(Call call, Response response) throws IOException {
-                            ApkSource apkSource = networkParser.parser(response.body().string());
+                        public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                            ApkSource apkSource = mResponseNetworkParser.parser(response.body().string());
                             if (apkSource != null) {
-                                UpgradeHandler.getInstance().launcherUpgrade(apkSource, sOkHttpClient, errorListener);
-
+                                UpgradeHandler.getInstance().launcherUpgrade(apkSource, sOkHttpClient, Builder.this);
                             } else {
                                 LOG.i(TAG, "not New Version! ");
                             }
@@ -160,10 +181,7 @@ public class QuietVersion {
                 }
             } catch (Throwable e) {
                 e.printStackTrace();
-
-                if (errorListener != null) {
-                    errorListener.listener(e);
-                }
+                UpgradeHandler.getInstance().callbackRequestUpgradeError(e);
             }
         }
 
@@ -177,7 +195,7 @@ public class QuietVersion {
 
             requestBuilder.cacheControl(CacheControl.FORCE_NETWORK);
             if (GET.equals(method)) {
-                requestBuilder.url(url + Utils.appendHttpParams(PARAMS));
+                requestBuilder.url(url + appendHttpParams(PARAMS));
             } else if (POST.equals(method)) {
                 for (Map.Entry<String, String> map : PARAMS.entrySet()) {
                     params.add(map.getKey(), map.getValue());
@@ -187,5 +205,28 @@ public class QuietVersion {
             }
             return requestBuilder.build();
         }
+    }
+
+    private static String appendHttpParams(Map<String, String> sLinkedHashMap) {
+        Iterator<String> keys         = sLinkedHashMap.keySet().iterator();
+        Iterator<String> values       = sLinkedHashMap.values().iterator();
+        StringBuffer     stringBuffer = new StringBuffer();
+        stringBuffer.append("?");
+
+        for (int i = 0; i < sLinkedHashMap.size(); i++) {
+            String value = null;
+            try {
+                value = URLEncoder.encode(values.next(), "utf-8");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            stringBuffer.append(keys.next() + "=" + value);
+            if (i != sLinkedHashMap.size() - 1) {
+                stringBuffer.append("&");
+            }
+        }
+
+        return stringBuffer.toString();
     }
 }

@@ -7,7 +7,7 @@ import com.xwdz.version.entry.ApkSource;
  * @author huangxingwei(xwdz9989@gmail.com)
  * @since v0.0.1
  */
-public interface NetworkParser {
+public interface ResponseNetworkParser {
 
     ApkSource parser(String response);
 }

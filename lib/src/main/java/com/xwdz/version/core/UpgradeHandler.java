@@ -1,18 +1,23 @@
 package com.xwdz.version.core;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.PixelFormat;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.RequiresApi;
 
-import com.xwdz.version.callback.ErrorListener;
 import com.xwdz.version.entry.AppNetwork;
 import com.xwdz.version.network.NetworkUtils;
-import com.xwdz.version.strategy.PreviewDialogStrategy;
 import com.xwdz.version.strategy.AppUpgradeStrategy;
 import com.xwdz.version.strategy.VerifyApkStrategy;
+import com.xwdz.version.ui.DefaultDialogActivity;
 import com.xwdz.version.ui.OnNotifyUIListener;
 import com.xwdz.version.utils.LOG;
-import com.xwdz.version.utils.Utils;
 import com.xwdz.version.callback.OnProgressListener;
 import com.xwdz.version.entry.ApkSource;
 
@@ -42,9 +47,10 @@ public class UpgradeHandler {
     private OnNotifyUIListener mOnNotifyUIListener;
     private DownloadTask       mDownloadTask;
 
-    private Context   mContext;
-    private ApkSource mSource;
-    private AppConfig mAppConfig;
+    private Context              mContext;
+    private ApkSource            mSource;
+    private AppConfig            mAppConfig;
+    private QuietVersion.Builder mBuilder;
 
 
     static UpgradeHandler getInstance() {
@@ -69,24 +75,15 @@ public class UpgradeHandler {
         mContext = mAppConfig.getContext();
     }
 
-    void launcherUpgrade(ApkSource source, OkHttpClient okHttpClient, ErrorListener errorListener) {
+
+    void launcherUpgrade(ApkSource source, OkHttpClient okHttpClient, QuietVersion.Builder builder) {
         mSource = source;
-        mAppConfig.setErrorListener(errorListener);
+        mBuilder = builder;
 
-        mDownloadTask = new DownloadTask(okHttpClient);
 
-        final String url = mSource.getUrl();
-        mDownloadTask.setUrl(url);
+        mDownloadTask = new DownloadTask(okHttpClient, mContext);
+        mDownloadTask.setUrl(mSource.getUrl());
         mDownloadTask.setOnProgressListener(mDownloadProgressListener);
-
-
-        final int    index    = url.lastIndexOf('/');
-        final String fileName = url.substring(index);
-        final File   root     = Utils.getApkPath(mContext, "QuietVersion");
-        if (!root.exists()) {
-            root.mkdir();
-        }
-        mDownloadTask.setFilePath(root.getAbsolutePath() + fileName);
 
 
         mHandler.post(new Runnable() {
@@ -105,25 +102,14 @@ public class UpgradeHandler {
     }
 
 
-    public final void postNewVersionRunnable() {
+    private void postNewVersionRunnable() {
         if (checkNetwork()) {
             checkUpgrade();
         }
     }
 
 
-//    public boolean checkLocalHanNewVersion(String url) {
-//        final int    index    = url.lastIndexOf('/');
-//        final String fileName = url.substring(index);
-//        final File   root     = Utils.getApkPath(mContext, "QuietVersion");
-//        if (!root.exists()) {
-//            root.mkdir();
-//        }
-//        return new File(root.getAbsolutePath() + fileName).exists();
-//    }
-
-
-    public boolean checkNetwork() {
+    private boolean checkNetwork() {
         AppNetwork appNetwork = mAppConfig.getAppNetworkStrategy();
         LOG.w(TAG, "指定升级网络类型为:" + appNetwork);
         if (AppNetwork.ALL == appNetwork) {
@@ -147,52 +133,24 @@ public class UpgradeHandler {
     }
 
 
-    public void checkUpgrade() {
-        final AppUpgradeStrategy upgradeStrategy = mAppConfig.getAppUpgradeStrategy();
-
+    private void checkUpgrade() {
+        final AppUpgradeStrategy upgradeStrategy = mBuilder.upgradeStrategy;
         LOG.w(TAG, "当前升级策略是:" + upgradeStrategy);
 
         // 如果是正常升级流程，则执行弹框策略
         if (upgradeStrategy == AppUpgradeStrategy.NORMAL) {
-
-            if (mAppConfig.getPreviews().isEmpty()) {
-                mAppConfig.addPreviewDialogStrategy(PreviewDialogStrategy.sDefault);
-            }
-
-            Collections.sort(mAppConfig.getPreviews(), new Comparator<PreviewDialogStrategy>() {
-                @Override
-                public int compare(PreviewDialogStrategy o1, PreviewDialogStrategy o2) {
-                    return o1.priority() - o2.priority();
-                }
-            });
-
-            for (PreviewDialogStrategy appShowDialogStrategy : mAppConfig.getPreviews()) {
-                if (appShowDialogStrategy.handler(mContext, mAppConfig, mSource)) {
-                    break;
-                }
-            }
+            showUpgradeDialog(mContext, mSource, mAppConfig.getUiClass());
+        } else if (upgradeStrategy == AppUpgradeStrategy.FORCE_SILENT_DOWNLOAD_NOTIFICATION) {
+            doDownloadUpgradeApp();
         }
-//        else if (upgradeStrategy == AppUpgradeStrategy.FORCE_SILENT_DOWNLOAD) {
-//            doDownloadUpgradeApp();
-//        }
-
-        //
-//        if (mDownloadTask.hasLocalApk() && !mAppConfig.isForceDownload()) {
-//            String path = mDownloadTask.getDownloadPath();
-//            LOG.i(TAG, "read apk for cache:" + path + " start install!");
-//            callbackVerify(path);
-//        } else {
-//            // 正常升级策略
-//            if (AppUpgradeStrategy.UpgradeStrategy.NORMAL == upgradeStrategy) {
-//
-//            } else if (AppUpgradeStrategy.UpgradeStrategy.SILENT == upgradeStrategy) {
-//                // 静默下载策略, 下载完成后调用安装界面
-//                doDownloadUpgradeApp();
-//            }
-//        }
     }
 
     private void doDownloadUpgradeApp() {
+        if (mBuilder.upgradeStrategy == AppUpgradeStrategy.FORCE_SILENT_DOWNLOAD_NOTIFICATION && mDownloadTask.hasCacheApp()) {
+            postNotifyInstall(mDownloadTask.getAppPath(), true);
+            return;
+        }
+
         LOG.i(TAG, "从服务器下载[" + mSource.getUrl() + "]文件.");
         mExecutorService.execute(mDownloadTask);
     }
@@ -201,12 +159,15 @@ public class UpgradeHandler {
 
         @Override
         public void onTransfer(int percent, long currentLength, long total) {
+            LOG.i(TAG, "下载中,当前进度[" + percent + "]");
             if (mOnNotifyUIListener != null) {
                 mOnNotifyUIListener.onUpdateProgress(percent, currentLength, total);
             }
 
         }
 
+
+        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
         @Override
         public void onFinished(File file) {
             LOG.i(TAG, "下载[" + mSource.getUrl() + "]文件是否完成:" + file.exists());
@@ -215,21 +176,24 @@ public class UpgradeHandler {
             }
 
 
-            if (mAppConfig.getAppUpgradeStrategy() == AppUpgradeStrategy.NORMAL) {
+            final AppUpgradeStrategy upgradeStrategy = mBuilder.upgradeStrategy;
+
+            if (upgradeStrategy == AppUpgradeStrategy.NORMAL) {
                 if (callbackVerify(file.getAbsolutePath())) {
-                    ApkInstallUtils.doInstall(mContext, file.getAbsolutePath(), mAppConfig.getErrorListener());
+                    AppInstallUtils.doInstall(mContext, file.getAbsolutePath(), mAppConfig.getOnErrorListener());
                 }
             } else {
-
+                if (mBuilder.baseNotification != null) {
+                    mBuilder.baseNotification.initNotification(mContext, file.getAbsolutePath(), false);
+                    mBuilder.baseNotification.sendNotify();
+                }
             }
-
-
         }
 
         @Override
         public void onError(Throwable e) {
-            if (mAppConfig.getErrorListener() != null) {
-                mAppConfig.getErrorListener().listener(e);
+            if (mAppConfig.getOnErrorListener() != null) {
+                mAppConfig.getOnErrorListener().listener(e);
             }
 
             if (mOnNotifyUIListener != null) {
@@ -238,6 +202,24 @@ public class UpgradeHandler {
 
         }
     };
+
+    private Bitmap drawableToBitmap(Drawable drawable) {
+        if (drawable == null) {
+            return null;
+        }
+        int w = drawable.getIntrinsicWidth();
+        int h = drawable.getIntrinsicHeight();
+        System.out.println("Drawable转Bitmap");
+        Bitmap.Config config =
+                drawable.getOpacity() != PixelFormat.OPAQUE ? Bitmap.Config.ARGB_8888
+                        : Bitmap.Config.RGB_565;
+        Bitmap bitmap = Bitmap.createBitmap(w, h, config);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, w, h);
+        drawable.draw(canvas);
+
+        return bitmap;
+    }
 
 
     /**
@@ -248,11 +230,11 @@ public class UpgradeHandler {
     private boolean callbackVerify(String path) {
         try {
 
-            if (mAppConfig.getVerifys().isEmpty()) {
-                mAppConfig.getVerifys().add(VerifyApkStrategy.sDefault);
+            if (mAppConfig.getVerify().isEmpty()) {
+                mAppConfig.getVerify().add(VerifyApkStrategy.sDefault);
             }
 
-            Collections.sort(mAppConfig.getVerifys(), new Comparator<VerifyApkStrategy>() {
+            Collections.sort(mAppConfig.getVerify(), new Comparator<VerifyApkStrategy>() {
                 @Override
                 public int compare(VerifyApkStrategy o1, VerifyApkStrategy o2) {
                     return o2.priority() - o1.priority();
@@ -260,8 +242,8 @@ public class UpgradeHandler {
             });
 
             LOG.i(TAG, "开始安装校验流程.");
-            for (VerifyApkStrategy verifyApkStrategy : mAppConfig.getVerifys()) {
-                if (verifyApkStrategy.handler(mContext, mSource, new File(path), mAppConfig)) {
+            for (VerifyApkStrategy verifyApkStrategy : mAppConfig.getVerify()) {
+                if (verifyApkStrategy.verify(mContext, mSource, new File(path), mAppConfig)) {
                     LOG.i(TAG, "名称是:[" + verifyApkStrategy.getName() + "]的校验器,校验成功!");
                     return true;
                 } else {
@@ -269,7 +251,7 @@ public class UpgradeHandler {
                 }
             }
         } catch (Throwable e) {
-            mAppConfig.getErrorListener().listener(e);
+            mAppConfig.getOnErrorListener().listener(e);
         }
         return false;
     }
@@ -289,4 +271,29 @@ public class UpgradeHandler {
             mOnNotifyUIListener = null;
         }
     }
+
+    void postNotifyInstall(String path, boolean isLocalCacheApp) {
+        if (mBuilder.baseNotification != null) {
+            mBuilder.baseNotification.initNotification(mContext, path, isLocalCacheApp);
+            mBuilder.baseNotification.sendNotify();
+        }
+    }
+
+
+    void callbackRequestUpgradeError(Throwable e) {
+        if (mAppConfig.getOnErrorListener() != null) {
+            mAppConfig.getOnErrorListener().listener(e);
+        }
+    }
+
+    public static void showUpgradeDialog(Context context, ApkSource source, Class<?> activityClass) {
+        if (activityClass == null) {
+            DefaultDialogActivity.startActivity(context, source);
+        } else {
+            Intent intent = new Intent(context, activityClass);
+            intent.putExtra("note", source);
+            context.startActivity(intent);
+        }
+    }
+
 }

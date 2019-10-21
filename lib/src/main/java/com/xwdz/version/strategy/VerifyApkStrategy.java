@@ -2,7 +2,6 @@ package com.xwdz.version.strategy;
 
 import android.content.Context;
 
-import com.xwdz.version.core.ApkInstallUtils;
 import com.xwdz.version.core.AppConfig;
 import com.xwdz.version.entry.ApkSource;
 import com.xwdz.version.utils.SignatureUtil;
@@ -25,7 +24,7 @@ public interface VerifyApkStrategy extends BaseStrategy {
      * @param appConfig 配置
      * @return true校验通过，反之不通过
      */
-    boolean handler(Context context, ApkSource apkSource, File file, AppConfig appConfig);
+    boolean verify(Context context, ApkSource apkSource, File file, AppConfig appConfig);
 
     VerifyApkStrategy sDefault = new VerifyApkStrategy() {
 
@@ -35,7 +34,7 @@ public interface VerifyApkStrategy extends BaseStrategy {
         }
 
         @Override
-        public boolean handler(Context context, ApkSource apkSource, File file, AppConfig appConfig) {
+        public boolean verify(Context context, ApkSource apkSource, File file, AppConfig appConfig) {
             String md5 = SignatureUtil.getAppSignatureMD5(context);
             return apkSource.getMd5().toLowerCase().equals(md5.toLowerCase());
         }

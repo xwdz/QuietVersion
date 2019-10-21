@@ -2,15 +2,12 @@ package com.xwdz.version.core;
 
 import android.content.Context;
 
-import com.xwdz.version.callback.ErrorListener;
+import com.xwdz.version.callback.onErrorListener;
 import com.xwdz.version.entry.AppNetwork;
-import com.xwdz.version.strategy.PreviewDialogStrategy;
 import com.xwdz.version.strategy.AppUpgradeStrategy;
 import com.xwdz.version.strategy.CheckUpgradeStrategy;
 import com.xwdz.version.strategy.VerifyApkStrategy;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -25,13 +22,10 @@ public class AppConfig {
 
     private boolean              forceDownload         = true;
     private Class<?>             uiClass;
-    private AppUpgradeStrategy   appUpgradeStrategy    = AppUpgradeStrategy.NORMAL;
-    //    private VerifyApkStrategy    mVerifyApkStrategy    = VerifyApkStrategy.sDefault;
     private AppNetwork           mAppNetworkStrategy   = AppNetwork.ALL;
-    private ErrorListener        errorListener         = ErrorListener.sDef;
+    private onErrorListener      mOnErrorListener      = onErrorListener.sDef;
     private CheckUpgradeStrategy mCheckUpgradeStrategy = CheckUpgradeStrategy.sDefault;
 
-    private List<PreviewDialogStrategy> mAppShowDialogStrategies = new CopyOnWriteArrayList<>();
     private List<VerifyApkStrategy>     mVerifyApkStrategies     = new CopyOnWriteArrayList<>();
 
     private Context context;
@@ -41,20 +35,12 @@ public class AppConfig {
         this.context = context.getApplicationContext();
     }
 
-    public void setAppUpdatedStrategy(AppUpgradeStrategy strategy) {
-        appUpgradeStrategy = strategy;
-    }
-
     public void addVerifyApkStrategy(VerifyApkStrategy strategy) {
         mVerifyApkStrategies.add(strategy);
     }
 
     public void setUpgradeNetworkStrategy(AppNetwork strategy) {
         mAppNetworkStrategy = strategy;
-    }
-
-    public void addPreviewDialogStrategy(PreviewDialogStrategy showDialogStrategy) {
-        mAppShowDialogStrategies.add(showDialogStrategy);
     }
 
 
@@ -66,17 +52,14 @@ public class AppConfig {
         return uiClass;
     }
 
-    public AppUpgradeStrategy getAppUpgradeStrategy() {
-        return appUpgradeStrategy;
-    }
 
 
     public AppNetwork getAppNetworkStrategy() {
         return mAppNetworkStrategy;
     }
 
-    public ErrorListener getErrorListener() {
-        return errorListener;
+    public onErrorListener getOnErrorListener() {
+        return mOnErrorListener;
     }
 
     public CheckUpgradeStrategy getCheckUpgradeStrategy() {
@@ -96,8 +79,8 @@ public class AppConfig {
         this.forceDownload = forceDownload;
     }
 
-    public void setErrorListener(ErrorListener errorListener) {
-        this.errorListener = errorListener;
+    public void setOnErrorListener(onErrorListener onErrorListener) {
+        this.mOnErrorListener = onErrorListener;
     }
 
 
@@ -109,11 +92,8 @@ public class AppConfig {
         mCheckUpgradeStrategy = checkUpgradeStrategy;
     }
 
-    public List<VerifyApkStrategy> getVerifys() {
+    public List<VerifyApkStrategy> getVerify() {
         return mVerifyApkStrategies;
     }
 
-    public List<PreviewDialogStrategy> getPreviews() {
-        return mAppShowDialogStrategies;
-    }
 }
