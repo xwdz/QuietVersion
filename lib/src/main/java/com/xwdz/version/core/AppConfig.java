@@ -7,6 +7,7 @@ import com.xwdz.version.entry.AppNetwork;
 import com.xwdz.version.strategy.AppUpgradeStrategy;
 import com.xwdz.version.strategy.CheckUpgradeStrategy;
 import com.xwdz.version.strategy.VerifyApkStrategy;
+import com.xwdz.version.ui.DefaultDialogActivity;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -21,12 +22,12 @@ public class AppConfig {
 
 
     private boolean              forceDownload         = true;
-    private Class<?>             uiClass;
+    private Class<?>             uiClass               = DefaultDialogActivity.class;
     private AppNetwork           mAppNetworkStrategy   = AppNetwork.ALL;
     private onErrorListener      mOnErrorListener      = onErrorListener.sDef;
     private CheckUpgradeStrategy mCheckUpgradeStrategy = CheckUpgradeStrategy.sDefault;
 
-    private List<VerifyApkStrategy>     mVerifyApkStrategies     = new CopyOnWriteArrayList<>();
+    private List<VerifyApkStrategy> mVerifyApkStrategies = new CopyOnWriteArrayList<>();
 
     private Context context;
 
@@ -51,7 +52,6 @@ public class AppConfig {
     public Class<?> getUiClass() {
         return uiClass;
     }
-
 
 
     public AppNetwork getAppNetworkStrategy() {

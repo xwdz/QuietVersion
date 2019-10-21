@@ -186,7 +186,7 @@ public class UpgradeHandler {
                 }
             } else {
                 if (mBuilder.baseNotification != null) {
-                    mBuilder.baseNotification.initNotification(mContext, file.getAbsolutePath(), false);
+                    mBuilder.baseNotification.initNotification(mContext, mSource,file.getAbsolutePath(), false);
                     mBuilder.baseNotification.sendNotify();
                 }
             }
@@ -258,7 +258,7 @@ public class UpgradeHandler {
 
     void postNotifyInstall(String path, boolean isLocalCacheApp) {
         if (mBuilder.baseNotification != null) {
-            mBuilder.baseNotification.initNotification(mContext, path, isLocalCacheApp);
+            mBuilder.baseNotification.initNotification(mContext, mSource,path, isLocalCacheApp);
             mBuilder.baseNotification.sendNotify();
         }
     }

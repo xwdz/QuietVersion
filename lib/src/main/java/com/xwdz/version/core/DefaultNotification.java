@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 
 import com.xwdz.version.R;
+import com.xwdz.version.entry.ApkSource;
 import com.xwdz.version.utils.LOG;
 
 /**
@@ -23,7 +24,7 @@ public class DefaultNotification extends BaseNotification {
 
 
     @Override
-    public void initNotification(Context context, String path, boolean isLocalCacheApp) {
+    public void initNotification(Context context, ApkSource source,String path, boolean isLocalCacheApp) {
         mManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         LOG.i(TAG, "是否是缓存App:" + isLocalCacheApp);
         Intent intent = AppInstallUtils.getSystemInstallIntent(context, path, null);

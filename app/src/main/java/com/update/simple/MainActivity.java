@@ -11,6 +11,9 @@ import com.xwdz.version.callback.ResponseNetworkParser;
 import com.xwdz.version.entry.ApkSource;
 import com.xwdz.version.strategy.AppUpgradeStrategy;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 
 public class MainActivity extends Activity {
 
@@ -28,14 +31,30 @@ public class MainActivity extends Activity {
 
         QuietVersion.
                 get(REQUEST_URL)
-                .setUpgradeStrategy(AppUpgradeStrategy.FORCE_SILENT_DOWNLOAD_NOTIFICATION)
+                .setUpgradeStrategy(AppUpgradeStrategy.NORMAL)
                 .setResponseNetworkParser(new ResponseNetworkParser() {
                     @Override
                     public ApkSource parser(String response) {
-                        return ApkSource.simpleParser(response);
+                        try {
+                            JSONObject jsonObject        = new JSONObject(response);
+                            String     note              = jsonObject.getString("note");
+                            String     fileSize          = jsonObject.getString("fileSize");
+                            String     url               = jsonObject.getString("url");
+                            String     remoteVersionCode = jsonObject.getString("remoteVersionCode");
+                            String     remoteVersionName = jsonObject.getString("remoteVersionName");
+                            String     md5               = jsonObject.getString("md5");
+                            return new ApkSource(url, note,
+                                    Long.parseLong(fileSize),
+                                    Integer.parseInt(remoteVersionCode),
+                                    remoteVersionName,
+                                    md5);
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        return null;
                     }
                 })
-                .setNotification(new DefaultNotification())
                 .check();
     }
 

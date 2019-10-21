@@ -2,6 +2,8 @@ package com.xwdz.version.core;
 
 import android.content.Context;
 
+import com.xwdz.version.entry.ApkSource;
+
 
 /**
  * @author xingwei.huang (xwdz9989@gmail.com)
@@ -9,7 +11,7 @@ import android.content.Context;
  */
 public abstract class BaseNotification {
 
-    public abstract void initNotification(Context context, String path,boolean isLocalCacheApp);
+    public abstract void initNotification(Context context, ApkSource source, String path, boolean isLocalCacheApp);
 
     public abstract void sendNotify();
 

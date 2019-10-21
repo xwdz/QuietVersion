@@ -1,6 +1,5 @@
 package com.xwdz.version.entry;
 
-import com.xwdz.version.strategy.AppNetworkStrategy;
 
 /**
  * @author xingwei.huang (xwdz9989@gmail.com)

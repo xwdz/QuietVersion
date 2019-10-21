@@ -25,8 +25,9 @@ public class App extends Application {
 
         AppConfig appConfig = new AppConfig(getApplicationContext());
         appConfig.setForceDownload(true);
-        appConfig.setUIActivityClass(DefaultDialogActivity.class);
         appConfig.setUpgradeNetworkStrategy(AppNetwork.ALL);
+        QuietVersion.initialize(appConfig);
+
 
         appConfig.addVerifyApkStrategy(new VerifyApkStrategy() {
             @Override
@@ -64,7 +65,7 @@ public class App extends Application {
             }
         });
 
-        QuietVersion.initialize(appConfig);
+
     }
 
 
